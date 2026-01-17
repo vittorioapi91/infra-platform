@@ -14,20 +14,6 @@ pipeline {
             steps {
                 script {
                     echo "Validating infra-platform configuration..."
-                }
-            }
-        }
-        
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
-        stage('Validate Infra-Platform Configuration') {
-            steps {
-                script {
-                    echo "Validating infra-platform configuration..."
                     sh """
                         # Validate docker-compose files (using 'docker compose' plugin, not 'docker-compose' binary)
                         if [ -f "docker/docker-compose.infra-platform.yml" ]; then

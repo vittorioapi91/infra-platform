@@ -186,15 +186,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
       - POSTGRES_DB=postgres
     volumes:
-      - ../.airflow/dags:/opt/airflow/dags
+      - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs-test:/opt/airflow/logs
-      - ../.airflow/plugins:/opt/airflow/plugins
+      - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
-      - ../.airflow/operators:/opt/airflow/operators
+      - ../airflow/operators:/opt/airflow/operators
       # Mount wheels directory (contains environment-specific wheels)
-      - ../.airflow/wheels:/opt/airflow/wheels:ro
+      - ../airflow/wheels:/opt/airflow/wheels:ro
       # Mount airflow_local_settings for UI alerts/banner
-      - ../.airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
+      - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       - airflow-db-test:/opt/airflow
     command: >
       bash -c "
@@ -265,15 +265,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
       - POSTGRES_DB=postgres
     volumes:
-      - ../.airflow/dags:/opt/airflow/dags
+      - ../airflow/dags:/opt/airflow/dags
       - ../airflow/logs-prod:/opt/airflow/logs
-      - ../.airflow/plugins:/opt/airflow/plugins
+      - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
-      - ../.airflow/operators:/opt/airflow/operators
+      - ../airflow/operators:/opt/airflow/operators
       # Mount wheels directory (contains environment-specific wheels)
-      - ../.airflow/wheels:/opt/airflow/wheels:ro
+      - ../airflow/wheels:/opt/airflow/wheels:ro
       # Mount airflow_local_settings for UI alerts/banner
-      - ../.airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
+      - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       - airflow-db-prod:/opt/airflow
     command: >
       bash -c "
@@ -392,16 +392,6 @@ services:
         # Start Jenkins with original entrypoint
         exec /usr/local/bin/jenkins.sh
       "
-
-volumes:
-  prometheus-data:
-  grafana-data:
-  mlflow-data:
-  postgres-data:
-  airflow-db-dev:
-  airflow-db-test:
-  airflow-db-prod:
-  redis-data:
 
   # Local Docker Registry for base images
   registry:

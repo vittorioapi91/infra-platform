@@ -13,8 +13,8 @@ NC='\033[0m' # No Color
 
 # Log file
 LOG_FILE="$HOME/.trading-agent-services.log"
-PROJECT_ROOT="/Users/Snake91/CursorProjects/TradingPythonAgent"
-DOCKER_COMPOSE_DIR="$PROJECT_ROOT/.ops/.docker"
+PROJECT_ROOT="/Users/Snake91/CursorProjects/infra-platform"
+DOCKER_COMPOSE_DIR="$PROJECT_ROOT/docker"
 KUBECTL_CONTEXT="kind-trading-cluster"
 
 # Function to log with timestamp

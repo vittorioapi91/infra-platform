@@ -333,15 +333,20 @@ services:
       - monitoring
     restart: unless-stopped
 
-  # Nginx reverse proxy for Airflow only (Jenkins bypassed for performance)
+  # Nginx reverse proxy for all services
   nginx-proxy:
     image: nginx:alpine
     container_name: nginx-proxy
     ports:
-      - "443:443"  # HTTPS port (for Airflow if needed)
+      - "80:80"  # HTTP port for routing all domain names
+      - "443:443"  # HTTPS port (if needed)
     volumes:
-      # Removed nginx-jenkins.conf - Jenkins accessed directly on port 80
+      - ./nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
       - ./nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
+      - ./nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
+      - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
+      - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
     networks:
       - monitoring
     depends_on:
@@ -355,7 +360,7 @@ services:
     image: jenkins-custom:lts  # Custom image with kubectl, kind, and Docker CLI pre-installed
     container_name: jenkins
     ports:
-      - "80:8080"  # Direct access on port 80 (jenkins.local.info without port)
+      - "8081:8080"  # Jenkins on port 8081 (routed via nginx on port 80)
       - "50000:50000"
     mem_limit: 4g
     mem_reservation: 1g

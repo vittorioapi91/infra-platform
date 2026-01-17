@@ -59,7 +59,9 @@ docker-compose -f docker-compose.yml down
 
 ### Grafana
 - **Port**: 3000
-- **URL**: http://localhost:3000
+- **URL**: 
+  - Direct: http://localhost:3000
+  - Via alias: http://grafana.local.info (requires `/etc/hosts` entry and nginx proxy)
 - **Credentials**: admin/admin
 - **Volumes**: 
   - `../grafana/provisioning` → Auto-configures datasources and dashboards
@@ -67,13 +69,17 @@ docker-compose -f docker-compose.yml down
 
 ### Prometheus
 - **Port**: 9090
-- **URL**: http://localhost:9090
+- **URL**: 
+  - Direct: http://localhost:9090
+  - Via alias: http://prometheus.local.info (requires `/etc/hosts` entry and nginx proxy)
 - **Config**: `../prometheus/prometheus.yml`
 - **Data**: Stored in Docker volume `prometheus-data`
 
 ### MLflow
-- **Port**: 5000
-- **URL**: http://localhost:5000
+- **Port**: 5000 (exposed as 55000)
+- **URL**: 
+  - Direct: http://localhost:55000
+  - Via alias: http://mlflow.local.info (requires `/etc/hosts` entry and nginx proxy)
 - **Backend**: SQLite (default) or PostgreSQL (configurable)
 - **Data**: Stored in Docker volume `mlflow-data`
 
@@ -82,27 +88,13 @@ docker-compose -f docker-compose.yml down
 - **URL**: 
   - DEV: 
     - Direct: http://localhost:8082 (admin/2014)
-    - Via alias: http://airflow.local.dev.info (requires `/etc/hosts` entry)
+    - Via alias: http://airflow.local.dev.info (requires `/etc/hosts` entry and nginx proxy)
   - TEST: 
     - Direct: http://localhost:8083 (admin/2014)
-    - Via alias: http://airflow.local.test.info (requires `/etc/hosts` entry)
+    - Via alias: http://airflow.local.test.info (requires `/etc/hosts` entry and nginx proxy)
   - PROD: 
     - Direct: http://localhost:8084 (admin/2014)
-    - Via alias: http://airflow.local.prod.info (requires `/etc/hosts` entry)
-- **Setup aliases** (REQUIRED):
-  1. Add to `/etc/hosts`: 
-     ```bash
-     sudo sh -c 'echo "127.0.0.1 airflow.local.dev.info airflow.local.test.info airflow.local.prod.info" >> /etc/hosts'
-     ```
-  2. Flush DNS cache (macOS):
-     ```bash
-     sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-     ```
-  3. Start nginx proxy (if not already running):
-     ```bash
-     cd .ops/.docker
-     docker-compose -f docker-compose.infra-platform.yml up -d nginx-proxy
-     ```
+    - Via alias: http://airflow.local.prod.info (requires `/etc/hosts` entry and nginx proxy)
 - **Home (in container)**: `/opt/airflow`
 - **DAGs folder (in container)**: `/opt/airflow/dags` (mapped from `airflow/dags`)
 
@@ -110,32 +102,62 @@ See `airflow/QUICK_START.md` for Airflow environment variables, admin user, and 
 
 ### Kubernetes Dashboard
 - **Part of infra-platform infrastructure** (managed via kind cluster)
-- **Access**: Via `kubectl proxy` (typically http://localhost:8001)
-- **Setup**: Run `.ops/.kubernetes/start-kubernetes.sh` to create kind cluster and install dashboard
-- **Documentation**: See `.ops/.kubernetes/DASHBOARD_ACCESS.md` for access details
+- **URL**: 
+  - Direct: Via `kubectl proxy` (typically http://localhost:8001)
+  - Via alias: http://kubernetes-dashboard.local.info (requires `/etc/hosts` entry, nginx proxy, and `kubectl proxy --port=8001` running)
+- **Setup**: Run `kubernetes/start-kubernetes.sh` to create kind cluster and install dashboard
+- **Documentation**: See `kubernetes/DASHBOARD_ACCESS.md` for access details
 
 ### Jenkins
-- **Port**: 8081 (direct access)
+- **Port**: 8081 (direct access, routed via nginx on port 80)
 - **URL**: 
   - Direct: http://localhost:8081
   - Via alias: http://jenkins.local.info (requires `/etc/hosts` entry and nginx proxy)
-- **Setup alias** (REQUIRED):
-  1. Add to `/etc/hosts`: 
-     ```bash
-     sudo sh -c 'echo "127.0.0.1 jenkins.local.info" >> /etc/hosts'
-     ```
-  2. Flush DNS cache (macOS):
-     ```bash
-     sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-     ```
-  3. Start nginx proxy (if not already running):
-     ```bash
-     cd .ops/.docker
-     docker-compose -f docker-compose.infra-platform.yml up -d nginx-proxy
-     ```
-  4. Access: http://jenkins.local.info
 - **Credentials**: Configured in Jenkins UI
 - **Has kubectl/kind tools** for Kubernetes cluster management
+
+## Domain Name Setup
+
+All services are accessible via domain names through nginx-proxy on port 80. To use domain names:
+
+### 1. Add all domain URLs to `/etc/hosts`:
+
+```bash
+sudo sh -c 'cat >> /etc/hosts << EOF
+
+# Infrastructure Platform Services
+127.0.0.1 jenkins.local.info
+127.0.0.1 airflow.local.dev.info airflow.local.test.info airflow.local.prod.info
+127.0.0.1 grafana.local.info
+127.0.0.1 prometheus.local.info
+127.0.0.1 mlflow.local.info
+127.0.0.1 kubernetes-dashboard.local.info
+EOF'
+```
+
+### 2. Flush DNS cache (macOS):
+
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+### 3. Start nginx proxy (if not already running):
+
+```bash
+cd docker
+docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
+```
+
+### 4. Access services via domain names:
+
+- `http://jenkins.local.info` → Jenkins
+- `http://airflow.local.dev.info` → Airflow Dev
+- `http://airflow.local.test.info` → Airflow Test
+- `http://airflow.local.prod.info` → Airflow Prod
+- `http://grafana.local.info` → Grafana
+- `http://prometheus.local.info` → Prometheus
+- `http://mlflow.local.info` → MLflow
+- `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
 
 ## Custom Configuration
 

@@ -91,7 +91,7 @@ class MacroAirflowConfig:
         if file_key not in cls.SQL_FILES[module_name]:
             raise ValueError(f"Unknown SQL file key: {file_key} for module {module_name}")
         
-        # Get module directory: src/trading_agent/macro/{module_name}/
+        # Get module directory: src/macro/{module_name}/
         current_dir = os.path.dirname(os.path.abspath(__file__))
         trading_agent_dir = os.path.dirname(current_dir)
         macro_dir = os.path.join(trading_agent_dir, 'macro')

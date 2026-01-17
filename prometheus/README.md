@@ -19,7 +19,7 @@ This folder contains all Prometheus-related files for monitoring the HMM model.
 ### In Training Scripts
 
 ```python
-from trading_agent.model.prometheus import ModelMetrics
+from src.model.prometheus import ModelMetrics
 
 # Initialize metrics
 metrics = ModelMetrics(port=8000)

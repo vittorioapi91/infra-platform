@@ -66,11 +66,11 @@ if [ -n "${AIRFLOW_HOME:-}" ] || [ -f "/opt/airflow/airflow.cfg" ] || [ -d "/opt
     
     # Check if package is installed
     log_info "Checking if trading_agent package is installed..."
-    if python3 -c "import trading_agent" 2>/dev/null; then
+    if python3 -c "import src" 2>/dev/null; then
         log_info "✓ trading_agent package is importable"
         
         # Try to get version
-        VERSION=$(python3 -c "import trading_agent; print(getattr(trading_agent, '__version__', 'unknown'))" 2>/dev/null || echo "unknown")
+        VERSION=$(python3 -c "import src; print(getattr(src, '__version__', 'unknown'))" 2>/dev/null || echo "unknown")
         log_info "  Version: ${VERSION}"
     else
         log_warn "✗ trading_agent package is NOT importable"

@@ -29,7 +29,7 @@ default_args = {
 # Get environment
 AIRFLOW_ENV = os.getenv('AIRFLOW_ENV', 'dev')
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-OUTPUT_DIR = PROJECT_ROOT / 'src' / 'trading_agent' / 'fundamentals' / 'edgar' / 'filings'
+OUTPUT_DIR = PROJECT_ROOT / 'src' / 'fundamentals' / 'edgar' / 'filings'
 PYTHON_PATH = f"{PROJECT_ROOT}/src:{os.getenv('PYTHONPATH', '')}"
 
 ENV_CONFIG = {
@@ -81,7 +81,7 @@ def download_quarterly_filings(**context):
     
     # Build command
     cmd_parts = [
-        'python', '-m', 'trading_agent.fundamentals.edgar.edgar',
+        'python', '-m', 'src.fundamentals.edgar.edgar',
         '--filings',
         '--output-dir', str(OUTPUT_DIR),
         '--dbname', env_config['dbname'],

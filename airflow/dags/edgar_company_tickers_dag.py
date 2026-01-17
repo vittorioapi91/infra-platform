@@ -61,9 +61,9 @@ def download_company_tickers(**context):
         sys.path.insert(0, project_root_from_dag)
     
     # Import here to avoid import errors at DAG parse time
-    # Note: /opt/airflow/src contains trading_agent/ directly (not src/trading_agent/)
+    # Note: /opt/airflow/src contains the src/ package directly
     # because the mount is ../../src:/opt/airflow/src
-    from trading_agent.fundamentals.edgar.company_tickers import CompaniesDownloader
+    from src.fundamentals.edgar.company_tickers import CompaniesDownloader
     
     # Get user agent from environment or use default
     user_agent = os.getenv('EDGAR_USER_AGENT', 'VittorioApicella apicellavittorio@hotmail.it')

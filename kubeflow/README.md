@@ -17,7 +17,7 @@ This folder contains Kubeflow pipeline definitions for the complete ML workflow.
 ### Compile Pipeline
 
 ```python
-from trading_agent.model.kubeflow import macro_cycle_hmm_pipeline
+from src.model.kubeflow import macro_cycle_hmm_pipeline
 from kfp import compiler
 
 compiler.Compiler().compile(

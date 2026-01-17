@@ -64,9 +64,9 @@ ENV_CONFIG = {
 env_config = ENV_CONFIG.get(AIRFLOW_ENV, ENV_CONFIG['dev'])
 
 # Output directory for filings (environment-specific)
-OUTPUT_DIR = PROJECT_ROOT / 'src' / 'trading_agent' / 'fundamentals' / 'edgar' / 'filings'
+OUTPUT_DIR = PROJECT_ROOT / 'src' / 'fundamentals' / 'edgar' / 'filings'
 
-# Python path - ensure we can import trading_agent
+# Python path - ensure we can import src
 existing_pythonpath = os.getenv('PYTHONPATH', '')
 PYTHON_PATH = f"{PROJECT_ROOT}/src" + (f":{existing_pythonpath}" if existing_pythonpath else "")
 
@@ -102,7 +102,7 @@ def get_filings_command(
     cmd_parts = [
         'python',
         '-m',
-        'trading_agent.fundamentals.edgar.edgar',
+        'src.fundamentals.edgar.edgar',
         '--filings',
         '--output-dir',
         output_dir,
@@ -223,7 +223,7 @@ download_filings = PythonOperator(
 #     bash_command=f"""
 #     cd {PROJECT_ROOT} && \
 #     export PYTHONPATH="{PYTHONPATH}" && \
-#     python -m trading_agent.fundamentals.edgar.edgar \
+#     python -m src.fundamentals.edgar.edgar \
 #         --filings \
 #         --output-dir {OUTPUT_DIR} \
 #         --dbname {env_config['dbname']} \

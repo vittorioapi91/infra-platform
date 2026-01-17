@@ -391,7 +391,7 @@ kubectl logs -n trading-monitoring job/hmm-model-calibration -f
 
 ```bash
 # 1. Make changes to model code
-vim src/trading_agent/model/training_script.py
+vim src/model/training_script.py
 
 # 2. Commit and push
 git add .

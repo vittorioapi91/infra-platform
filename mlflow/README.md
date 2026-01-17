@@ -12,7 +12,7 @@ This folder contains MLflow integration for experiment tracking and model regist
 ## Usage
 
 ```python
-from trading_agent.model.mlflow import MLflowTracker
+from src.model.mlflow import MLflowTracker
 
 # Initialize tracker
 tracker = MLflowTracker(

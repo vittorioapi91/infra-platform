@@ -19,7 +19,7 @@ This folder contains Feast feature store setup and configuration for macro econo
 ### Setup Feast Repository
 
 ```python
-from trading_agent.feast import create_feast_repo, define_macro_entities_and_features
+from src.feast import create_feast_repo, define_macro_entities_and_features
 
 # Create repository
 create_feast_repo('./feast_repo')
@@ -32,7 +32,7 @@ define_macro_entities_and_features('./feast_repo')
 
 ```python
 from feast import FeatureStore
-from trading_agent.feast import materialize_features, get_online_features
+from src.feast import materialize_features, get_online_features
 
 # Initialize feature store
 fs = FeatureStore(repo_path='./feast_repo')

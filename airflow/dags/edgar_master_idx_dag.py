@@ -63,10 +63,10 @@ def download_master_idx_files(**context):
         sys.path.insert(0, project_root_from_dag)
     
     # Import here to avoid import errors at DAG parse time
-    # Note: /opt/airflow/src contains trading_agent/ directly (not src/trading_agent/)
+    # Note: /opt/airflow/src contains the src/ package directly
     # because the mount is ../../src:/opt/airflow/src
-    from trading_agent.fundamentals.edgar.master_idx import MasterIdxManager
-    from trading_agent.fundamentals.edgar.edgar_postgres import (
+    from src.fundamentals.edgar.master_idx import MasterIdxManager
+    from src.fundamentals.edgar.edgar_postgres import (
         get_postgres_connection,
         init_edgar_postgres_tables
     )
@@ -122,10 +122,10 @@ def save_master_idx_to_database(**context):
         sys.path.insert(0, project_root_from_dag)
     
     # Import here to avoid import errors at DAG parse time
-    # Note: /opt/airflow/src contains trading_agent/ directly (not src/trading_agent/)
+    # Note: /opt/airflow/src contains the src/ package directly
     # because the mount is ../../src:/opt/airflow/src
-    from trading_agent.fundamentals.edgar.master_idx import MasterIdxManager
-    from trading_agent.fundamentals.edgar.edgar_postgres import (
+    from src.fundamentals.edgar.master_idx import MasterIdxManager
+    from src.fundamentals.edgar.edgar_postgres import (
         get_postgres_connection,
         init_edgar_postgres_tables
     )

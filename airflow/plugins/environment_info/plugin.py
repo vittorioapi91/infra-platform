@@ -17,28 +17,26 @@ PACKAGE_INSTALLED = False
 
 # Try multiple methods to detect installed wheel
 # Method 1: Check if package can be imported (most reliable)
+
+import src
+# Try to get version from package
 try:
-    import src
-    # Try to get version from package
-    try:
-        version = getattr(trading_agent, '__version__', 'unknown')
-        # Try to get package name from installed distribution
-        import importlib.metadata
-        for dist in importlib.metadata.distributions():
-            # Check if this distribution provides trading_agent
-            if 'trading_agent' in dist.metadata.get('Name', '').lower():
-                package_name = dist.metadata['Name']
-                WHEEL_VERSION = f"{package_name} {dist.version}"
-                WHEEL_FILE = package_name
-                PACKAGE_INSTALLED = True
-                break
-    except (AttributeError, ImportError):
-        # Package is importable but can't get version - mark as installed
-        WHEEL_VERSION = "trading_agent (installed, version unknown)"
-        PACKAGE_INSTALLED = True
-except ImportError:
-    # Package not importable, continue to other detection methods
-    pass
+    version = getattr(trading_agent, '__version__', 'unknown')
+    # Try to get package name from installed distribution
+    import importlib.metadata
+    for dist in importlib.metadata.distributions():
+        # Check if this distribution provides trading_agent
+        if 'trading_agent' in dist.metadata.get('Name', '').lower():
+            package_name = dist.metadata['Name']
+            WHEEL_VERSION = f"{package_name} {dist.version}"
+            WHEEL_FILE = package_name
+            PACKAGE_INSTALLED = True
+            break
+except (AttributeError, ImportError):
+    # Package is importable but can't get version - mark as installed
+    WHEEL_VERSION = "trading_agent (installed, version unknown)"
+    PACKAGE_INSTALLED = True
+
 
 # Method 2: Check installed distributions via importlib.metadata
 if not PACKAGE_INSTALLED:

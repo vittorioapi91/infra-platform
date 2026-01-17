@@ -47,7 +47,7 @@ if [ -z "${WHEEL_FILES}" ]; then
     log_warn "No wheel files found in ${WHEELS_DIR}"
     log_info "To install a wheel:"
     log_info "  1. Build the wheel: ./build-wheel.sh dev"
-    log_info "  2. Install it: .ops/.airflow/install-wheel.sh dev"
+    log_info "  2. Install it: airflow/install-wheel.sh dev"
     exit 1
 fi
 
@@ -115,7 +115,7 @@ else
     log_info "To verify installation in Airflow:"
     log_info "  1. Restart Airflow container: docker restart airflow-dev"
     log_info "  2. Or exec into container and run this script:"
-    log_info "     docker exec -it airflow-dev bash -c '.ops/.airflow/verify-wheel-installation.sh'"
+    log_info "     docker exec -it airflow-dev bash -c 'airflow/verify-wheel-installation.sh'"
 fi
 
 log_info "Done!"

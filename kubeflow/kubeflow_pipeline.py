@@ -43,7 +43,7 @@ def extract_fred_data(
     import sys
     sys.path.insert(0, '/workspace/src')
     
-    from trading_agent.model.data_loader import MacroDataLoader
+    from src.model.data_loader import MacroDataLoader
     
     # Load data
     loader = MacroDataLoader(
@@ -79,7 +79,7 @@ def engineer_features(
     import sys
     sys.path.insert(0, '/workspace/src')
     
-    from trading_agent.model.data_loader import MacroDataLoader
+    from src.model.data_loader import MacroDataLoader
     
     # Load data
     data = pd.read_parquet(input_data.path)
@@ -133,7 +133,7 @@ def train_hmm_model(
     import sys
     sys.path.insert(0, '/workspace/src')
     
-    from trading_agent.model.hmm_model import MacroCycleHMM
+    from src.model.hmm_model import MacroCycleHMM
     
     # Load features
     features_df = pd.read_parquet(input_features.path)

@@ -95,7 +95,7 @@ The DAGs use environment-aware database configuration:
 
 Filings are downloaded to:
 ```
-{PROJECT_ROOT}/src/trading_agent/fundamentals/edgar/filings
+{PROJECT_ROOT}/src/fundamentals/edgar/filings
 ```
 
 ## Manual DAG Execution
@@ -128,7 +128,7 @@ airflow dags trigger edgar_filings_download_dev \
 ## Dependencies
 
 The DAGs require:
-- `trading_agent` package installed (via wheel in Airflow container)
+- `src` package installed (via wheel in Airflow container)
 - PostgreSQL database with `edgar` database
 - `master_idx_files` table populated (via catalog generation)
 
@@ -142,7 +142,7 @@ The DAGs require:
 
 ### Import errors
 
-1. Ensure `trading_agent` wheel is installed in Airflow container
+1. Ensure `src` wheel is installed in Airflow container
 2. Check `PYTHONPATH` includes project `src/` directory
 3. Verify all dependencies are installed in Airflow environment
 
@@ -185,6 +185,6 @@ To add a new DAG:
 
 ## Related Documentation
 
-- [EDGAR Downloader Documentation](../../../src/trading_agent/fundamentals/edgar/README.md)
-- [Environment Configuration](../../../src/trading_agent/config.py)
+- [EDGAR Downloader Documentation](../../../src/fundamentals/edgar/README.md)
+- [Environment Configuration](../../../src/config.py)
 - [Wheel Installation](../../../WHEELS.md)

@@ -18,7 +18,7 @@ PACKAGE_INSTALLED = False
 # Try multiple methods to detect installed wheel
 # Method 1: Check if package can be imported (most reliable)
 try:
-    import trading_agent
+    import src
     # Try to get version from package
     try:
         version = getattr(trading_agent, '__version__', 'unknown')

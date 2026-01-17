@@ -12,7 +12,7 @@ This folder contains KServe deployment configuration for model serving.
 ## Usage
 
 ```python
-from trading_agent.model.kserve import KServeDeployment
+from src.model.kserve import KServeDeployment
 
 # Initialize deployment manager
 deployment = KServeDeployment(namespace='default')

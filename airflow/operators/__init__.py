@@ -71,7 +71,7 @@ class PostgresSQLFileOperator(BaseOperator):
         # Resolve SQL file path
         if not os.path.isabs(self.sql_file):
             if self.module_name:
-                # Relative to module directory: src/trading_agent/macro/{module_name}/
+                # Relative to module directory: src/macro/{module_name}/
                 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 macro_dir = os.path.join(base_dir, 'macro')
                 module_dir = os.path.join(macro_dir, self.module_name)
@@ -277,7 +277,7 @@ class DataDownloadOperator(BaseOperator):
     def execute(self, context):
         log = logging.getLogger(__name__)
 
-        # Get module directory: src/trading_agent/macro/{module_name}/
+        # Get module directory: src/macro/{module_name}/
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         macro_dir = os.path.join(base_dir, 'macro')
         module_dir = os.path.join(macro_dir, self.module_name)

@@ -96,7 +96,7 @@ airflow dags list
 airflow dags list-import-errors
 
 # Test DAG syntax
-python -c "import sys; sys.path.insert(0, 'src'); from trading_agent.airflow.dags import macro_sql_workflows; print('OK')"
+python -c "import sys; sys.path.insert(0, 'src'); from src.airflow.dags import macro_sql_workflows; print('OK')"
 ```
 
 ## Troubleshooting
@@ -116,7 +116,7 @@ python -c "import sys; sys.path.insert(0, 'src'); from trading_agent.airflow.dag
 1. Ensure virtual environment is activated
 2. Install all dependencies: `pip install -r requirements.txt`
 3. Check Python path includes project root
-4. Verify module imports work: `python -c "from trading_agent.airflow.operators import PostgresSQLFileOperator"`
+4. Verify module imports work: `python -c "from src.airflow.operators import PostgresSQLFileOperator"`
 
 ## Quick Test
 
@@ -128,7 +128,7 @@ source .venv/bin/activate
 python -c "
 import sys
 sys.path.insert(0, 'src')
-from trading_agent.airflow.dags import macro_sql_workflows, macro_data_downloads, macro_master_dag
+from src.airflow.dags import macro_sql_workflows, macro_data_downloads, macro_master_dag
 print('✓ All DAGs imported successfully')
 print(f'  - {macro_sql_workflows.dag.dag_id}')
 print(f'  - {macro_data_downloads.dag.dag_id}')

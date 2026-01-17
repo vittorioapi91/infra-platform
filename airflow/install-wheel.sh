@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copy wheels from dist/ to .ops/.airflow/wheels/
+# Copy wheels from dist/ to airflow/wheels/
 # This script helps sync built wheels to the Airflow wheels directory
 #
 # Usage:
@@ -12,7 +12,28 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+# Detect TradingPythonAgent root location
+# Priority: 1) Docker mount path, 2) Environment variable, 3) Relative path, 4) Absolute path
+if [ -d "/workspace/trading-agent" ]; then
+    # Running in Docker/Jenkins - use mounted path
+    TRADING_AGENT_ROOT="/workspace/trading-agent"
+elif [ -n "${TRADING_AGENT_ROOT:-}" ] && [ -d "${TRADING_AGENT_ROOT}" ]; then
+    # Use environment variable if set
+    TRADING_AGENT_ROOT="${TRADING_AGENT_ROOT}"
+elif [ -d "${SCRIPT_DIR}/../../TradingPythonAgent" ]; then
+    # Relative path from infra-platform/airflow to TradingPythonAgent
+    TRADING_AGENT_ROOT="$(cd "${SCRIPT_DIR}/../../TradingPythonAgent" && pwd)"
+elif [ -d "/Users/Snake91/CursorProjects/TradingPythonAgent" ]; then
+    # Fallback to absolute path (local development)
+    TRADING_AGENT_ROOT="/Users/Snake91/CursorProjects/TradingPythonAgent"
+else
+    log_warn "Could not find TradingPythonAgent directory"
+    log_warn "Please set TRADING_AGENT_ROOT environment variable or mount it in Docker"
+    exit 1
+fi
+
+PROJECT_ROOT="${TRADING_AGENT_ROOT}"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -109,9 +130,9 @@ WHEELS_DIR="${SCRIPT_DIR}/wheels"
 mkdir -p "${WHEELS_DIR}"
 
 # Find the latest wheel for this environment
-# Note: setuptools converts hyphens to underscores in package names
-# So trading_agent-dev becomes trading_agent_dev
-WHEEL_FILE=$(find "${PROJECT_ROOT}/dist" -name "trading_agent_${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
+# Note: Wheels can be named with hyphens or underscores
+# trading_agent-dev-*.whl or trading_agent_dev-*.whl
+WHEEL_FILE=$(find "${PROJECT_ROOT}/dist" -name "trading_agent_${ENV}-*.whl" -o -name "trading_agent-${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
 
 if [ -z "${WHEEL_FILE}" ]; then
     log_warn "No wheel found for environment '${ENV}' in ${PROJECT_ROOT}/dist/"

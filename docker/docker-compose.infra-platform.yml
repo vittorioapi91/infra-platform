@@ -370,6 +370,7 @@ services:
       - ../jenkins/data:/var/jenkins_home  # Mount extracted Jenkins data
       - /var/run/docker.sock:/var/run/docker.sock  # Docker socket for docker build
       - ${HOME}/.kube:/root/.kube  # Kubernetes config for kubectl access
+      - ../../TradingPythonAgent:/workspace/trading-agent:ro  # Mount TradingPythonAgent for wheel access
     networks:
       - monitoring
     restart: unless-stopped

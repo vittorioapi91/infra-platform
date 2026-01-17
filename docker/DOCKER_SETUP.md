@@ -86,16 +86,16 @@ Airflow is included as an optional orchestration service:
 - **URL**: http://localhost:8080  
 - **Home (in container)**: `/opt/airflow`  
 - **DAGs folder in container**: `/opt/airflow/dags`  
-- **DAGs mapped from**: `.ops/.airflow/dags`  
+- **DAGs mapped from**: `airflow/dags`  
 - **Command**: `airflow db migrate && airflow standalone` (runs webserver + scheduler)
 
 To access Airflow:
 
-1. Ensure environment variables in `.ops/.airflow/QUICK_START.md` are set (especially `AIRFLOW_HOME` and `AIRFLOW__CORE__DAGS_FOLDER`) if you also run Airflow outside Docker.
+1. Ensure environment variables in `airflow/QUICK_START.md` are set (especially `AIRFLOW_HOME` and `AIRFLOW__CORE__DAGS_FOLDER`) if you also run Airflow outside Docker.
 2. Start services with `docker-compose up -d`.
 3. Open `http://localhost:8080` in your browser.
 
-See `.ops/.airflow/QUICK_START.md` for detailed Airflow setup and authentication.
+See `airflow/QUICK_START.md` for detailed Airflow setup and authentication.
 
 ### PostgreSQL
 

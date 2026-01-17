@@ -108,6 +108,22 @@ See `airflow/QUICK_START.md` for Airflow environment variables, admin user, and 
 - **Setup**: Run `kubernetes/start-kubernetes.sh` to create kind cluster and install dashboard
 - **Documentation**: See `kubernetes/DASHBOARD_ACCESS.md` for access details
 
+### Kubeflow Pipelines UI
+- **Part of infra-platform infrastructure** (managed via kind cluster)
+- **URL**: 
+  - Direct: Via `kubectl port-forward` (typically http://localhost:8081)
+  - Via alias: http://kubeflow.local.info (requires `/etc/hosts` entry, nginx proxy, and `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
+- **Setup**: Install Kubeflow Pipelines in Kubernetes cluster (see `kubernetes/QUICK_START.md`)
+- **Note**: Requires port-forward to be running for nginx proxy to work
+
+### Portainer (Docker Management UI)
+- **Port**: 9000
+- **URL**: 
+  - Direct: http://localhost:9000
+  - Via alias: http://portainer.local.info (requires `/etc/hosts` entry and nginx proxy)
+- **Credentials**: Set on first access
+- **Features**: Web interface for managing Docker containers, images, volumes, networks, and stacks
+
 ### Jenkins
 - **Port**: 8081 (direct access, routed via nginx on port 80)
 - **URL**: 
@@ -132,6 +148,8 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 prometheus.local.info
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
+127.0.0.1 kubeflow.local.info
+127.0.0.1 portainer.local.info
 EOF'
 ```
 
@@ -158,6 +176,8 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
 - `http://prometheus.local.info` → Prometheus
 - `http://mlflow.local.info` → MLflow
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
+- `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
+- `http://portainer.local.info` → Portainer Docker Management UI
 
 ## Custom Configuration
 

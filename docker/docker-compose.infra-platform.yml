@@ -347,12 +347,19 @@ services:
       - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
       - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
       - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
+      - ./nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
+      - ./nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
     networks:
       - monitoring
     depends_on:
       - airflow-dev
       - airflow-test
       - airflow-prod
+      - jenkins # Added dependency for Jenkins
+      - grafana # Added dependency for Grafana
+      - prometheus # Added dependency for Prometheus
+      - mlflow # Added dependency for MLflow
+      - portainer # Added dependency for Portainer
     restart: unless-stopped
 
   # Jenkins CI/CD server (direct access, no nginx proxy for performance)
@@ -423,6 +430,20 @@ services:
       retries: 3
       start_period: 40s
 
+  # Portainer - Docker Management UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+
 volumes:
   prometheus-data:
   grafana-data:
@@ -433,6 +454,7 @@ volumes:
   airflow-db-prod:
   redis-data:
   registry-data:
+  portainer-data:
 
 networks:
   monitoring:

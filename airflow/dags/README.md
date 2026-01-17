@@ -136,7 +136,7 @@ The DAGs require:
 
 ### DAG not appearing in Airflow UI
 
-1. Check that DAG files are in `.ops/.airflow/dags/`
+1. Check that DAG files are in `airflow/dags/`
 2. Verify Airflow can import the DAG (check for syntax errors)
 3. Check Airflow logs for import errors
 
@@ -162,7 +162,7 @@ The DAGs require:
 
 To add a new DAG:
 
-1. Create a new Python file in `.ops/.airflow/dags/`
+1. Create a new Python file in `airflow/dags/`
 2. Follow the pattern of existing DAGs:
    - Use `AIRFLOW_ENV` for environment detection
    - Include environment-specific configuration

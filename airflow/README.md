@@ -138,12 +138,12 @@ Point Airflow to the DAGs folder:
 
 ```bash
 # In airflow.cfg or environment variable
-export AIRFLOW__CORE__DAGS_FOLDER=/path/to/.ops/.airflow/dags
+export AIRFLOW__CORE__DAGS_FOLDER=/path/to/airflow/dags
 ```
 
 Or symlink:
 ```bash
-ln -s /path/to/.ops/.airflow/dags ~/airflow/dags/trading_agent
+ln -s /path/to/airflow/dags ~/airflow/dags/trading_agent
 ```
 
 ### 4. Set Environment Variables

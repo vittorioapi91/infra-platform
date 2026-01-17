@@ -6,7 +6,7 @@
 Set these once in your shell session (or add to `~/.bashrc` / `~/.zshrc`):
 ```bash
 export AIRFLOW_HOME=~/airflow
-export AIRFLOW__CORE__DAGS_FOLDER=/Users/Snake91/CursorProjects/TradingPythonAgent/.ops/.airflow/dags
+export AIRFLOW__CORE__DAGS_FOLDER=/Users/Snake91/CursorProjects/infra-platform/airflow/dags
 export POSTGRES_PASSWORD='2014'
 ```
 
@@ -59,7 +59,7 @@ airflow db migrate  # For Airflow 3.x (use 'airflow db init' for Airflow 2.x)
 If you prefer not to use environment variables, add to `~/airflow/airflow.cfg`:
 ```ini
 [core]
-dags_folder = /Users/Snake91/CursorProjects/TradingPythonAgent/.ops/.airflow/dags
+dags_folder = /Users/Snake91/CursorProjects/infra-platform/airflow/dags
 ```
 
 ## Running Airflow

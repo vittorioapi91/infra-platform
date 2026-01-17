@@ -104,9 +104,9 @@ docker-compose -f docker-compose.yml down
      docker-compose -f docker-compose.infra-platform.yml up -d nginx-proxy
      ```
 - **Home (in container)**: `/opt/airflow`
-- **DAGs folder (in container)**: `/opt/airflow/dags` (mapped from `.ops/.airflow/dags`)
+- **DAGs folder (in container)**: `/opt/airflow/dags` (mapped from `airflow/dags`)
 
-See `.ops/.airflow/QUICK_START.md` for Airflow environment variables, admin user, and authentication details.
+See `airflow/QUICK_START.md` for Airflow environment variables, admin user, and authentication details.
 
 ### Kubernetes Dashboard
 - **Part of infra-platform infrastructure** (managed via kind cluster)

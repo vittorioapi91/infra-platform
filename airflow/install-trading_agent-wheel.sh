@@ -102,7 +102,7 @@ get_env_from_branch() {
 # Get environment from argument or auto-detect from branch
 if [ $# -gt 0 ]; then
     ENV="${1}"
-    ENV="${ENV,,}"  # Convert to lowercase
+    ENV=$(to_lower "${ENV}")  # Convert to lowercase (bash 3 compatible)
     
     # Validate environment
     if [[ ! "$ENV" =~ ^(dev|staging|prod)$ ]]; then
@@ -131,17 +131,33 @@ WHEELS_ENV="${ENV}"
 if [ "${ENV}" = "staging" ]; then
     WHEELS_ENV="test"
 fi
-WHEELS_DIR="${SCRIPT_DIR}/wheels-${WHEELS_ENV}"
+
+# Determine wheels directory based on where we're running
+# If running in Docker container, /opt/airflow/wheels is the mount point (maps to airflow/{env}/wheels)
+# If running manually, use airflow/{env}/wheels relative to script
+if [ -d "/opt/airflow/wheels" ] && [ -w "/opt/airflow/wheels" ]; then
+    # Running in Docker container - use mounted wheels directory
+    WHEELS_DIR="/opt/airflow/wheels"
+elif [ -n "${AIRFLOW_WHEELS_DIR:-}" ] && [ -d "${AIRFLOW_WHEELS_DIR}" ]; then
+    # Use explicit environment variable if set
+    WHEELS_DIR="${AIRFLOW_WHEELS_DIR}"
+else
+    # Running manually - use environment-specific directory: airflow/{env}/wheels
+    WHEELS_DIR="${SCRIPT_DIR}/${WHEELS_ENV}/wheels"
+fi
+
 mkdir -p "${WHEELS_DIR}"
 
 # Find the latest wheel for this environment
-# Note: Wheels can be named with hyphens or underscores
-# trading_agent-dev-*.whl or trading_agent_dev-*.whl
-WHEEL_FILE=$(find "${PROJECT_ROOT}/dist" -name "trading_agent_${ENV}-*.whl" -o -name "trading_agent-${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
+# Wheels are now in dist/{env}/ directory with base package name (no env suffix)
+# Example: dist/dev/trading_agent-*.whl
+DIST_ENV_DIR="${PROJECT_ROOT}/dist/${ENV}"
+WHEEL_FILE=$(find "${DIST_ENV_DIR}" -name "trading_agent-*.whl" 2>/dev/null | sort -V | tail -n 1)
 
 if [ -z "${WHEEL_FILE}" ]; then
-    log_warn "No wheel found for environment '${ENV}' in ${PROJECT_ROOT}/dist/"
+    log_warn "No wheel found for environment '${ENV}' in ${DIST_ENV_DIR}/"
     log_warn "Please build the wheel first: ./build-wheel.sh ${ENV}"
+    log_warn "Expected location: ${DIST_ENV_DIR}/trading_agent-*.whl"
     exit 1
 fi
 
@@ -160,4 +176,4 @@ log_info "  Airflow will install this wheel on startup"
 
 # List all wheels in the directory
 log_info "Available wheels in ${WHEELS_DIR}:"
-ls -lh "${WHEELS_DIR}"/trading_agent_*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"
+ls -lh "${WHEELS_DIR}"/trading_agent-*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"

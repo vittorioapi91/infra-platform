@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# Install Airflow DAGs from the installed trading_agent wheel to ../infra-platform/airflow/dags/
+# Install Airflow DAGs by creating import scripts that reference the installed trading_agent package
 #
-# This script extracts DAG files from the installed trading_agent package (wheel)
-# to the infra-platform repository's Airflow DAGs directory where they will be loaded by Airflow.
+# This script creates Python import files in airflow/{env}/dags/ that import DAGs
+# from the installed trading_agent package (wheel) without copying files.
 #
-# Each environment has its own wheel installation (trading_agent_dev, trading_agent_test, trading_agent_prod)
-# with DAGs at {package}/src/.airflow-dags/
+# Each environment has its own wheel installation at airflow/{env}/trading_agent/
+# with DAGs at trading_agent/src/.airflow-dags/
 #
 # Usage:
-#   ./install-dags.sh [dev|test|staging|prod]
+#   ./install-dags.sh [dev|test|staging|prod] [package_name]
 #
 
 set -euo pipefail
@@ -35,110 +35,44 @@ log_debug() {
     echo -e "${BLUE}[DEBUG]${NC} $1"
 }
 
-# Get environment from argument or default to dev
+# Get environment and package name from arguments
 ENV="${1:-dev}"
+PACKAGE_NAME="${2:-trading_agent}"
+
 # Map staging to test for directory naming
 INSTALL_DIR_ENV="${ENV}"
 if [ "${ENV}" = "staging" ]; then
     INSTALL_DIR_ENV="test"
 fi
 
-# Package name is always trading_agent (no suffix)
-# But it's installed to environment-specific directories: trading_agent-dev/, trading_agent-test/, trading_agent-prod/
-PACKAGE_NAME="trading_agent"
-INSTALL_DIR_NAME="trading_agent-${INSTALL_DIR_ENV}"
-
-# Destination directory
-# If running in Docker/container, use /opt/airflow/dags
-# Otherwise, use relative path from script location
+# Destination directory for import scripts
+# If running in Docker/container, use /opt/airflow/dags (mounted from airflow/{env}/dags)
+# Otherwise, use environment-specific path: airflow/{env}/dags
 if [ -d "/opt/airflow/dags" ]; then
     DEST_DIR="/opt/airflow/dags"
+    # When in Docker, the package is at /opt/airflow/workspace/{package_name}-workspace/{package_name}
+    WORKSPACE_ROOT="/opt/airflow/workspace"
 else
-    DEST_DIR="${PROJECT_ROOT}/../infra-platform/airflow/dags"
+    DEST_DIR="${PROJECT_ROOT}/${INSTALL_DIR_ENV}/dags"
+    WORKSPACE_ROOT="${PROJECT_ROOT}/${INSTALL_DIR_ENV}/workspace"
 fi
 
-# Find the installed trading_agent package location
-# The wheel structure shows src/.airflow-dags/ which will be at {install_dir}/trading_agent/src/.airflow-dags/ after installation
-log_info "Locating installed ${PACKAGE_NAME} package in ${INSTALL_DIR_NAME}/ directory..."
-
-# Try to find the installed package in environment-specific installation directory
-# Structure: {install_dir_name}/trading_agent/src/.airflow-dags/
-# e.g., trading_agent_dev/trading_agent/src/.airflow-dags/
-
-# First, try to find trading_agent package and check if it's in an env-specific directory
-TRADING_AGENT_PACKAGE_DIR=$(python3 -c "
-import sys
-import importlib.util
-import os
-
-package_name = '${PACKAGE_NAME}'
-install_dir_name = '${INSTALL_DIR_NAME}'
-
-try:
-    # Try to import trading_agent package
-    spec = importlib.util.find_spec(package_name)
-    if spec and spec.origin:
-        package_file = spec.origin
-        package_dir = os.path.dirname(os.path.abspath(package_file))
-        
-        # Check if package is in an environment-specific directory
-        # Path structure: .../trading_agent_dev/trading_agent/...
-        if install_dir_name in package_dir:
-            print(package_dir)
-        else:
-            print('')
-    else:
-        print('')
-except Exception:
-    print('')
-" 2>/dev/null || echo "")
-
-# Look for .airflow-dags directory in the installed package
-# Based on the wheel structure: src/.airflow-dags/ becomes {install_dir}/trading_agent/src/.airflow-dags/ after installation
-SOURCE_DIR=""
-
-if [ -n "${TRADING_AGENT_PACKAGE_DIR}" ] && [ -d "${TRADING_AGENT_PACKAGE_DIR}" ]; then
-    # Expected path: {install_dir}/trading_agent/src/.airflow-dags/
-    POSSIBLE_PATH="${TRADING_AGENT_PACKAGE_DIR}/src/.airflow-dags"
-    
-    if [ -d "${POSSIBLE_PATH}" ]; then
-        SOURCE_DIR="${POSSIBLE_PATH}"
-        log_info "Found .airflow-dags at: ${SOURCE_DIR}"
-    fi
+# Source directory: DAGs are in the installed package at workspace/{package_name}-workspace/{package_name}/.airflow-dags
+# Check both root level and src subdirectory
+SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/.airflow-dags"
+if [ ! -d "${SOURCE_DIR}" ]; then
+    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/src/.airflow-dags"
 fi
 
-# If not found via import, search in site-packages for environment-specific installation directory
-if [ -z "${SOURCE_DIR}" ]; then
-    log_info "Searching for ${INSTALL_DIR_NAME}/${PACKAGE_NAME}/src/.airflow-dags in Python site-packages..."
-    SOURCE_DIR=$(python3 -c "
-import site
-import os
-install_dir_name = '${INSTALL_DIR_NAME}'
-package_name = '${PACKAGE_NAME}'
-for site_dir in site.getsitepackages():
-    # Expected path: {install_dir}/{package}/src/.airflow-dags
-    # e.g., site-packages/trading_agent-dev/trading_agent/src/.airflow-dags
-    path = os.path.join(site_dir, install_dir_name, package_name, 'src', '.airflow-dags')
-    if os.path.isdir(path):
-        print(path)
-        break
-    # Also try at root of install_dir: site-packages/trading_agent-dev/src/.airflow-dags
-    path2 = os.path.join(site_dir, install_dir_name, 'src', '.airflow-dags')
-    if os.path.isdir(path2):
-        print(path2)
-        break
-" 2>/dev/null || echo "")
-fi
+log_info "Locating DAGs in installed ${PACKAGE_NAME} package..."
+log_info "Expected location: ${SOURCE_DIR}"
 
-# Check if source directory was found
-if [ -z "${SOURCE_DIR}" ] || [ ! -d "${SOURCE_DIR}" ]; then
-    log_warn "Could not find .airflow-dags directory in installed ${PACKAGE_NAME} package"
-    log_warn "Expected location:"
-    log_warn "  - ${INSTALL_DIR_NAME}/${PACKAGE_NAME}/src/.airflow-dags/"
-    log_warn "  - site-packages/${INSTALL_DIR_NAME}/${PACKAGE_NAME}/src/.airflow-dags/"
+# Check if source directory exists
+if [ ! -d "${SOURCE_DIR}" ]; then
+    log_warn "Could not find .airflow-dags directory at: ${SOURCE_DIR}"
     log_warn ""
     log_warn "Please ensure:"
-    log_warn "  1. trading_agent wheel is installed to ${INSTALL_DIR_NAME}/ directory"
+    log_warn "  1. ${PACKAGE_NAME} wheel is installed to ${PACKAGE_ROOT}/${PACKAGE_NAME}/"
     log_warn "  2. The wheel contains src/.airflow-dags/ directory"
     exit 1
 fi
@@ -153,56 +87,98 @@ fi
 # Create destination directory if it doesn't exist
 mkdir -p "${DEST_DIR}"
 
-log_info "Installing Airflow DAGs..."
-log_info "  From: ${SOURCE_DIR}"
-log_info "  To:   ${DEST_DIR}"
+log_info "Creating DAG import scripts..."
+log_info "  DAG source: ${SOURCE_DIR}"
+log_info "  Import scripts: ${DEST_DIR}"
 
-# Copy all Python files and related files from airflow-dags to ../infra-platform/airflow/dags
-# Preserve directory structure
-DAG_FILES=$(find "${SOURCE_DIR}" -type f \( -name "*.py" -o -name "*.md" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" \) 2>/dev/null)
+# Find all Python DAG files in the source directory
+DAG_FILES=$(find "${SOURCE_DIR}" -type f -name "*.py" ! -name "__init__.py" 2>/dev/null)
 
 if [ -z "${DAG_FILES}" ]; then
-    log_warn "No DAG files found in ${SOURCE_DIR}"
+    log_warn "No Python DAG files found in ${SOURCE_DIR}"
     exit 0
 fi
 
-# Count files to copy
+# Count files to create import scripts for
 FILE_COUNT=$(echo "${DAG_FILES}" | wc -l | tr -d ' ')
-log_info "Found ${FILE_COUNT} file(s) to install"
+log_info "Found ${FILE_COUNT} DAG file(s) to create import scripts for"
 
-# Copy files, preserving directory structure
-COPIED_COUNT=0
-while IFS= read -r source_file; do
-    if [ -n "${source_file}" ]; then
+# Process each DAG file
+CREATED_COUNT=0
+while IFS= read -r dag_file; do
+    if [ -n "${dag_file}" ]; then
         # Get relative path from source directory
-        rel_path="${source_file#${SOURCE_DIR}/}"
+        rel_path="${dag_file#${SOURCE_DIR}/}"
         
-        # Create destination path
-        dest_file="${DEST_DIR}/${rel_path}"
-        dest_dir=$(dirname "${dest_file}")
+        # Get base filename without extension (e.g., "my_dag.py" -> "my_dag")
+        dag_basename=$(basename "${rel_path}" .py)
         
-        # Skip __init__.py if it already exists in destination (preserve original)
-        if [ "${rel_path}" = "__init__.py" ] && [ -f "${dest_file}" ]; then
-            log_debug "  Skipped: ${rel_path} (preserving existing file)"
-            continue
+        # Import script filename: same as DAG file
+        import_script="${DEST_DIR}/${dag_basename}.py"
+        
+        # Calculate relative import path from DEST_DIR to SOURCE_DIR
+        # When in Docker: DEST_DIR=/opt/airflow/dags, SOURCE_DIR=/opt/airflow/package_root/trading_agent/src/.airflow-dags
+        # We need to import from: trading_agent.src.airflow_dags.{module}
+        # When not in Docker: DEST_DIR=airflow/{env}/dags, SOURCE_DIR=airflow/{env}/trading_agent/src/.airflow-dags
+        # We need to import from: trading_agent.src.airflow_dags.{module}
+        
+        # For Airflow to find the package, we need to add the package root to sys.path
+        # The package is at {package_root}/{package_name}, so we add {package_root} to sys.path
+        # Then import as: from {package_name}.src.airflow_dags.{module} import *
+        
+        # Get directory path relative to package root (e.g., "src/.airflow-dags/subdir" -> "src/airflow_dags/subdir")
+        rel_dir=$(dirname "${rel_path}")
+        # Replace .airflow-dags with airflow_dags for Python import (dashes not allowed)
+        rel_dir_normalized=$(echo "${rel_dir}" | sed 's/\.airflow-dags/airflow_dags/g')
+        
+        # Build import path: {package_name}.{rel_dir_normalized}.{dag_basename}
+        if [ "${rel_dir_normalized}" = "." ] || [ -z "${rel_dir_normalized}" ]; then
+            import_module="${PACKAGE_NAME}.src.airflow_dags.${dag_basename}"
+        else
+            # Replace slashes with dots for Python import
+            rel_dir_dots=$(echo "${rel_dir_normalized}" | tr '/' '.')
+            import_module="${PACKAGE_NAME}.${rel_dir_dots}.${dag_basename}"
         fi
         
-        # Create destination directory if needed
-        mkdir -p "${dest_dir}"
+        # Create import script
+        cat > "${import_script}" << EOF
+#!/usr/bin/env python3
+"""
+Airflow DAG import script for ${dag_basename}
+
+This file imports DAGs from the installed ${PACKAGE_NAME} package.
+The actual DAG definitions are in: ${SOURCE_DIR}/${rel_path}
+"""
+
+import sys
+import os
+
+# Add package root to Python path to enable imports from installed package
+# Package is installed at: ${PACKAGE_ROOT}/${PACKAGE_NAME}
+package_root = "${PACKAGE_ROOT}"
+if package_root not in sys.path:
+    sys.path.insert(0, package_root)
+
+# Import all DAG objects from the package module
+try:
+    from ${import_module} import *
+except ImportError as e:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"Failed to import DAGs from ${import_module}: {e}")
+    # Re-raise to make the error visible in Airflow
+    raise
+EOF
         
-        # Copy file
-        cp "${source_file}" "${dest_file}"
-        COPIED_COUNT=$((COPIED_COUNT + 1))
-        
-        log_debug "  Copied: ${rel_path}"
+        CREATED_COUNT=$((CREATED_COUNT + 1))
+        log_debug "  Created import script: ${dag_basename}.py (imports from ${import_module})"
     fi
 done <<< "${DAG_FILES}"
 
-log_info "✓ Installed ${COPIED_COUNT} file(s) to ${DEST_DIR}"
+log_info "✓ Created ${CREATED_COUNT} import script(s) in ${DEST_DIR}"
 
-# List installed DAGs
-PYTHON_DAGS=$(find "${DEST_DIR}" -maxdepth 1 -name "*.py" -type f 2>/dev/null | wc -l | tr -d ' ')
-if [ "${PYTHON_DAGS}" -gt 0 ]; then
-    log_info "Python DAG files in destination:"
+# List created import scripts
+if [ "${CREATED_COUNT}" -gt 0 ]; then
+    log_info "Import scripts created:"
     find "${DEST_DIR}" -maxdepth 1 -name "*.py" -type f -exec basename {} \; | sed 's/^/  - /'
 fi

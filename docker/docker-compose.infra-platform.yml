@@ -122,8 +122,14 @@ services:
       - ../airflow/install-trading_agent-wheel.sh:/opt/airflow/install-trading_agent-wheel.sh:ro
       # Mount create-dag-imports.sh script for creating single DAG import file
       - ../airflow/create-dag-imports.sh:/opt/airflow/create-dag-imports.sh:ro
-      # Mount TradingPythonAgent to access built wheels
-      - ../../TradingPythonAgent:/workspace/trading-agent:ro
+      # Mount TradingPythonAgent to access built wheels and allow writing data files
+      # (writable so DAGs can write to src/fundamentals/edgar/, etc.)
+      - ../../TradingPythonAgent:/workspace/trading-agent
+      # Mount storage directory for environment-specific data files (writable)
+      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
+      - ../../TradingPythonAgent/storage/dev:/workspace/storage/dev
+      # Mount .env file for environment configuration (read-only)
+      - ../../TradingPythonAgent/.env.dev:/workspace/trading-agent/.env.dev:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
@@ -224,19 +230,46 @@ services:
               echo \"Warning: Failed to install wheel \$$(basename \$${WHEEL_FILE}) to \$${INSTALL_DIR}, continuing anyway\"
             }
             echo \"✓ Wheel installation completed for: \$$(basename \$${WHEEL_FILE})\"
+            # Copy .env file to workspace root so config.py can find it
+            # Map staging to test for .env file naming
+            ENV_FOR_ENV_FILE=\$${ENV}
+            if [ \"\$${ENV}\" = \"staging\" ]; then
+              ENV_FOR_ENV_FILE=\"staging\"
+            fi
+            ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+            ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
+            if [ -f \"\$${ENV_FILE_SOURCE}\" ]; then
+              echo \"Copying .env file to workspace root...\"
+              cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
+              echo \"✓ Copied .env.\$${ENV_FOR_ENV_FILE} to workspace root\"
+            else
+              echo \"Warning: .env file not found at \$${ENV_FILE_SOURCE}\"
+            fi
             # Run create-dag-imports.sh to create single DAG import file
             echo \"Running create-dag-imports.sh to create trading_agent_dags.py...\"
             # Pass package name to create-dag-imports.sh
             bash /opt/airflow/create-dag-imports.sh \$${ENV} \$${PACKAGE_NAME} 2>&1 || {
               echo \"Warning: create-dag-imports.sh failed or DAGs not found in installed wheel\"
             }
-          else
-            # Even if wheel isn't installed, run create-dag-imports.sh in case DAGs need updating
-            echo \"Running create-dag-imports.sh to ensure DAGs are up to date...\"
-            bash /opt/airflow/create-dag-imports.sh \$${ENV} \$${PACKAGE_NAME} 2>&1 || {
-              echo \"Warning: create-dag-imports.sh failed or DAGs not found\"
-            }
-          fi
+            else
+              # Even if wheel isn't installed, ensure .env file is copied to workspace root
+              ENV_FOR_ENV_FILE=\$${ENV}
+              if [ \"\$${ENV}\" = \"staging\" ]; then
+                ENV_FOR_ENV_FILE=\"staging\"
+              fi
+              ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+              ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
+              if [ -f \"\$${ENV_FILE_SOURCE}\" ] && [ ! -f \"\$${ENV_FILE_DEST}\" ]; then
+                echo \"Copying .env file to workspace root...\"
+                cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
+                echo \"✓ Copied .env.\$${ENV_FOR_ENV_FILE} to workspace root\"
+              fi
+              # Even if wheel isn't installed, run create-dag-imports.sh in case DAGs need updating
+              echo \"Running create-dag-imports.sh to ensure DAGs are up to date...\"
+              bash /opt/airflow/create-dag-imports.sh \$${ENV} \$${PACKAGE_NAME} 2>&1 || {
+                echo \"Warning: create-dag-imports.sh failed or DAGs not found\"
+              }
+            fi
           
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
@@ -311,6 +344,14 @@ services:
       - ../airflow/test:/opt/airflow/package_root
       # Mount test environment DAGs directory (writable so install-dags.sh can extract DAGs here)
       - ../airflow/test/dags:/opt/airflow/dags
+      # Mount TradingPythonAgent to access built wheels and allow writing data files
+      # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
+      - ../../TradingPythonAgent:/workspace/trading-agent
+      # Mount storage directory for environment-specific data files (writable)
+      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
+      - ../../TradingPythonAgent/storage/test:/workspace/storage/test
+      # Mount .env file for environment configuration (read-only)
+      - ../../TradingPythonAgent/.env.staging:/workspace/trading-agent/.env.staging:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
@@ -331,6 +372,15 @@ services:
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
+          # Copy .env file to package root so config.py can find it
+          # config.py looks for .env at Path(__file__).parent.parent.parent, which is /opt/airflow/package_root/
+          ENV_FOR_ENV_FILE=\$${ENV}
+          ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+          ENV_FILE_DEST=\"/opt/airflow/package_root/.env.\$${ENV_FOR_ENV_FILE}\"
+          if [ -f \"\$${ENV_FILE_SOURCE}\" ]; then
+            cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
+            echo \"✓ Copied .env.\$${ENV_FOR_ENV_FILE} to package root\"
+          fi
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
           export INSTALLED_WHEEL=\$$(basename \$${WHEEL_FILE})
@@ -402,6 +452,14 @@ services:
       - ../airflow/prod:/opt/airflow/package_root
       # Mount prod environment DAGs directory (writable so install-dags.sh can extract DAGs here)
       - ../airflow/prod/dags:/opt/airflow/dags
+      # Mount TradingPythonAgent to access built wheels and allow writing data files
+      # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
+      - ../../TradingPythonAgent:/workspace/trading-agent
+      # Mount storage directory for environment-specific data files (writable)
+      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
+      - ../../TradingPythonAgent/storage/prod:/workspace/storage/prod
+      # Mount .env file for environment configuration (read-only)
+      - ../../TradingPythonAgent/.env.prod:/workspace/trading-agent/.env.prod:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
@@ -422,6 +480,15 @@ services:
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
+          # Copy .env file to package root so config.py can find it
+          # config.py looks for .env at Path(__file__).parent.parent.parent, which is /opt/airflow/package_root/
+          ENV_FOR_ENV_FILE=\$${ENV}
+          ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+          ENV_FILE_DEST=\"/opt/airflow/package_root/.env.\$${ENV_FOR_ENV_FILE}\"
+          if [ -f \"\$${ENV_FILE_SOURCE}\" ]; then
+            cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
+            echo \"✓ Copied .env.\$${ENV_FOR_ENV_FILE} to package root\"
+          fi
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
           export INSTALLED_WHEEL=\$$(basename \$${WHEEL_FILE})

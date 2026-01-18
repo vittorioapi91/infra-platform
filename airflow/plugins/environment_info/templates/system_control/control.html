@@ -3,35 +3,6 @@
 {% block head_css %}
 {{ super() }}
 <style>
-  .reboot-button {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    border: none;
-    color: white;
-    padding: 15px 30px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .reboot-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
-  }
-  
-  .reboot-button:active {
-    transform: translateY(0);
-  }
-  
-  .reboot-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
   .control-panel {
     background: white;
     border-radius: 8px;
@@ -40,43 +11,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  .warning-box {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 20px 0;
-  }
-  
-  .status-message {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-  }
-  
-  .status-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-  }
-  
-  .status-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="control-panel">
   <h2>System Control</h2>
-  
-  <div class="warning-box">
-    <strong>⚠️ Warning:</strong> Rebooting will restart the Airflow container. All running DAGs will be interrupted. 
-    Make sure no critical tasks are running before proceeding.
-  </div>
   
   <div>
     <h3>Container Information</h3>
@@ -86,58 +26,5 @@
     </ul>
   </div>
   
-  <div style="margin-top: 30px;">
-    <h3>Reboot Container</h3>
-    <p>This will restart the Airflow container. All services will be stopped and restarted.</p>
-    <button id="reboot-btn" class="reboot-button" onclick="confirmReboot()">
-      🔄 Reboot Container
-    </button>
-    <div id="status-message" class="status-message"></div>
-  </div>
 </div>
-
-<script>
-function confirmReboot() {
-  if (!confirm('Are you sure you want to reboot the Airflow container? This will interrupt all running tasks.')) {
-    return;
-  }
-  
-  const btn = document.getElementById('reboot-btn');
-  const statusMsg = document.getElementById('status-message');
-  
-  btn.disabled = true;
-  btn.textContent = '🔄 Rebooting...';
-  statusMsg.style.display = 'none';
-  
-  fetch('/system-control/reboot', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  .then(response => response.json())
-  .then(data => {
-    statusMsg.style.display = 'block';
-    statusMsg.className = 'status-message status-' + data.status;
-    statusMsg.textContent = data.message;
-    
-    if (data.status === 'success') {
-      // Wait a bit then try to reload (container might be restarting)
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } else {
-      btn.disabled = false;
-      btn.textContent = '🔄 Reboot Container';
-    }
-  })
-  .catch(error => {
-    statusMsg.style.display = 'block';
-    statusMsg.className = 'status-message status-error';
-    statusMsg.textContent = 'Error: ' + error.message;
-    btn.disabled = false;
-    btn.textContent = '🔄 Reboot Container';
-  });
-}
-</script>
 {% endblock %}

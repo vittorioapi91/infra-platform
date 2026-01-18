@@ -62,21 +62,55 @@ fi
 # Source directory: DAGs are in airflow/{env}/workspace/{package_name}-workspace/{package_name}/_airflow_dags_
 SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
 
-if [ ! -d "${SOURCE_DIR}" ]; then
-    log_error "Could not find _airflow_dags_ directory"
-    log_error "Expected location:"
-    log_error "  - ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
-    log_error ""
-    log_error "Please ensure:"
-    log_error "  1. ${PACKAGE_NAME} wheel is installed to ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/"
-    log_error "  2. The package contains _airflow_dags_/ directory"
-    exit 1
+# Check for fallback location: mounted source code
+# Try mounted source code location: /workspace/trading-agent/src/_airflow_dags_ (inside container)
+# or TradingPythonAgent/src/_airflow_dags_ (on host)
+FALLBACK_DIR=""
+if [ -d "/workspace/trading-agent/src/_airflow_dags_" ]; then
+    # Inside Docker container
+    FALLBACK_DIR="/workspace/trading-agent/src/_airflow_dags_"
+elif [ -d "${SOURCE_PARENT}/src/_airflow_dags_" ]; then
+    # On host filesystem
+    FALLBACK_DIR="${SOURCE_PARENT}/src/_airflow_dags_"
+fi
+
+# Use fallback if installed wheel doesn't exist, is empty, or has fewer DAGs than source
+WHEEL_DAG_COUNT=0
+FALLBACK_DAG_COUNT=0
+if [ -d "${SOURCE_DIR}" ]; then
+    WHEEL_DAG_COUNT=$(ls -A "${SOURCE_DIR}"/*.py 2>/dev/null | grep -v __init__ | grep -v __pycache__ | wc -l | tr -d ' ')
+fi
+if [ -n "${FALLBACK_DIR}" ] && [ -d "${FALLBACK_DIR}" ]; then
+    FALLBACK_DAG_COUNT=$(ls -A "${FALLBACK_DIR}"/*.py 2>/dev/null | grep -v __init__ | grep -v __pycache__ | wc -l | tr -d ' ')
+fi
+
+# Use fallback if it has more DAGs than the installed wheel
+if [ -n "${FALLBACK_DIR}" ] && [ -d "${FALLBACK_DIR}" ] && [ "${FALLBACK_DAG_COUNT}" -gt "${WHEEL_DAG_COUNT}" ]; then
+    log_info "Using fallback DAG source (${FALLBACK_DAG_COUNT} DAGs vs ${WHEEL_DAG_COUNT} in wheel): ${FALLBACK_DIR}"
+    SOURCE_DIR="${FALLBACK_DIR}"
+elif [ ! -d "${SOURCE_DIR}" ] || [ "${WHEEL_DAG_COUNT}" -eq 0 ]; then
+    # Fallback: if DAGs not in installed wheel or directory is empty, try mounted source code location
+    if [ -n "${FALLBACK_DIR}" ] && [ -d "${FALLBACK_DIR}" ] && [ "${FALLBACK_DAG_COUNT}" -gt 0 ]; then
+        log_warn "DAGs not found in installed wheel, using fallback: ${FALLBACK_DIR}"
+        SOURCE_DIR="${FALLBACK_DIR}"
+    else
+        log_error "Could not find _airflow_dags_ directory"
+        log_error "Checked locations:"
+        log_error "  1. ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_ (${WHEEL_DAG_COUNT} DAGs)"
+        log_error "  2. /workspace/trading-agent/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
+        log_error "  3. ${SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
+        log_error ""
+        log_error "Please ensure:"
+        log_error "  1. ${PACKAGE_NAME} wheel is installed with all DAGs, OR"
+        log_error "  2. TradingPythonAgent source is mounted and contains src/_airflow_dags_/"
+        exit 1
+    fi
 fi
 
 log_info "Found DAGs directory: ${SOURCE_DIR}"
 
 # Check if source directory is empty
-if [ -z "$(ls -A "${SOURCE_DIR}" 2>/dev/null)" ]; then
+if [ -z "$(ls -A "${SOURCE_DIR}"/*.py 2>/dev/null | grep -v __init__ | grep -v __pycache__)" ]; then
     log_warn "Source directory is empty: ${SOURCE_DIR}"
     log_info "No DAGs to create import scripts for"
     exit 0
@@ -213,6 +247,18 @@ if os.path.exists(storage_root):
 
 EOF
 
+# Determine if we're using fallback location (mounted source code)
+# If SOURCE_DIR contains "/workspace/trading-agent" or "/src/_airflow_dags_", we're using fallback
+USE_FALLBACK=false
+if echo "${SOURCE_DIR}" | grep -q "/workspace/trading-agent\|/src/_airflow_dags_\|TradingPythonAgent"; then
+    USE_FALLBACK=true
+    # For fallback, DAGs are directly in SOURCE_DIR
+    DAG_BASE_PATH="${SOURCE_DIR}"
+else
+    # For installed wheel, DAGs are in workspace_root/package_name/_airflow_dags_
+    DAG_BASE_PATH="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
+fi
+
 # Process each DAG file and add imports
 IMPORT_COUNT=0
 while IFS= read -r dag_file; do
@@ -249,11 +295,16 @@ while IFS= read -r dag_file; do
     # For other DAGs, use standard import
     if echo "${dag_basename}" | grep -q "^edgar"; then
         # EDGAR DAGs: Import directly from file to avoid SQLAlchemy conflicts
+        # Use the actual file path (either from fallback or workspace)
         cat >> "${IMPORT_SCRIPT}" <<EOF
 # Import EDGAR DAG from ${rel_path} (direct file import to avoid SQLAlchemy conflicts)
 try:
     import importlib.util
-    dag_file_path = os.path.join(workspace_root, "${PACKAGE_NAME}", "_airflow_dags_", "${rel_path}")
+    # Use actual DAG file path (workspace or fallback location)
+    dag_file_path = "${dag_file}"
+    if not os.path.exists(dag_file_path):
+        # Fallback: try workspace location
+        dag_file_path = os.path.join(workspace_root, "${PACKAGE_NAME}", "_airflow_dags_", "${rel_path}")
     if os.path.exists(dag_file_path):
         spec = importlib.util.spec_from_file_location("${import_module}", dag_file_path)
         if spec and spec.loader:

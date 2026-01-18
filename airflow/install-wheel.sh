@@ -125,8 +125,13 @@ if [ -z "$ENV" ]; then
     fi
 fi
 
-# Create wheels directory if it doesn't exist
-WHEELS_DIR="${SCRIPT_DIR}/wheels"
+# Create environment-specific wheels directory if it doesn't exist
+# Map staging to test for directory naming consistency
+WHEELS_ENV="${ENV}"
+if [ "${ENV}" = "staging" ]; then
+    WHEELS_ENV="test"
+fi
+WHEELS_DIR="${SCRIPT_DIR}/wheels-${WHEELS_ENV}"
 mkdir -p "${WHEELS_DIR}"
 
 # Find the latest wheel for this environment

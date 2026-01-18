@@ -7,11 +7,19 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="${SCRIPT_DIR}/../../.."
+# Jenkins data directory is in infra-platform/jenkins/data (mounted to container)
+JENKINS_DATA_DIR="${SCRIPT_DIR}/data"
+CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-workspace-cron.sh"
+LOG_DIR="${SCRIPT_DIR}/logs"
 PLIST_NAME="com.tradingagent.jenkins-cleanup"
 PLIST_FILE="${HOME}/Library/LaunchAgents/${PLIST_NAME}.plist"
 
+# Create logs directory if it doesn't exist
+mkdir -p "${LOG_DIR}"
+
 echo "Setting up Jenkins workspace cleanup schedule (daily at 2 AM)..."
+echo "Jenkins data directory: ${JENKINS_DATA_DIR}"
+echo "Cleanup script: ${CLEANUP_SCRIPT}"
 
 # Create plist content
 cat > "${PLIST_FILE}" << PLIST_EOF
@@ -24,8 +32,13 @@ cat > "${PLIST_FILE}" << PLIST_EOF
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>${PROJECT_ROOT}/.ops/.jenkins/cleanup-workspace-cron.sh</string>
+        <string>${CLEANUP_SCRIPT}</string>
     </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>JENKINS_DATA_DIR</key>
+        <string>${JENKINS_DATA_DIR}</string>
+    </dict>
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
@@ -36,9 +49,9 @@ cat > "${PLIST_FILE}" << PLIST_EOF
     <key>RunAtLoad</key>
     <false/>
     <key>StandardOutPath</key>
-    <string>${PROJECT_ROOT}/.ops/.jenkins/cleanup-cron.stdout.log</string>
+    <string>${LOG_DIR}/cleanup-cron.stdout.log</string>
     <key>StandardErrorPath</key>
-    <string>${PROJECT_ROOT}/.ops/.jenkins/cleanup-cron.stderr.log</string>
+    <string>${LOG_DIR}/cleanup-cron.stderr.log</string>
 </dict>
 </plist>
 PLIST_EOF
@@ -59,8 +72,9 @@ echo ""
 echo "✓ Jenkins workspace cleanup scheduled successfully!"
 echo ""
 echo "Schedule: Daily at 2:00 AM"
+echo "Jenkins data directory: ${JENKINS_DATA_DIR}"
 echo "Config: Keep workspaces from last 1 day (everything older than yesterday is deleted)"
-echo "Logs: ${PROJECT_ROOT}/.ops/.jenkins/cleanup.log"
+echo "Logs: ${LOG_DIR}/cleanup-cron.*.log"
 echo ""
 echo "To check status:"
 echo "  launchctl list | grep ${PLIST_NAME}"

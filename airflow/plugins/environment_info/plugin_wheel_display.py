@@ -3,6 +3,8 @@ Airflow plugin to display environment and wheel version information
 """
 import os
 import glob
+import subprocess
+import json
 from airflow.plugins_manager import AirflowPlugin
 from flask import Blueprint, render_template, request, g
 from flask_appbuilder import BaseView, expose
@@ -17,10 +19,10 @@ PACKAGE_INSTALLED = False
 
 # Try multiple methods to detect installed wheel
 # Method 1: Check if package can be imported (most reliable)
-
-import src
-# Try to get version from package
 try:
+    # Import trading_agent module (installed from wheel)
+    import trading_agent
+    # Try to get version from package
     version = getattr(trading_agent, '__version__', 'unknown')
     # Try to get package name from installed distribution
     import importlib.metadata
@@ -32,10 +34,10 @@ try:
             WHEEL_FILE = package_name
             PACKAGE_INSTALLED = True
             break
-except (AttributeError, ImportError):
-    # Package is importable but can't get version - mark as installed
-    WHEEL_VERSION = "trading_agent (installed, version unknown)"
-    PACKAGE_INSTALLED = True
+except (ImportError, AttributeError, NameError):
+    # Package not installed yet (wheel might still be installing in background)
+    # or package is importable but can't get version - will try other methods below
+    pass
 
 
 # Method 2: Check installed distributions via importlib.metadata

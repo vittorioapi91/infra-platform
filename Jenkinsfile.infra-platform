@@ -6,7 +6,16 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                // Shallow clone to reduce workspace size (depth=1 = only latest commit)
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'CloneOption', depth: 1, shallow: true, noTags: true, reference: '', honorRefspec: true]
+                    ],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
             }
         }
         

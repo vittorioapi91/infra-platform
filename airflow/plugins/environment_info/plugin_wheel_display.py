@@ -67,43 +67,139 @@ if not PACKAGE_INSTALLED:
         except ImportError:
             pass
 
-# Method 3: Check for wheel files in wheels directory (fallback)
+# Method 3: Check installed package metadata directly from dist-info in package_root
+# Packages installed with --target don't register in importlib.metadata, but have dist-info
+if not PACKAGE_INSTALLED:
+    package_root_dirs = [
+        "/opt/airflow/package_root/trading_agent",  # Docker mount point
+        os.path.join(os.path.dirname(__file__), "..", "..", "dev", "trading_agent"),  # Local fallback
+        os.path.join(os.path.dirname(__file__), "..", "..", "test", "trading_agent"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "prod", "trading_agent"),
+    ]
+    
+    for package_root in package_root_dirs:
+        if os.path.exists(package_root):
+            # Look for trading_agent*.dist-info directory
+            import glob
+            dist_info_dirs = glob.glob(os.path.join(package_root, "trading_agent*.dist-info"))
+            
+            if dist_info_dirs:
+                # Use the first dist-info found (should only be one)
+                dist_info_dir = dist_info_dirs[0]
+                metadata_file = os.path.join(dist_info_dir, "METADATA")
+                
+                if os.path.exists(metadata_file):
+                    try:
+                        # Read METADATA file to get Name and Version
+                        with open(metadata_file, 'r', encoding='utf-8') as f:
+                            metadata_content = f.read()
+                        
+                        # Extract Name and Version from METADATA
+                        package_name = None
+                        package_version = None
+                        
+                        for line in metadata_content.split('\n'):
+                            line = line.strip()
+                            if line.startswith('Name:'):
+                                package_name = line.split(':', 1)[1].strip()
+                            elif line.startswith('Version:'):
+                                package_version = line.split(':', 1)[1].strip()
+                                if package_name:  # Only set if we already found Name
+                                    break
+                        
+                        if package_name and package_version:
+                            # Now find the matching wheel file in wheels directory
+                            wheel_dirs = ["/opt/airflow/wheels"]
+                            matching_wheel = None
+                            
+                            for wheel_dir in wheel_dirs:
+                                if os.path.exists(wheel_dir):
+                                    # Look for wheel file matching this version
+                                    # Format: {name}-{version}-*.whl
+                                    wheel_patterns = [
+                                        f"{package_name}-{package_version}-*.whl",
+                                        f"{package_name.replace('-', '_')}-{package_version}-*.whl",
+                                        f"trading_agent-{package_version}-*.whl",
+                                    ]
+                                    
+                                    for pattern in wheel_patterns:
+                                        matching_wheels = glob.glob(os.path.join(wheel_dir, pattern))
+                                        if matching_wheels:
+                                            # Use the first match
+                                            matching_wheel = os.path.basename(matching_wheels[0])
+                                            break
+                                    
+                                    if matching_wheel:
+                                        break
+                            
+                            if matching_wheel:
+                                WHEEL_VERSION = matching_wheel  # Display actual wheel filename
+                                WHEEL_FILE = matching_wheel
+                                PACKAGE_INSTALLED = True
+                                break
+                            else:
+                                # Package installed but wheel file not found - show version from metadata
+                                WHEEL_VERSION = f"{package_name} {package_version} (installed)"
+                                WHEEL_FILE = f"{package_name}-{package_version}"
+                                PACKAGE_INSTALLED = True
+                                break
+                    except Exception:
+                        # If reading metadata fails, continue to next method
+                        pass
+
+# Method 4: Check for wheel files in wheels directory (fallback)
+# This is a last resort if we can't find installed package metadata
 if not PACKAGE_INSTALLED:
     # Check multiple possible wheel directory locations
     wheel_dirs = [
-        "/opt/airflow/wheels",  # Docker mount point
-        os.path.join(os.path.dirname(__file__), "..", "..", "wheels"),  # Relative to plugin
+        "/opt/airflow/wheels",  # Docker mount point (mounted from airflow/{env}/wheels)
+        os.path.join(os.path.dirname(__file__), "..", "..", "wheels"),  # Relative to plugin (legacy)
     ]
     
     for wheel_dir in wheel_dirs:
         if os.path.exists(wheel_dir):
-            # Note: setuptools converts hyphens to underscores in package names
-            # So trading_agent-dev becomes trading_agent_dev in wheel filename
-            # But the actual package name might be trading_agent-dev
+            # Wheels are now named: trading_agent-{version}-*.whl (no env suffix in filename)
             wheel_patterns = [
-                f"trading_agent_{ENV}-*.whl",  # trading_agent_dev-0.1.0-py3-none-any.whl
-                f"trading-agent-{ENV}-*.whl",   # trading-agent-dev-0.1.0-py3-none-any.whl
-                "trading_agent_*-*.whl",        # Any trading_agent wheel
-                "trading-agent-*-*.whl",       # Any trading-agent wheel
+                "trading_agent-*.whl",  # trading_agent-0.1.0-py3-none-manylinux2014_aarch64.whl
+                f"trading_agent_{ENV}-*.whl",  # Legacy: trading_agent_dev-0.1.0-py3-none-any.whl
+                f"trading-agent-{ENV}-*.whl",   # Legacy: trading-agent-dev-0.1.0-py3-none-any.whl
+                "trading_agent_*-*.whl",        # Any trading_agent wheel with underscores
+                "trading-agent-*-*.whl",       # Any trading-agent wheel with hyphens
             ]
             
             for pattern in wheel_patterns:
                 wheel_files = glob.glob(os.path.join(wheel_dir, pattern))
                 if wheel_files:
-                    # Sort by version and get the latest
-                    wheel_files.sort(reverse=True)
-                    wheel_name = os.path.basename(wheel_files[0])
-                    # Extract version from filename
-                    parts = wheel_name.replace(".whl", "").split("-")
-                    if len(parts) >= 2:
-                        # Reconstruct readable name
-                        package_part = parts[0]  # trading_agent_dev or trading_agent
-                        version_part = parts[1] if len(parts) > 1 else "unknown"
-                        # Convert trading_agent_dev to trading_agent-dev
-                        readable_name = package_part.replace("_", "-")
-                        WHEEL_VERSION = f"{readable_name} {version_part} (wheel file available)"
-                        WHEEL_FILE = wheel_name
-                        break
+                    # Sort by version and get the latest (use sort -V for proper version sorting)
+                    # Convert to list, sort by basename, then extract version
+                    wheel_files_with_versions = []
+                    for wf in wheel_files:
+                        basename = os.path.basename(wf)
+                        # Extract version from filename: trading_agent-0.1.0-...
+                        parts = basename.replace(".whl", "").split("-")
+                        if len(parts) >= 2:
+                            try:
+                                # Try to parse version (parts[1] should be version)
+                                version_str = parts[1]
+                                wheel_files_with_versions.append((version_str, wf, basename))
+                            except:
+                                wheel_files_with_versions.append(("0.0.0", wf, basename))
+                    
+                    if wheel_files_with_versions:
+                        # Sort by version (newest first)
+                        wheel_files_with_versions.sort(key=lambda x: x[0], reverse=True)
+                        wheel_path, wheel_name = wheel_files_with_versions[0][1], wheel_files_with_versions[0][2]
+                        
+                        # Extract package name and version from filename
+                        parts = wheel_name.replace(".whl", "").split("-")
+                        if len(parts) >= 2:
+                            package_part = parts[0]  # trading_agent
+                            version_part = parts[1]  # 0.1.0
+                            # Use the actual wheel filename for display
+                            WHEEL_VERSION = wheel_name  # e.g., "trading_agent-0.1.0-py3-none-manylinux2014_aarch64.whl"
+                            WHEEL_FILE = wheel_name
+                            PACKAGE_INSTALLED = True
+                            break
                 
                 if WHEEL_FILE:
                     break

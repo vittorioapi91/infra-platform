@@ -2,40 +2,48 @@
 Airflow plugin for startup animation and loading indicators
 """
 import os
+import subprocess
 from airflow.plugins_manager import AirflowPlugin
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 
 # Get environment from environment variable
 ENV = os.getenv("AIRFLOW_ENV", "unknown")
 
-# Create blueprint
+# Create blueprint with URL prefix
 bp = Blueprint(
     "startup_animation",
     __name__,
+    url_prefix="/startup-animation",
     template_folder="templates",
     static_folder="static",
     static_url_path="/static/startup_animation",
 )
 
 
+# Log endpoint removed - not working reliably
+# def get_startup_logs():
+#     pass
+
+
 @bp.after_app_request
 def inject_startup_animation(response):
     """Inject startup animation indicator into HTML responses"""
-    # Only modify HTML responses for DAGs page
-    if (response.content_type and 
-        'text/html' in response.content_type and 
-        request.path in ['/home', '/dags', '/']):
+    # Inject on all HTML pages, but only during startup animation
+    if response.content_type and 'text/html' in response.content_type:
         
         try:
             content = response.get_data(as_text=True)
             
-            # Detect if Airflow is still starting up (check if webserver is fully ready)
-            # If response status is not 200, likely still starting
-            is_starting = response.status_code != 200 or not os.path.exists('/opt/airflow/airflow-webserver.pid')
+            # Detect if Airflow is still starting up
+            # Only show log window during startup animation phase
+            webserver_pid_exists = os.path.exists('/opt/airflow/airflow-webserver.pid')
+            response_is_error = response.status_code != 200
+            # Show log window only if webserver PID doesn't exist OR response is an error
+            # Once Airflow is fully started (PID exists AND response is 200), don't inject
+            is_starting = response_is_error or not webserver_pid_exists
             
-            # Only add animation if starting up
             if is_starting:
-                # Add loading spinner CSS
+                # Add loading spinner CSS only (log window removed)
                 loading_css = """
 <style>
 @keyframes spin {
@@ -91,6 +99,9 @@ def inject_startup_animation(response):
                     # No banner exists, inject CSS in head if possible
                     if '</head>' in content:
                         content = content.replace('</head>', loading_css + '</head>')
+                    # Also inject at end of body if no banner found (fallback for pages without banner)
+                    elif '</body>' in content:
+                        content = content.replace('</body>', loading_css + '</body>')
                 
                 response.set_data(content)
                 

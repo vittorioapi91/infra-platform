@@ -47,7 +47,7 @@ if [ -z "${WHEEL_FILES}" ]; then
     log_warn "No wheel files found in ${WHEELS_DIR}"
     log_info "To install a wheel:"
     log_info "  1. Build the wheel: ./build-wheel.sh dev"
-    log_info "  2. Install it: airflow/install-wheel.sh dev"
+    log_info "  2. Install it: airflow/install-trading_agent-wheel.sh dev"
     exit 1
 fi
 

@@ -108,69 +108,146 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/dags:/opt/airflow/dags
-      - ../airflow/logs-dev:/opt/airflow/logs
+      - ../airflow/dev/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
-      # Mount wheels-dev directory (contains dev environment wheels) - writable so install-wheel.sh can copy
-      - ../airflow/wheels-dev:/opt/airflow/wheels
-      # Mount install-wheel.sh script for automatic wheel installation
-      - ../airflow/install-wheel.sh:/opt/airflow/install-wheel.sh:ro
-      # Mount install-dags.sh script for automatic DAG extraction from installed wheel
-      - ../airflow/install-dags.sh:/opt/airflow/install-dags.sh:ro
+      # Mount wheels-dev directory (contains dev environment wheels) - writable so install-trading_agent-wheel.sh can copy
+      - ../airflow/dev/wheels:/opt/airflow/wheels
+      # Mount dev environment workspace directory (writable so pip can install to airflow/dev/workspace/{package-name}-workspace/)
+      - ../airflow/dev/workspace:/opt/airflow/workspace
+      # Mount dev environment DAGs directory (writable so create-dag-imports.sh can create import scripts here)
+      - ../airflow/dev/dags:/opt/airflow/dags
+      # Mount install-trading_agent-wheel.sh script for automatic wheel installation
+      - ../airflow/install-trading_agent-wheel.sh:/opt/airflow/install-trading_agent-wheel.sh:ro
+      # Mount create-dag-imports.sh script for creating single DAG import file
+      - ../airflow/create-dag-imports.sh:/opt/airflow/create-dag-imports.sh:ro
       # Mount TradingPythonAgent to access built wheels
       - ../../TradingPythonAgent:/workspace/trading-agent:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
+      # Mount Docker socket to enable container restart from within
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - airflow-db-dev:/opt/airflow
     command: >
       bash -c "
-        # Run install-wheel.sh automatically to copy wheels from TradingPythonAgent/dist/ to /opt/airflow/wheels/
+        # Run install-trading_agent-wheel.sh automatically to copy wheels from TradingPythonAgent/dist/ to /opt/airflow/wheels/
         ENV=dev
-        echo \"Running install-wheel.sh to copy wheels from TradingPythonAgent/dist/...\"
-        # Set TRADING_AGENT_ROOT environment variable for install-wheel.sh
+        echo \"Running install-trading_agent-wheel.sh to copy wheels from TradingPythonAgent/dist/...\"
+        # Set TRADING_AGENT_ROOT environment variable for install-trading_agent-wheel.sh
         export TRADING_AGENT_ROOT=/workspace/trading-agent
-        # Run install-wheel.sh (will copy wheel if it exists in TradingPythonAgent/dist/)
-        bash /opt/airflow/install-wheel.sh \$${ENV} 2>&1 || {
-          echo \"Warning: install-wheel.sh failed or no wheel found in TradingPythonAgent/dist/\"
+        # Run install-trading_agent-wheel.sh (will copy wheel if it exists in TradingPythonAgent/dist/)
+        bash /opt/airflow/install-trading_agent-wheel.sh \$${ENV} 2>&1 || {
+          echo \"Warning: install-trading_agent-wheel.sh failed or no wheel found in TradingPythonAgent/dist/\"
           echo \"  This is OK if wheels are already in /opt/airflow/wheels/ or will be added manually\"
         }
         # Install environment-specific wheel (dev)
-        # Note: setuptools converts hyphens to underscores, so trading_agent-dev becomes trading_agent_dev
+        # Wheels are now named with base package name (no env suffix): trading_agent-*.whl
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
-        WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent_\$${ENV}-*.whl" -o -name "trading-agent-\$${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent-*.whl" 2>/dev/null | sort -V | tail -n 1)
         if [ -n \"\$${WHEEL_FILE}\" ]; then
-          echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
-          # Get Python site-packages directory
-          SITE_PACKAGES=\$$(python3 -c \"import site; print(site.getsitepackages()[0])\")
-          # Installation directory with environment suffix: trading_agent-dev, trading_agent-test, trading_agent-prod
-          INSTALL_DIR=\"\$${SITE_PACKAGES}/trading_agent-\$${ENV}\"
-          # Install wheel to environment-specific directory
-          # Use --no-deps to skip dependency installation (dependencies are already in Airflow image)
-          # Use timeout to prevent hanging if pip gets stuck (60 seconds max)
-          timeout 60 pip install --quiet --no-cache-dir --no-deps --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} 2>&1 || {
-            echo \"Warning: Failed to install wheel \$$(basename \$${WHEEL_FILE}) to \$${INSTALL_DIR}, trying with dependencies...\"
-            # Fallback: try installing with dependencies (might take longer)
-            timeout 300 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} 2>&1 || {
-              echo \"Warning: Failed to install wheel \$$(basename \$${WHEEL_FILE}) even with dependencies, continuing anyway\"
+          echo \"Found wheel: \$$(basename \$${WHEEL_FILE})\"
+          # Extract package name and version from wheel file
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
+          WHEEL_VERSION=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Version:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else '');f.close()\" 2>/dev/null || echo \"\")
+          
+          # Workspace directory: /opt/airflow/workspace/{package_name}-workspace (mounted from airflow/{env}/workspace/{package_name}-workspace)
+          WORKSPACE_DIR=\"/opt/airflow/workspace/\$${PACKAGE_NAME}-workspace\"
+          # Installation directory: workspace/{package_name}-workspace/{package_name}
+          INSTALL_DIR=\"\$${WORKSPACE_DIR}/\$${PACKAGE_NAME}\"
+          
+          # Check if package is already installed and compare versions
+          INSTALLED_VERSION=\"\"
+          if [ -d \"\$${INSTALL_DIR}\" ]; then
+            # Check for dist-info directory
+            DIST_INFO=\$$(find \"\$${INSTALL_DIR}\" -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
+            if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
+              INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:\\s*//' | head -1 || echo \"\")
+            fi
+          fi
+          
+          # Compare versions - only install if wheel version is newer or no installation exists
+          NEEDS_INSTALL=false
+          if [ -z \"\$${INSTALLED_VERSION}\" ]; then
+            echo \"Package not installed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
+            NEEDS_INSTALL=true
+          elif [ -z \"\$${WHEEL_VERSION}\" ]; then
+            echo \"Warning: Could not extract version from wheel. Will install to be safe.\"
+            NEEDS_INSTALL=true
+          else
+            # Use Python to compare versions (handles semantic versioning correctly)
+            VERSION_COMPARE=\$$(python3 -c \"from packaging import version; installed='${INSTALLED_VERSION}'; wheel='${WHEEL_VERSION}'; result='newer' if version.parse(wheel) > version.parse(installed) else 'same' if version.parse(wheel) == version.parse(installed) else 'older'; print(result)\" 2>/dev/null || echo \"unknown\")
+            if [ \"\$${VERSION_COMPARE}\" = \"newer\" ]; then
+              echo \"Wheel version \$${WHEEL_VERSION} is newer than installed \$${INSTALLED_VERSION}. Will upgrade.\"
+              NEEDS_INSTALL=true
+            elif [ \"\$${VERSION_COMPARE}\" = \"same\" ]; then
+              echo \"Wheel version \$${WHEEL_VERSION} matches installed \$${INSTALLED_VERSION}. Skipping installation.\"
+              NEEDS_INSTALL=false
+            else
+              echo \"Wheel version \$${WHEEL_VERSION} is older than installed \$${INSTALLED_VERSION}. Skipping installation.\"
+              NEEDS_INSTALL=false
+            fi
+          fi
+          
+          if [ \"\$${NEEDS_INSTALL}\" = \"true\" ]; then
+            echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
+            echo \"Workspace directory: \$${WORKSPACE_DIR}\"
+            echo \"Package installation directory: \$${INSTALL_DIR}\"
+            # Clean up existing workspace directory for fresh install
+            if [ -d \"\$${WORKSPACE_DIR}\" ]; then
+              echo \"Cleaning up existing workspace directory for fresh install...\"
+              rm -rf \"\$${WORKSPACE_DIR}\"
+            fi
+            # Create workspace directory
+            mkdir -p \"\$${WORKSPACE_DIR}\"
+            # Step 1: Install dependencies first to workspace root
+            echo \"Step 1: Installing dependencies to workspace...\"
+            # Extract dependencies from wheel metadata and write to temp file (handles long lists better)
+            # Pass WHEEL_FILE directly to Python using command-line argument approach
+            python3 -c \"import zipfile,re,sys;wheel_file='\$${WHEEL_FILE}';f=zipfile.ZipFile(wheel_file) if wheel_file else None;m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')] if f else [];metadata=f.read(m[0]).decode('utf-8') if m else '';deps=[line.replace('Requires-Dist: ','').split(';')[0].strip().split('(')[0].strip() for line in metadata.split('\\n') if line.startswith('Requires-Dist:') and 'extra ==' not in line] if metadata else [];print('\\n'.join(deps));f.close() if f else None\" > /tmp/dependencies.txt 2>/dev/null || echo \"\" > /tmp/dependencies.txt
+            if [ -s /tmp/dependencies.txt ]; then
+              DEP_COUNT=\$$(wc -l < /tmp/dependencies.txt | tr -d ' ')
+              echo \"Found \$${DEP_COUNT} dependencies to install\"
+              echo \"Installing dependencies to workspace...\"
+              timeout 600 pip install --no-cache-dir --target \"\$${WORKSPACE_DIR}\" -r /tmp/dependencies.txt 2>&1 | grep -E \"(Installing|Successfully|ERROR|error|Failed|Warning:|already satisfied)\" | tail -10 || {
+                echo \"Warning: Some dependencies failed to install, continuing with wheel installation\"
+              }
+              echo \"✓ Dependencies installation completed\"
+            else
+              echo \"No dependencies found in wheel metadata\"
+            fi
+            rm -f /tmp/dependencies.txt
+            # Step 2: Install wheel package to workspace/{package_name} subdirectory (without dependencies)
+            echo \"Step 2: Installing wheel package to \$${INSTALL_DIR}...\"
+            mkdir -p \"\$${INSTALL_DIR}\"
+            timeout 300 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" --no-deps \$${WHEEL_FILE} 2>&1 || {
+              echo \"Warning: Failed to install wheel \$$(basename \$${WHEEL_FILE}) to \$${INSTALL_DIR}, continuing anyway\"
             }
-          }
+            echo \"✓ Wheel installation completed for: \$$(basename \$${WHEEL_FILE})\"
+            # Run create-dag-imports.sh to create single DAG import file
+            echo \"Running create-dag-imports.sh to create trading_agent_dags.py...\"
+            # Pass package name to create-dag-imports.sh
+            bash /opt/airflow/create-dag-imports.sh \$${ENV} \$${PACKAGE_NAME} 2>&1 || {
+              echo \"Warning: create-dag-imports.sh failed or DAGs not found in installed wheel\"
+            }
+          else
+            # Even if wheel isn't installed, run create-dag-imports.sh in case DAGs need updating
+            echo \"Running create-dag-imports.sh to ensure DAGs are up to date...\"
+            bash /opt/airflow/create-dag-imports.sh \$${ENV} \$${PACKAGE_NAME} 2>&1 || {
+              echo \"Warning: create-dag-imports.sh failed or DAGs not found\"
+            }
+          fi
+          
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
           export INSTALLED_WHEEL=\$$(basename \$${WHEEL_FILE})
-          echo \"✓ Wheel installation completed for: \$$(basename \$${WHEEL_FILE})\"
-          # Run install-dags.sh to extract DAGs from the installed wheel
-          echo \"Running install-dags.sh to extract DAGs from installed wheel...\"
-          bash /opt/airflow/install-dags.sh \$${ENV} 2>&1 || {
-            echo \"Warning: install-dags.sh failed or DAGs not found in installed wheel\"
-          }
         else
-          echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-\$${ENV}-*.whl\"
+            echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
         # Install critical project dependencies needed for DAGs (run in background, don't block)
-        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv > /tmp/pip_install.log 2>&1 &
+        # Also install docker package for container reboot functionality
+        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
         rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid
@@ -224,45 +301,46 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/dags:/opt/airflow/dags
-      - ../airflow/logs-test:/opt/airflow/logs
+      - ../airflow/test/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
       # Mount wheels-test directory (contains test/staging environment wheels)
-      - ../airflow/wheels-test:/opt/airflow/wheels:ro
+      - ../airflow/test/wheels:/opt/airflow/wheels:ro
+      # Mount test environment root directory (writable so pip can install wheels to airflow/test/{package_name}/)
+      - ../airflow/test:/opt/airflow/package_root
+      # Mount test environment DAGs directory (writable so install-dags.sh can extract DAGs here)
+      - ../airflow/test/dags:/opt/airflow/dags
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
+      # Mount Docker socket to enable container restart from within
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - airflow-db-test:/opt/airflow
     command: >
       bash -c "
         # Install environment-specific wheel (staging)
         ENV=staging
-        # Map staging to test for installation directory naming
-        INSTALL_DIR_ENV=\$${ENV}
-        if [ \"\$${ENV}\" = \"staging\" ]; then
-          INSTALL_DIR_ENV=\"test\"
-        fi
         # Note: setuptools converts hyphens to underscores, so trading_agent-staging becomes trading_agent_staging
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
         WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent_\$${ENV}-*.whl" -o -name "trading-agent-\$${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
-          # Get Python site-packages directory
-          SITE_PACKAGES=\$$(python3 -c \"import site; print(site.getsitepackages()[0])\")
-          # Installation directory with environment suffix: trading_agent-dev, trading_agent-test, trading_agent-prod
-          INSTALL_DIR=\"\$${SITE_PACKAGES}/trading_agent-\$${INSTALL_DIR_ENV}\"
+          # Extract package name from wheel file
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
+          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from airflow/{env}/{package_name})
+          INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
           export INSTALLED_WHEEL=\$$(basename \$${WHEEL_FILE})
         else
-          echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-\$${ENV}-*.whl\"
+            echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
         # Install critical project dependencies needed for DAGs (run in background, don't block)
-        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv > /tmp/pip_install.log 2>&1 &
+        # Also install docker package for container reboot functionality
+        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
         rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid
@@ -314,15 +392,20 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/dags:/opt/airflow/dags
-      - ../airflow/logs-prod:/opt/airflow/logs
+      - ../airflow/prod/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
       # Mount wheels-prod directory (contains production environment wheels)
-      - ../airflow/wheels-prod:/opt/airflow/wheels:ro
+      - ../airflow/prod/wheels:/opt/airflow/wheels:ro
+      # Mount prod environment root directory (writable so pip can install wheels to airflow/prod/{package_name}/)
+      - ../airflow/prod:/opt/airflow/package_root
+      # Mount prod environment DAGs directory (writable so install-dags.sh can extract DAGs here)
+      - ../airflow/prod/dags:/opt/airflow/dags
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
+      # Mount Docker socket to enable container restart from within
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - airflow-db-prod:/opt/airflow
     command: >
       bash -c "
@@ -333,21 +416,22 @@ services:
         WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent_\$${ENV}-*.whl" -o -name "trading-agent-\$${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
-          # Get Python site-packages directory
-          SITE_PACKAGES=\$$(python3 -c \"import site; print(site.getsitepackages()[0])\")
-          # Installation directory with environment suffix: trading_agent-test or trading_agent-prod
-          INSTALL_DIR=\"\$${SITE_PACKAGES}/trading_agent-\$${ENV}\"
+          # Extract package name from wheel file
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
+          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from airflow/{env}/{package_name})
+          INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
           # Store wheel info for plugin display
           export WHEEL_VERSION=\"\$$(basename \$${WHEEL_FILE})\"
           export INSTALLED_WHEEL=\$$(basename \$${WHEEL_FILE})
         else
-          echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-\$${ENV}-*.whl\"
+            echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
         # Install critical project dependencies needed for DAGs (run in background, don't block)
-        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv > /tmp/pip_install.log 2>&1 &
+        # Also install docker package for container reboot functionality
+        python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
         rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid

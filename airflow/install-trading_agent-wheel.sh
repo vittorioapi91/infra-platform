@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copy wheels from dist/ to .ops/.airflow/wheels/
+# Copy wheels from dist/ to airflow/wheels/
 # This script helps sync built wheels to the Airflow wheels directory
 #
 # Usage:
@@ -12,7 +12,28 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+# Detect TradingPythonAgent root location
+# Priority: 1) Docker mount path, 2) Environment variable, 3) Relative path, 4) Absolute path
+if [ -d "/workspace/trading-agent" ]; then
+    # Running in Docker/Jenkins - use mounted path
+    TRADING_AGENT_ROOT="/workspace/trading-agent"
+elif [ -n "${TRADING_AGENT_ROOT:-}" ] && [ -d "${TRADING_AGENT_ROOT}" ]; then
+    # Use environment variable if set
+    TRADING_AGENT_ROOT="${TRADING_AGENT_ROOT}"
+elif [ -d "${SCRIPT_DIR}/../../TradingPythonAgent" ]; then
+    # Relative path from infra-platform/airflow to TradingPythonAgent
+    TRADING_AGENT_ROOT="$(cd "${SCRIPT_DIR}/../../TradingPythonAgent" && pwd)"
+elif [ -d "/Users/Snake91/CursorProjects/TradingPythonAgent" ]; then
+    # Fallback to absolute path (local development)
+    TRADING_AGENT_ROOT="/Users/Snake91/CursorProjects/TradingPythonAgent"
+else
+    log_warn "Could not find TradingPythonAgent directory"
+    log_warn "Please set TRADING_AGENT_ROOT environment variable or mount it in Docker"
+    exit 1
+fi
+
+PROJECT_ROOT="${TRADING_AGENT_ROOT}"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -81,7 +102,7 @@ get_env_from_branch() {
 # Get environment from argument or auto-detect from branch
 if [ $# -gt 0 ]; then
     ENV="${1}"
-    ENV="${ENV,,}"  # Convert to lowercase
+    ENV=$(to_lower "${ENV}")  # Convert to lowercase (bash 3 compatible)
     
     # Validate environment
     if [[ ! "$ENV" =~ ^(dev|staging|prod)$ ]]; then
@@ -104,18 +125,39 @@ if [ -z "$ENV" ]; then
     fi
 fi
 
-# Create wheels directory if it doesn't exist
-WHEELS_DIR="${SCRIPT_DIR}/wheels"
+# Create environment-specific wheels directory if it doesn't exist
+# Map staging to test for directory naming consistency
+WHEELS_ENV="${ENV}"
+if [ "${ENV}" = "staging" ]; then
+    WHEELS_ENV="test"
+fi
+
+# Determine wheels directory based on where we're running
+# If running in Docker container, /opt/airflow/wheels is the mount point (maps to airflow/{env}/wheels)
+# If running manually, use airflow/{env}/wheels relative to script
+if [ -d "/opt/airflow/wheels" ] && [ -w "/opt/airflow/wheels" ]; then
+    # Running in Docker container - use mounted wheels directory
+    WHEELS_DIR="/opt/airflow/wheels"
+elif [ -n "${AIRFLOW_WHEELS_DIR:-}" ] && [ -d "${AIRFLOW_WHEELS_DIR}" ]; then
+    # Use explicit environment variable if set
+    WHEELS_DIR="${AIRFLOW_WHEELS_DIR}"
+else
+    # Running manually - use environment-specific directory: airflow/{env}/wheels
+    WHEELS_DIR="${SCRIPT_DIR}/${WHEELS_ENV}/wheels"
+fi
+
 mkdir -p "${WHEELS_DIR}"
 
 # Find the latest wheel for this environment
-# Note: setuptools converts hyphens to underscores in package names
-# So trading_agent-dev becomes trading_agent_dev
-WHEEL_FILE=$(find "${PROJECT_ROOT}/dist" -name "trading_agent_${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
+# Wheels are now in dist/{env}/ directory with base package name (no env suffix)
+# Example: dist/dev/trading_agent-*.whl
+DIST_ENV_DIR="${PROJECT_ROOT}/dist/${ENV}"
+WHEEL_FILE=$(find "${DIST_ENV_DIR}" -name "trading_agent-*.whl" 2>/dev/null | sort -V | tail -n 1)
 
 if [ -z "${WHEEL_FILE}" ]; then
-    log_warn "No wheel found for environment '${ENV}' in ${PROJECT_ROOT}/dist/"
+    log_warn "No wheel found for environment '${ENV}' in ${DIST_ENV_DIR}/"
     log_warn "Please build the wheel first: ./build-wheel.sh ${ENV}"
+    log_warn "Expected location: ${DIST_ENV_DIR}/trading_agent-*.whl"
     exit 1
 fi
 
@@ -134,4 +176,4 @@ log_info "  Airflow will install this wheel on startup"
 
 # List all wheels in the directory
 log_info "Available wheels in ${WHEELS_DIR}:"
-ls -lh "${WHEELS_DIR}"/trading_agent_*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"
+ls -lh "${WHEELS_DIR}"/trading_agent-*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"

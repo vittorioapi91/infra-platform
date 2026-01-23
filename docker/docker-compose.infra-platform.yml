@@ -159,17 +159,15 @@ services:
           
           # Workspace directory: /opt/airflow/workspace/{package_name}-workspace (mounted from airflow/{env}/workspace/{package_name}-workspace)
           WORKSPACE_DIR=\"/opt/airflow/workspace/\$${PACKAGE_NAME}-workspace\"
-          # Installation directory: workspace/{package_name}-workspace/{package_name}
-          INSTALL_DIR=\"\$${WORKSPACE_DIR}/\$${PACKAGE_NAME}\"
+          # Installation directory: workspace/{package_name}-workspace (wheel already contains package structure)
+          INSTALL_DIR=\"\$${WORKSPACE_DIR}\"
           
           # Check if package is already installed and compare versions
           INSTALLED_VERSION=\"\"
-          if [ -d \"\$${INSTALL_DIR}\" ]; then
-            # Check for dist-info directory
-            DIST_INFO=\$$(find \"\$${INSTALL_DIR}\" -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
-            if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
-              INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:\\s*//' | head -1 || echo \"\")
-            fi
+          # Check for dist-info directory in workspace root (wheel installs dist-info at target root)
+          DIST_INFO=\$$(find \"\$${WORKSPACE_DIR}\" -maxdepth 1 -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
+          if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
+            INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:\\s*//' | head -1 || echo \"\")
           fi
           
           # Compare versions - only install if wheel version is newer or no installation exists
@@ -223,7 +221,7 @@ services:
               echo \"No dependencies found in wheel metadata\"
             fi
             rm -f /tmp/dependencies.txt
-            # Step 2: Install wheel package to workspace/{package_name} subdirectory (without dependencies)
+            # Step 2: Install wheel package to workspace root (wheel already contains package structure)
             echo \"Step 2: Installing wheel package to \$${INSTALL_DIR}...\"
             mkdir -p \"\$${INSTALL_DIR}\"
             timeout 300 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" --no-deps \$${WHEEL_FILE} 2>&1 || {
@@ -615,17 +613,18 @@ services:
       - "80:80"  # HTTP port for routing all domain names
       - "443:443"  # HTTPS port (if needed)
     volumes:
-      - ./nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
-      - ./nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
-      - ./nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
-      - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
-      - ./nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
-      - ./nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
-      - ./nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
-      - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
-      - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
-      - ./nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
-      - ./nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
+      - ../gateway/nginx/nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
+      - ../gateway/nginx/nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
+      - ../gateway/nginx/nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
+      - ../gateway/nginx/nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ../gateway/nginx/nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
+      - ../gateway/nginx/nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
+      - ../gateway/nginx/nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
+      - ../gateway/nginx/nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
+      - ../gateway/nginx/nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
+      - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
+      - ../gateway/nginx/nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
+      - ../gateway/nginx/nginx-predictionmarketsagent.conf:/etc/nginx/conf.d/predictionmarketsagent.conf:ro
     networks:
       - monitoring
     restart: unless-stopped

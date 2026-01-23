@@ -1,0 +1,14 @@
+commit 62b6e0f04456db4b7fbc2d6efe84c743073559a9
+tree 46fbb727f1b3ed43579d762858fcaa5a0f1cc771
+parent f9dab589d7ab1a66801016b0c354671cdd9c4be1
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 18:09:25 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 18:09:25 +0000
+
+    [DEV-6] Fix wheel build to use Linux ARM64 instead of macOS
+    
+    - Changed build-wheel.sh flag from --macosx-arm64 to --linux-arm64
+    - Jenkins runs in Docker (Linux), so wheels should be built for Linux platform
+    - Will now build manylinux2014_aarch64 wheel instead of macosx_x86_64
+
+
+:100644 100644 2e0dc8f4d73bb938336ceb6de5741b048a5a8bf8 a62b3bdb907a960848f191531b6cc85217c6a29b M	Jenkinsfile

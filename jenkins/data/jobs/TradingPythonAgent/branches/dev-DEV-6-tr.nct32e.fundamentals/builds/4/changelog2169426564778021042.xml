@@ -1,0 +1,19 @@
+commit 0d0462f30df3dcfdfdd3c64bf50deae1839e12fb
+tree 09f0d98a4e14ccad338e44a8c5679a6713497752
+parent 3759bfa7a96365db5350f2f6ce82079867c2b865
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 15:56:06 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 15:56:06 +0000
+
+    [DEV-6] Fix all remaining trading_agent references: Update test patches and imports to use src package structure
+
+
+:100644 100644 0e20cad1300b8d2ab61d9772681dd35139341948 3f54f72f20513714e739887ea81c0cd384a0eb0d M	RELEASES.md
+:100644 100644 6b88a8bbf51568cdacdc7aaa918439424750c624 1a491659a322d5fe1a9677875a1db2a87963c179 M	src/fundamentals/edgar/edgar.py
+:100644 100644 5619b310b7951df750d5a827790ce5e365f6f464 e3eaf47c4c8dd20367c4b1d50a94bc5148a6f38f M	src/fundamentals/edgar/filings.py
+:100644 100644 60f25ce2a2a071cb21216f14bcb836336ec2a1a5 fb0cfa5f41ef8d58d14dd37d8a956790e393baac M	src/model/QUICK_START.md
+:100644 100644 2da5ee8d2d00cf99cfbaf9fddfa9766294ce209f ec3c35f6f4cf03e14e719d9f4b1747ba6c474725 M	src/model/README.md
+:100644 100644 64ac00626d10093e53b46948f8862488462a89dd 5a1f148c6e91992ff44bb232fac2614768f9f205 M	src/model/data_loader.py
+:100644 100644 0be4f60b9ab18bc151d33cb371a5a1d534c00192 6408c38c01a85214368afb97697cbe59d4ffaae4 M	src/model/training_script.py
+:100644 100644 3249a6b327cf065ddfed4a12c7ce31712a9a3e2a b135060ec1d85584257e8c1e3f60dd6f0d1297c5 M	tests/trading_agent/fundamentals/edgar/test_edgar_cli.py
+:100644 100644 30638a5b45868cc165a6d5f8d09562cff22d9c2b 8e39c44c4bce5991f85a8fdc8f9ff9592b3435cb M	tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py
+:100644 100644 6124d8a62f1b9d839b5cdaede5e519b7cc595e9d f34286c602e169b2381df61b21e0de5b06104726 M	tests/trading_agent/fundamentals/edgar/test_filings.py

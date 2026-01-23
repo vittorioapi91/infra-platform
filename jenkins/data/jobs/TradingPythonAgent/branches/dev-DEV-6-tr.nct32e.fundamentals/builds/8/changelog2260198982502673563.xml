@@ -1,0 +1,20 @@
+commit 54df3985667a9e8096214e8304b449e7773b37dc
+tree 77887f76d6bebb8aacee0048936ff90ad83033d7
+parent 63b52c4c0f3b743012c93a7c94691272a9b69327
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 19:40:07 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 19:40:07 +0000
+
+    [DEV-6] Fix install-dags.sh comment to reference correct destination path
+
+
+:100755 100755 ac34191de334425be6d43139f24f17eca0cf5c0d b882815b22323d8803c315cfb3d2d45507c6ba74 M	install-dags.sh
+commit 63b52c4c0f3b743012c93a7c94691272a9b69327
+tree 625c7d15fff308bc9a0c7afa042cf38a16cece01
+parent 0d0462f30df3dcfdfdd3c64bf50deae1839e12fb
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 19:16:18 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-17 19:16:18 +0000
+
+    [DEV-6] Update Jenkinsfile: Replace all .ops/ paths with ../infra-platform/ paths
+
+
+:100644 100644 ee8838aa2d4aa8559df5ccaa6e01355fcd3db30f 6e8a2cb83285c322e6e2dd400fd235bcffd2e173 M	Jenkinsfile

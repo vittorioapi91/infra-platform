@@ -16,6 +16,124 @@ pipeline {
                     ],
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
+                
+                script {
+                    // Get branch name
+                    env.GIT_BRANCH = sh(
+                        script: 'git rev-parse --abbrev-ref HEAD',
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Building branch: ${env.GIT_BRANCH}"
+                }
+            }
+        }
+        
+        stage('Validate Branch Naming') {
+            steps {
+                script {
+                    def branchName = env.GIT_BRANCH
+                    def isValidBranch = false
+                    def openProjectIssueId = null
+                    
+                    // Allowed branch patterns:
+                    // - main (production)
+                    // - staging (staging)
+                    // - dev/infra-{number} (e.g., dev/infra-39)
+                    
+                    if (branchName == 'main' || branchName == 'staging') {
+                        isValidBranch = true
+                        echo "✓ Branch '${branchName}' is valid (main or staging)"
+                    } else {
+                        // Check for dev/infra-{number} pattern
+                        def devBranchPattern = ~/^dev\/infra-(\d+)$/
+                        def matcher = branchName =~ devBranchPattern
+                        
+                        if (matcher) {
+                            openProjectIssueId = matcher[0][1]
+                            echo "✓ Branch '${branchName}' matches pattern dev/infra-{number}"
+                            echo "  Extracted OpenProject issue ID: ${openProjectIssueId}"
+                            isValidBranch = true
+                        } else {
+                            error("❌ Invalid branch name: '${branchName}'. " +
+                                  "Branch must be one of: 'main', 'staging', or 'dev/infra-{number}' " +
+                                  "(e.g., 'dev/infra-39').")
+                        }
+                    }
+                    
+                    // If it's a dev branch, validate OpenProject issue exists
+                    if (openProjectIssueId) {
+                        echo "Validating OpenProject work package #${openProjectIssueId}..."
+                        
+                        // Get OpenProject configuration from environment variables
+                        def openProjectUrl = env.OPENPROJECT_URL ?: 'http://openproject.local.info'
+                        def openProjectUser = env.OPENPROJECT_USER ?: 'admin'
+                        def openProjectPassword = env.OPENPROJECT_PASSWORD
+                        
+                        if (!openProjectPassword) {
+                            error("❌ OPENPROJECT_PASSWORD environment variable is required for branch validation. " +
+                                  "Please configure it in Jenkins global environment variables or job configuration.")
+                        }
+                        
+                        // Ensure URL doesn't have trailing slash
+                        openProjectUrl = openProjectUrl.replaceAll(/\/+$/, '')
+                        
+                        // OpenProject API endpoint: /api/v3/work_packages/{id}
+                        def apiUrl = "${openProjectUrl}/api/v3/work_packages/${openProjectIssueId}"
+                        
+                        echo "OpenProject URL: ${openProjectUrl}"
+                        echo "OpenProject User: ${openProjectUser}"
+                        echo "API Endpoint: ${apiUrl}"
+                        
+                        // Validate work package exists using curl
+                        def curlOutput = sh(
+                            script: """
+                                curl -v -s -o /tmp/openproject_response.json -w '%{http_code}' \\
+                                    -u '${openProjectUser}:${openProjectPassword}' \\
+                                    -X GET \\
+                                    -H 'Accept: application/json' \\
+                                    '${apiUrl}' 2>&1 | tee /tmp/openproject_curl_debug.log || true
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        
+                        // Extract HTTP status code (last line of output)
+                        def responseCode = curlOutput.split('\n').last()
+                        
+                        echo "Response code: ${responseCode}"
+                        
+                        if (responseCode == '200') {
+                            echo "✓ OpenProject work package #${openProjectIssueId} exists and is accessible"
+                            
+                            // Display work package info
+                            sh """
+                                cat /tmp/openproject_response.json | python3 -m json.tool 2>/dev/null | head -30 || cat /tmp/openproject_response.json | head -20
+                                rm -f /tmp/openproject_response.json /tmp/openproject_curl_debug.log
+                            """
+                        } else if (responseCode == '404') {
+                            error("❌ OpenProject work package #${openProjectIssueId} does not exist. " +
+                                  "Please verify the work package exists at ${openProjectUrl}/work_packages/${openProjectIssueId}")
+                        } else if (responseCode == '401' || responseCode == '403') {
+                            // Show debug info for auth failures
+                            sh """
+                                echo "Authentication debug info:"
+                                grep -i 'authorization\\|www-authenticate\\|401\\|403' /tmp/openproject_curl_debug.log | head -10 || cat /tmp/openproject_curl_debug.log | tail -30
+                                cat /tmp/openproject_response.json | head -20 || echo "No response body"
+                            """
+                            error("❌ OpenProject authentication failed (HTTP ${responseCode}). " +
+                                  "Please check OPENPROJECT_USER and OPENPROJECT_PASSWORD credentials.")
+                        } else {
+                            // Show debug info for other errors
+                            sh """
+                                echo "Error debug info:"
+                                cat /tmp/openproject_curl_debug.log | tail -20 || true
+                                cat /tmp/openproject_response.json | head -20 || echo "No response body"
+                            """
+                            error("❌ Failed to validate OpenProject work package #${openProjectIssueId} (HTTP ${responseCode}). " +
+                                  "Please check OPENPROJECT_URL and network connectivity.")
+                        }
+                    }
+                }
             }
         }
         

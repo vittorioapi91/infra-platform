@@ -572,6 +572,40 @@ services:
       - monitoring
     restart: unless-stopped
 
+  # OpenProject - Self-hosted project management (replacement for Jira)
+  # Note: Update image tag if needed. Official images: openproject/community or openproject/openproject
+  openproject:
+    image: openproject/community:13
+    container_name: openproject
+    ports:
+      - "8086:80"
+    environment:
+      - OPENPROJECT_SECRET_KEY_BASE=${OPENPROJECT_SECRET_KEY_BASE:-changeme-secret-key-base-change-in-production}
+      - OPENPROJECT_HOST__NAME=${OPENPROJECT_HOST__NAME:-openproject.local.info}
+      - OPENPROJECT_HTTPS=${OPENPROJECT_HTTPS:-false}
+      - DATABASE_URL=postgres://openproject:${OPENPROJECT_DB_PASSWORD:-openproject}@openproject-postgres:5432/openproject
+    volumes:
+      - openproject-data:/var/openproject/assets
+    networks:
+      - monitoring
+    depends_on:
+      - openproject-postgres
+    restart: unless-stopped
+
+  # PostgreSQL database for OpenProject
+  openproject-postgres:
+    image: postgres:15
+    container_name: openproject-postgres
+    environment:
+      - POSTGRES_USER=openproject
+      - POSTGRES_PASSWORD=${OPENPROJECT_DB_PASSWORD:-openproject}
+      - POSTGRES_DB=openproject
+    volumes:
+      - openproject-postgres-data:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
   # Nginx reverse proxy for all services
   # NOTE: No depends_on - nginx can start before backends and handle 502 errors gracefully
   nginx-proxy:
@@ -587,6 +621,7 @@ services:
       - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
       - ./nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
       - ./nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
+      - ./nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
       - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
       - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
       - ./nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
@@ -607,10 +642,13 @@ services:
     cpus: 2.0
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx2048m -Xms1024m -XX:MaxMetaspaceSize=512m -Djenkins.model.Jenkins.slaveAgentPort=50000 -Dhudson.model.AbstractCIBase.timeout=1800 -Dhudson.remoting.Launcher.pingIntervalSec=300
-      # JIRA configuration for feature branch validation
-      - JIRA_URL=https://vittorioapi91.atlassian.net
-      - JIRA_USER=vittorioapi91@gmail.com
-      - JIRA_API_TOKEN=ATATT3xFfGF0X2ORyNBVPCGC44Z2a0VdyOa2IpPHQ-Hoe3ER0z7J19uGZisnrDMgJNjnWVfgUD1TBnJQpLxhe3mmPU4RXoQrZYPzJklEsesER06GUaSHq0SJcVXcIzXzRkwbA8j31_8paZCn0H_PB06naDKgdiPP6Wcl1FJppzvtRDRfZKU-Bew=2190D79E
+      # OpenProject configuration for feature branch validation (replacement for Jira)
+      - OPENPROJECT_URL=${OPENPROJECT_URL:-http://openproject:80}
+      - OPENPROJECT_API_KEY=${OPENPROJECT_API_KEY:-}
+      # Legacy JIRA variables (for migration period - can be removed after migration)
+      - JIRA_URL=${OPENPROJECT_URL:-http://openproject:80}
+      - JIRA_USER=${OPENPROJECT_USER:-admin}
+      - JIRA_API_TOKEN=${OPENPROJECT_API_KEY:-}
     volumes:
       - ../jenkins/data:/var/jenkins_home  # Mount extracted Jenkins data
       - /var/run/docker.sock:/var/run/docker.sock  # Docker socket for docker build
@@ -701,6 +739,8 @@ volumes:
   redis-data:
   redisinsight-data:
   nats-data:
+  openproject-data:
+  openproject-postgres-data:
   registry-data:
   portainer-data:
 

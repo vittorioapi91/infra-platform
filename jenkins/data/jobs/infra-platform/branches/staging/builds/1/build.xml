@@ -1,0 +1,831 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-build plugin="workflow-job@1559.va_a_533730b_ea_d">
+  <actions>
+    <hudson.model.CauseAction>
+      <causeBag class="linked-hash-map">
+        <entry>
+          <jenkins.branch.BranchIndexingCause plugin="branch-api@2.1268.v044a_87612da_8"/>
+          <int>1</int>
+        </entry>
+      </causeBag>
+    </hudson.model.CauseAction>
+    <jenkins.scm.api.SCMRevisionAction plugin="scm-api@724.v7d839074eb_5c">
+      <sourceId>infra-platform-git</sourceId>
+      <revision class="jenkins.plugins.git.AbstractGitSCMSource$SCMRevisionImpl" plugin="git@5.8.1">
+        <head class="org.jenkinsci.plugins.github_branch_source.BranchSCMHead" plugin="github-branch-source@1917.v9ee8a_39b_3d0d">
+          <name>staging</name>
+        </head>
+        <hash>2e0824343e49acd5b57da3915ff7686a79d670dd</hash>
+      </revision>
+    </jenkins.scm.api.SCMRevisionAction>
+    <org.jenkinsci.plugins.workflow.libs.LibrariesAction plugin="pipeline-groovy-lib@787.ve2fef0efdca_6">
+      <libraries/>
+    </org.jenkinsci.plugins.workflow.libs.LibrariesAction>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction plugin="pipeline-model-definition@2.2277.v00573e73ddf1">
+      <stagesUUID>eedfb061-86d6-44c9-bd5b-7c3384a93b8f</stagesUUID>
+      <pipelineDefs>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTPipelineDef plugin="pipeline-model-api@2.2277.v00573e73ddf1">
+          <stages>
+            <stages>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Checkout</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                        <name>checkout</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scm</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-GStringValue>
+                                <value class="string">${scm}</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-GStringValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Infra-Platform Configuration</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating infra-platform configuration...&quot;
+                    sh &quot;&quot;&quot;
+                        # Validate docker-compose files (using &apos;docker compose&apos; plugin, not &apos;docker-compose&apos; binary)
+                        if [ -f &quot;docker/docker-compose.infra-platform.yml&quot; ]; then
+                            echo &quot;Validating docker-compose.infra-platform.yml...&quot;
+                            docker compose -f docker/docker-compose.infra-platform.yml config &gt; /dev/null || {
+                                echo &quot;❌ docker-compose.infra-platform.yml is invalid&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ docker-compose.infra-platform.yml is valid&quot;
+                        fi
+                        
+                        if [ -f &quot;docker/docker-compose.yml&quot; ]; then
+                            echo &quot;Validating docker-compose.yml...&quot;
+                            docker compose -f docker/docker-compose.yml config &gt; /dev/null || {
+                                echo &quot;❌ docker-compose.yml is invalid&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ docker-compose.yml is valid&quot;
+                        fi
+                        
+                        # Validate Airflow DAGs (if they exist)
+                        if [ -d &quot;airflow/dags&quot; ]; then
+                            echo &quot;Validating Airflow DAGs...&quot;
+                            # Create minimal venv for DAG validation
+                            python3 -m venv /tmp/infra_venv || true
+                            /tmp/infra_venv/bin/pip install --quiet apache-airflow tqdm pandas psycopg2-binary requests python-dotenv || true
+                            
+                            export AIRFLOW_HOME=/tmp/airflow_infra_home
+                            export AIRFLOW__CORE__DAGS_FOLDER=airflow/dags
+                            export AIRFLOW__CORE__LOAD_EXAMPLES=False
+                            export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////tmp/airflow_infra_home/airflow.db
+                            
+                            mkdir -p \${AIRFLOW_HOME}
+                            /tmp/infra_venv/bin/python -m airflow db migrate 2&gt;/dev/null || true
+                            /tmp/infra_venv/bin/python -m airflow dags list &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                echo &quot;✓ Airflow DAGs are valid&quot;
+                            } || {
+                                echo &quot;⚠️  Warning: Could not validate Airflow DAGs (may need full Airflow setup)&quot;
+                            }
+                        fi
+                        
+                        echo &quot;✓ Infra-platform configuration validated&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Build Infra-Platform Images</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Building infra-platform Docker images...&quot;
+                    sh &quot;&quot;&quot;
+                        # Ensure buildx is available and create builder if needed
+                        docker buildx version || docker buildx install
+                        docker buildx create --use --name builder 2&gt;/dev/null || docker buildx use builder
+                        
+                        # Check if base image exists (base images are built manually, not in pipeline)
+                        if ! docker images --format &apos;{{.Repository}}:{{.Tag}}&apos; | grep -q &apos;^jenkins-custom:base\$&apos;; then
+                            echo &quot;❌ ERROR: Base Jenkins image &apos;jenkins-custom:base&apos; not found!&quot;
+                            echo &quot;&quot;
+                            echo &quot;Base images must be built manually before running pipelines.&quot;
+                            echo &quot;To build the base image, run:&quot;
+                            echo &quot;  docker build -t jenkins-custom:base -f docker/Dockerfile.jenkins.base docker/&quot;
+                            echo &quot;&quot;
+                            echo &quot;See docker/README_BASE_IMAGES.md for more information.&quot;
+                            exit 1
+                        fi
+                        
+                        echo &quot;✓ Base Jenkins image found: jenkins-custom:base&quot;
+                        
+                        # Switch to default builder for local base images (container builder can&apos;t see host images)
+                        # The default builder has access to local images, container builder doesn&apos;t
+                        echo &quot;Switching to default builder for local base image access...&quot;
+                        docker buildx use default || docker buildx use builder
+                        
+                        # Build incremental Jenkins image (FROM base)
+                        if [ -f &quot;docker/Dockerfile.jenkins&quot; ]; then
+                            echo &quot;Building incremental Jenkins image: jenkins-custom:lts (FROM base)...&quot;
+                            docker buildx build \
+                                --platform linux/amd64 \
+                                -f docker/Dockerfile.jenkins \
+                                -t jenkins-custom:lts \
+                                --load \
+                                docker/ || {
+                                echo &quot;❌ Error: Could not build incremental Jenkins image&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ Incremental Jenkins image built: jenkins-custom:lts&quot;
+                        fi
+                        
+                        echo &quot;✓ Infra-platform images built successfully&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Infra-Platform Services</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating infra-platform services can start...&quot;
+                    sh &quot;&quot;&quot;
+                        # Test that docker-compose files are valid and services can be checked
+                        if [ -f &quot;docker/docker-compose.infra-platform.yml&quot; ]; then
+                            echo &quot;Checking infra-platform services...&quot;
+                            docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
+                            echo &quot;✓ Infra-platform services configuration is valid&quot;
+                        fi
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Kubernetes/Kind Cluster</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating Kubernetes/kind cluster configuration...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check if kind is available
+                        if ! command -v kind &amp;&gt; /dev/null; then
+                            echo &quot;⚠️  Warning: kind command not found. Kubernetes validation skipped.&quot;
+                            exit 0
+                        fi
+                        
+                        # Check if kubectl is available
+                        if ! command -v kubectl &amp;&gt; /dev/null; then
+                            echo &quot;⚠️  Warning: kubectl command not found. Kubernetes validation skipped.&quot;
+                            exit 0
+                        fi
+                        
+                        # Validate Kubernetes manifests
+                        if [ -d &quot;kubernetes&quot; ]; then
+                            echo &quot;Validating Kubernetes manifests...&quot;
+                            
+                            # Check for required manifest files
+                            if [ -f &quot;kubernetes/hmm-model-training-job.yaml&quot; ]; then
+                                echo &quot;Validating hmm-model-training-job.yaml...&quot;
+                                kubectl --dry-run=client -f kubernetes/hmm-model-training-job.yaml validate 2&gt;/dev/null || {
+                                    # Try alternative validation
+                                    kubectl apply --dry-run=client -f kubernetes/hmm-model-training-job.yaml &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                        echo &quot;✓ hmm-model-training-job.yaml is valid&quot;
+                                    } || {
+                                        echo &quot;⚠️  Warning: Could not validate hmm-model-training-job.yaml (may need cluster context)&quot;
+                                    }
+                                }
+                            fi
+                            
+                            if [ -f &quot;kubernetes/monitoring-stack.yaml&quot; ]; then
+                                echo &quot;Validating monitoring-stack.yaml...&quot;
+                                kubectl apply --dry-run=client -f kubernetes/monitoring-stack.yaml &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                    echo &quot;✓ monitoring-stack.yaml is valid&quot;
+                                } || {
+                                    echo &quot;⚠️  Warning: Could not validate monitoring-stack.yaml (may need cluster context)&quot;
+                                }
+                            fi
+                            
+                            # Check if kind cluster exists (if kind is available)
+                            CLUSTER_NAME=&quot;trading-cluster&quot;
+                            if kind get clusters 2&gt;/dev/null | grep -q &quot;^\${CLUSTER_NAME}\$&quot;; then
+                                echo &quot;✓ Kind cluster &apos;\${CLUSTER_NAME}&apos; exists&quot;
+                                
+                                # Validate cluster is accessible
+                                kubectl config use-context &quot;kind-\${CLUSTER_NAME}&quot; &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                    if kubectl cluster-info &gt; /dev/null 2&gt;&amp;1; then
+                                        echo &quot;✓ Kind cluster is accessible&quot;
+                                        kubectl get nodes 2&gt;/dev/null | head -3
+                                        
+                                        # Check Kubernetes Dashboard
+                                        echo &quot;&quot;
+                                        echo &quot;Checking Kubernetes Dashboard...&quot;
+                                        if kubectl get deployment kubernetes-dashboard -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                            echo &quot;✓ Kubernetes Dashboard deployment exists&quot;
+                                            
+                                            # Check if dashboard is running
+                                            DASHBOARD_READY=\$(kubectl get deployment kubernetes-dashboard -n kubernetes-dashboard -o jsonpath=&apos;{.status.readyReplicas}&apos; 2&gt;/dev/null || echo &quot;0&quot;)
+                                            if [ &quot;\$DASHBOARD_READY&quot; -gt 0 ]; then
+                                                echo &quot;✓ Kubernetes Dashboard is running (\${DASHBOARD_READY} replica(s) ready)&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Kubernetes Dashboard deployment exists but no replicas are ready&quot;
+                                            fi
+                                            
+                                            # Check dashboard service
+                                            if kubectl get service kubernetes-dashboard -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                                echo &quot;✓ Kubernetes Dashboard service exists&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Kubernetes Dashboard service not found&quot;
+                                            fi
+                                            
+                                            # Check admin user service account
+                                            if kubectl get serviceaccount admin-user -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                                echo &quot;✓ Dashboard admin-user service account exists&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Dashboard admin-user service account not found&quot;
+                                            fi
+                                        else
+                                            echo &quot;ℹ️  Kubernetes Dashboard not installed (will be installed by start-kubernetes.sh when needed)&quot;
+                                        fi
+                                    else
+                                        echo &quot;⚠️  Warning: Kind cluster exists but is not accessible&quot;
+                                    }
+                                } || {
+                                    echo &quot;⚠️  Warning: Could not switch to kind cluster context&quot;
+                                }
+                            else
+                                echo &quot;ℹ️  Kind cluster &apos;\${CLUSTER_NAME}&apos; does not exist (will be created by start-kubernetes.sh when needed)&quot;
+                            fi
+                            
+                            # Validate start-kubernetes.sh script exists and is executable
+                            if [ -f &quot;kubernetes/start-kubernetes.sh&quot; ]; then
+                                if [ -x &quot;kubernetes/start-kubernetes.sh&quot; ]; then
+                                    echo &quot;✓ start-kubernetes.sh exists and is executable&quot;
+                                else
+                                    echo &quot;⚠️  Warning: start-kubernetes.sh exists but is not executable&quot;
+                                fi
+                            else
+                                echo &quot;⚠️  Warning: start-kubernetes.sh not found&quot;
+                            fi
+                        else
+                            echo &quot;ℹ️  kubernetes directory not found (Kubernetes manifests optional)&quot;
+                        fi
+                        
+                        echo &quot;✓ Kubernetes/kind cluster validation completed&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+            </stages>
+            <uuid>eedfb061-86d6-44c9-bd5b-7c3384a93b8f</uuid>
+          </stages>
+          <postBuild>
+            <conditions>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                <condition>success</condition>
+                <branch>
+                  <name>default</name>
+                  <steps>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <name>echo</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>message</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">✓ Infra-platform pipeline succeeded!</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                  </steps>
+                </branch>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                <condition>failure</condition>
+                <branch>
+                  <name>default</name>
+                  <steps>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <name>echo</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>message</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">✗ Infra-platform pipeline failed. Check logs for details.</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                  </steps>
+                </branch>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+            </conditions>
+          </postBuild>
+          <agent>
+            <agentType>
+              <key>any</key>
+            </agentType>
+          </agent>
+        </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTPipelineDef>
+      </pipelineDefs>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction>
+    <hudson.plugins.git.util.BuildData plugin="git@5.8.1">
+      <buildsByBranchName>
+        <entry>
+          <string>staging</string>
+          <hudson.plugins.git.util.Build>
+            <marked plugin="git-client@6.5.0">
+              <sha1>2e0824343e49acd5b57da3915ff7686a79d670dd</sha1>
+              <branches class="singleton-set">
+                <hudson.plugins.git.Branch>
+                  <sha1 reference="../../../sha1"/>
+                  <name>staging</name>
+                </hudson.plugins.git.Branch>
+              </branches>
+            </marked>
+            <revision reference="../marked"/>
+            <hudsonBuildNumber>1</hudsonBuildNumber>
+          </hudson.plugins.git.util.Build>
+        </entry>
+      </buildsByBranchName>
+      <lastBuild reference="../buildsByBranchName/entry/hudson.plugins.git.util.Build"/>
+      <remoteUrls>
+        <string>https://github.com/vittorioapi91/infra-platform.git</string>
+      </remoteUrls>
+    </hudson.plugins.git.util.BuildData>
+    <org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState plugin="workflow-scm-step@466.va_d69e602552b_">
+      <revisionStates>
+        <entry>
+          <string>git https://github.com/vittorioapi91/infra-platform.git</string>
+          <hudson.scm.SCMRevisionState_-None/>
+        </entry>
+      </revisionStates>
+    </org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState>
+  </actions>
+  <queueId>17</queueId>
+  <timestamp>1768661434821</timestamp>
+  <startTime>1768661434824</startTime>
+  <result>FAILURE</result>
+  <duration>957684</duration>
+  <charset>UTF-8</charset>
+  <keepLog>false</keepLog>
+  <execution class="org.jenkinsci.plugins.workflow.cps.CpsFlowExecution">
+    <result>FAILURE</result>
+    <script>pipeline {
+    agent any
+    
+    // This pipeline validates and builds infra-platform components (Airflow, Grafana, etc.)
+    
+    stages {
+        stage(&apos;Checkout&apos;) {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage(&apos;Validate Infra-Platform Configuration&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating infra-platform configuration...&quot;
+                    sh &quot;&quot;&quot;
+                        # Validate docker-compose files (using &apos;docker compose&apos; plugin, not &apos;docker-compose&apos; binary)
+                        if [ -f &quot;docker/docker-compose.infra-platform.yml&quot; ]; then
+                            echo &quot;Validating docker-compose.infra-platform.yml...&quot;
+                            docker compose -f docker/docker-compose.infra-platform.yml config &gt; /dev/null || {
+                                echo &quot;❌ docker-compose.infra-platform.yml is invalid&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ docker-compose.infra-platform.yml is valid&quot;
+                        fi
+                        
+                        if [ -f &quot;docker/docker-compose.yml&quot; ]; then
+                            echo &quot;Validating docker-compose.yml...&quot;
+                            docker compose -f docker/docker-compose.yml config &gt; /dev/null || {
+                                echo &quot;❌ docker-compose.yml is invalid&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ docker-compose.yml is valid&quot;
+                        fi
+                        
+                        # Validate Airflow DAGs (if they exist)
+                        if [ -d &quot;airflow/dags&quot; ]; then
+                            echo &quot;Validating Airflow DAGs...&quot;
+                            # Create minimal venv for DAG validation
+                            python3 -m venv /tmp/infra_venv || true
+                            /tmp/infra_venv/bin/pip install --quiet apache-airflow tqdm pandas psycopg2-binary requests python-dotenv || true
+                            
+                            export AIRFLOW_HOME=/tmp/airflow_infra_home
+                            export AIRFLOW__CORE__DAGS_FOLDER=airflow/dags
+                            export AIRFLOW__CORE__LOAD_EXAMPLES=False
+                            export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////tmp/airflow_infra_home/airflow.db
+                            
+                            mkdir -p \${AIRFLOW_HOME}
+                            /tmp/infra_venv/bin/python -m airflow db migrate 2&gt;/dev/null || true
+                            /tmp/infra_venv/bin/python -m airflow dags list &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                echo &quot;✓ Airflow DAGs are valid&quot;
+                            } || {
+                                echo &quot;⚠️  Warning: Could not validate Airflow DAGs (may need full Airflow setup)&quot;
+                            }
+                        fi
+                        
+                        echo &quot;✓ Infra-platform configuration validated&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Build Infra-Platform Images&apos;) {
+            steps {
+                script {
+                    echo &quot;Building infra-platform Docker images...&quot;
+                    sh &quot;&quot;&quot;
+                        # Ensure buildx is available and create builder if needed
+                        docker buildx version || docker buildx install
+                        docker buildx create --use --name builder 2&gt;/dev/null || docker buildx use builder
+                        
+                        # Check if base image exists (base images are built manually, not in pipeline)
+                        if ! docker images --format &apos;{{.Repository}}:{{.Tag}}&apos; | grep -q &apos;^jenkins-custom:base\$&apos;; then
+                            echo &quot;❌ ERROR: Base Jenkins image &apos;jenkins-custom:base&apos; not found!&quot;
+                            echo &quot;&quot;
+                            echo &quot;Base images must be built manually before running pipelines.&quot;
+                            echo &quot;To build the base image, run:&quot;
+                            echo &quot;  docker build -t jenkins-custom:base -f docker/Dockerfile.jenkins.base docker/&quot;
+                            echo &quot;&quot;
+                            echo &quot;See docker/README_BASE_IMAGES.md for more information.&quot;
+                            exit 1
+                        fi
+                        
+                        echo &quot;✓ Base Jenkins image found: jenkins-custom:base&quot;
+                        
+                        # Switch to default builder for local base images (container builder can&apos;t see host images)
+                        # The default builder has access to local images, container builder doesn&apos;t
+                        echo &quot;Switching to default builder for local base image access...&quot;
+                        docker buildx use default || docker buildx use builder
+                        
+                        # Build incremental Jenkins image (FROM base)
+                        if [ -f &quot;docker/Dockerfile.jenkins&quot; ]; then
+                            echo &quot;Building incremental Jenkins image: jenkins-custom:lts (FROM base)...&quot;
+                            docker buildx build \
+                                --platform linux/amd64 \
+                                -f docker/Dockerfile.jenkins \
+                                -t jenkins-custom:lts \
+                                --load \
+                                docker/ || {
+                                echo &quot;❌ Error: Could not build incremental Jenkins image&quot;
+                                exit 1
+                            }
+                            echo &quot;✓ Incremental Jenkins image built: jenkins-custom:lts&quot;
+                        fi
+                        
+                        echo &quot;✓ Infra-platform images built successfully&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Infra-Platform Services&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating infra-platform services can start...&quot;
+                    sh &quot;&quot;&quot;
+                        # Test that docker-compose files are valid and services can be checked
+                        if [ -f &quot;docker/docker-compose.infra-platform.yml&quot; ]; then
+                            echo &quot;Checking infra-platform services...&quot;
+                            docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
+                            echo &quot;✓ Infra-platform services configuration is valid&quot;
+                        fi
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Kubernetes/Kind Cluster&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating Kubernetes/kind cluster configuration...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check if kind is available
+                        if ! command -v kind &amp;&gt; /dev/null; then
+                            echo &quot;⚠️  Warning: kind command not found. Kubernetes validation skipped.&quot;
+                            exit 0
+                        fi
+                        
+                        # Check if kubectl is available
+                        if ! command -v kubectl &amp;&gt; /dev/null; then
+                            echo &quot;⚠️  Warning: kubectl command not found. Kubernetes validation skipped.&quot;
+                            exit 0
+                        fi
+                        
+                        # Validate Kubernetes manifests
+                        if [ -d &quot;kubernetes&quot; ]; then
+                            echo &quot;Validating Kubernetes manifests...&quot;
+                            
+                            # Check for required manifest files
+                            if [ -f &quot;kubernetes/hmm-model-training-job.yaml&quot; ]; then
+                                echo &quot;Validating hmm-model-training-job.yaml...&quot;
+                                kubectl --dry-run=client -f kubernetes/hmm-model-training-job.yaml validate 2&gt;/dev/null || {
+                                    # Try alternative validation
+                                    kubectl apply --dry-run=client -f kubernetes/hmm-model-training-job.yaml &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                        echo &quot;✓ hmm-model-training-job.yaml is valid&quot;
+                                    } || {
+                                        echo &quot;⚠️  Warning: Could not validate hmm-model-training-job.yaml (may need cluster context)&quot;
+                                    }
+                                }
+                            fi
+                            
+                            if [ -f &quot;kubernetes/monitoring-stack.yaml&quot; ]; then
+                                echo &quot;Validating monitoring-stack.yaml...&quot;
+                                kubectl apply --dry-run=client -f kubernetes/monitoring-stack.yaml &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                    echo &quot;✓ monitoring-stack.yaml is valid&quot;
+                                } || {
+                                    echo &quot;⚠️  Warning: Could not validate monitoring-stack.yaml (may need cluster context)&quot;
+                                }
+                            fi
+                            
+                            # Check if kind cluster exists (if kind is available)
+                            CLUSTER_NAME=&quot;trading-cluster&quot;
+                            if kind get clusters 2&gt;/dev/null | grep -q &quot;^\${CLUSTER_NAME}\$&quot;; then
+                                echo &quot;✓ Kind cluster &apos;\${CLUSTER_NAME}&apos; exists&quot;
+                                
+                                # Validate cluster is accessible
+                                kubectl config use-context &quot;kind-\${CLUSTER_NAME}&quot; &gt; /dev/null 2&gt;&amp;1 &amp;&amp; {
+                                    if kubectl cluster-info &gt; /dev/null 2&gt;&amp;1; then
+                                        echo &quot;✓ Kind cluster is accessible&quot;
+                                        kubectl get nodes 2&gt;/dev/null | head -3
+                                        
+                                        # Check Kubernetes Dashboard
+                                        echo &quot;&quot;
+                                        echo &quot;Checking Kubernetes Dashboard...&quot;
+                                        if kubectl get deployment kubernetes-dashboard -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                            echo &quot;✓ Kubernetes Dashboard deployment exists&quot;
+                                            
+                                            # Check if dashboard is running
+                                            DASHBOARD_READY=\$(kubectl get deployment kubernetes-dashboard -n kubernetes-dashboard -o jsonpath=&apos;{.status.readyReplicas}&apos; 2&gt;/dev/null || echo &quot;0&quot;)
+                                            if [ &quot;\$DASHBOARD_READY&quot; -gt 0 ]; then
+                                                echo &quot;✓ Kubernetes Dashboard is running (\${DASHBOARD_READY} replica(s) ready)&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Kubernetes Dashboard deployment exists but no replicas are ready&quot;
+                                            fi
+                                            
+                                            # Check dashboard service
+                                            if kubectl get service kubernetes-dashboard -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                                echo &quot;✓ Kubernetes Dashboard service exists&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Kubernetes Dashboard service not found&quot;
+                                            fi
+                                            
+                                            # Check admin user service account
+                                            if kubectl get serviceaccount admin-user -n kubernetes-dashboard &gt; /dev/null 2&gt;&amp;1; then
+                                                echo &quot;✓ Dashboard admin-user service account exists&quot;
+                                            else
+                                                echo &quot;⚠️  Warning: Dashboard admin-user service account not found&quot;
+                                            fi
+                                        else
+                                            echo &quot;ℹ️  Kubernetes Dashboard not installed (will be installed by start-kubernetes.sh when needed)&quot;
+                                        fi
+                                    else
+                                        echo &quot;⚠️  Warning: Kind cluster exists but is not accessible&quot;
+                                    }
+                                } || {
+                                    echo &quot;⚠️  Warning: Could not switch to kind cluster context&quot;
+                                }
+                            else
+                                echo &quot;ℹ️  Kind cluster &apos;\${CLUSTER_NAME}&apos; does not exist (will be created by start-kubernetes.sh when needed)&quot;
+                            fi
+                            
+                            # Validate start-kubernetes.sh script exists and is executable
+                            if [ -f &quot;kubernetes/start-kubernetes.sh&quot; ]; then
+                                if [ -x &quot;kubernetes/start-kubernetes.sh&quot; ]; then
+                                    echo &quot;✓ start-kubernetes.sh exists and is executable&quot;
+                                else
+                                    echo &quot;⚠️  Warning: start-kubernetes.sh exists but is not executable&quot;
+                                fi
+                            else
+                                echo &quot;⚠️  Warning: start-kubernetes.sh not found&quot;
+                            fi
+                        else
+                            echo &quot;ℹ️  kubernetes directory not found (Kubernetes manifests optional)&quot;
+                        fi
+                        
+                        echo &quot;✓ Kubernetes/kind cluster validation completed&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo &quot;✓ Infra-platform pipeline succeeded!&quot;
+        }
+        failure {
+            echo &quot;✗ Infra-platform pipeline failed. Check logs for details.&quot;
+        }
+    }
+}
+</script>
+    <loadedScripts class="linked-hash-map"/>
+    <durabilityHint>MAX_SURVIVABILITY</durabilityHint>
+    <timings class="map">
+      <entry>
+        <string>flowNode</string>
+        <long>250972775</long>
+      </entry>
+      <entry>
+        <string>classLoad</string>
+        <long>1214597046</long>
+      </entry>
+      <entry>
+        <string>runQueue</string>
+        <long>3706280293</long>
+      </entry>
+      <entry>
+        <string>run</string>
+        <long>3966185916</long>
+      </entry>
+      <entry>
+        <string>parse</string>
+        <long>874542625</long>
+      </entry>
+      <entry>
+        <string>saveProgram</string>
+        <long>1258036919</long>
+      </entry>
+    </timings>
+    <internalCalls class="sorted-set">
+      <string>hudson.model.Result.fromString</string>
+      <string>org.jenkinsci.plugins.pipeline.StageStatus.TAG_NAME</string>
+      <string>org.jenkinsci.plugins.workflow.job.WorkflowRun.result</string>
+    </internalCalls>
+    <sandbox>true</sandbox>
+    <iota>51</iota>
+    <head>1:51</head>
+    <done>true</done>
+    <resumeBlocked>false</resumeBlocked>
+    <storageDir>workflow-completed</storageDir>
+  </execution>
+  <completed>true</completed>
+  <checkouts class="hudson.util.PersistedList">
+    <org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@5.8.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/staging:refs/remotes/origin/staging</refspec>
+            <url>https://github.com/vittorioapi91/infra-platform.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches class="singleton-list">
+          <hudson.plugins.git.BranchSpec>
+            <name>staging</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <browser class="hudson.plugins.git.browser.GithubWeb">
+          <url>https://github.com/vittorioapi91/infra-platform</url>
+        </browser>
+        <submoduleCfg class="empty-list"/>
+        <extensions>
+          <jenkins.plugins.git.GitSCMSourceDefaults>
+            <includeTags>false</includeTags>
+          </jenkins.plugins.git.GitSCMSourceDefaults>
+          <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+            <buildChooser class="jenkins.plugins.git.AbstractGitSCMSource$SpecificRevisionBuildChooser">
+              <revision reference="../../../../../../../actions/hudson.plugins.git.util.BuildData/buildsByBranchName/entry/hudson.plugins.git.util.Build/marked"/>
+            </buildChooser>
+          </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        </extensions>
+      </scm>
+      <node></node>
+      <workspace>/var/jenkins_home/workspace/infra-platform_staging</workspace>
+      <changelogFile>/var/jenkins_home/jobs/infra-platform/branches/staging/builds/1/changelog10023039449346920177.xml</changelogFile>
+      <pollingBaseline class="hudson.scm.SCMRevisionState$None" reference="../../../actions/org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState/revisionStates/entry/hudson.scm.SCMRevisionState_-None"/>
+    </org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+    <org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@5.8.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/staging:refs/remotes/origin/staging</refspec>
+            <url>https://github.com/vittorioapi91/infra-platform.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches class="singleton-list">
+          <hudson.plugins.git.BranchSpec>
+            <name>staging</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <browser class="hudson.plugins.git.browser.GithubWeb">
+          <url>https://github.com/vittorioapi91/infra-platform</url>
+        </browser>
+        <submoduleCfg class="empty-list"/>
+        <extensions>
+          <jenkins.plugins.git.GitSCMSourceDefaults>
+            <includeTags>false</includeTags>
+          </jenkins.plugins.git.GitSCMSourceDefaults>
+          <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+            <buildChooser class="jenkins.plugins.git.AbstractGitSCMSource$SpecificRevisionBuildChooser">
+              <revision plugin="git-client@6.5.0">
+                <sha1>2e0824343e49acd5b57da3915ff7686a79d670dd</sha1>
+                <branches class="singleton-set">
+                  <hudson.plugins.git.Branch>
+                    <sha1 reference="../../../sha1"/>
+                    <name>staging</name>
+                  </hudson.plugins.git.Branch>
+                </branches>
+              </revision>
+            </buildChooser>
+          </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        </extensions>
+      </scm>
+      <node></node>
+      <workspace>/var/jenkins_home/workspace/infra-platform_staging</workspace>
+      <pollingBaseline class="hudson.scm.SCMRevisionState$None" reference="../../../actions/org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState/revisionStates/entry/hudson.scm.SCMRevisionState_-None"/>
+    </org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+  </checkouts>
+</flow-build>

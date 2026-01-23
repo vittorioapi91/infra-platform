@@ -580,6 +580,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock  # Docker socket for docker build
       - ${HOME}/.kube:/root/.kube  # Kubernetes config for kubectl access
       - ../../TradingPythonAgent:/workspace/trading-agent:ro  # Mount TradingPythonAgent for wheel access
+      - ..:/var/jenkins_home/workspace/infra-platform:ro  # Mount infra-platform repo so ../infra-platform works from workspace (relative path)
     networks:
       - monitoring
     restart: unless-stopped
@@ -595,9 +596,21 @@ services:
           # Use perl for better regex support (escape backslashes properly)
           perl -pi -e 's|https://127\.0\.0\.1:(\d+)|https://host.docker.internal:$1|g' /root/.kube/config || true
           perl -pi -e 's|https://localhost:(\d+)|https://host.docker.internal:$1|g' /root/.kube/config || true
-          # Add insecure-skip-tls-verify for kind-trading-cluster (cert doesn't include host.docker.internal)
-          # This is safe for local development only
-          kubectl config set-cluster kind-trading-cluster --insecure-skip-tls-verify=true 2>/dev/null || true
+          # For kind-trading-cluster context, ensure it uses host.docker.internal and skip TLS verify
+          # Extract the port from the current server URL and update it
+          if kubectl config view --context kind-trading-cluster --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null | grep -q '127.0.0.1\|localhost'; then
+            SERVER_URL=\$$(kubectl config view --context kind-trading-cluster --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || echo '')
+            if [ -n "\$${SERVER_URL}" ]; then
+              # Extract port from URL (e.g., https://127.0.0.1:54242 -> 54242)
+              PORT=\$$(echo "\$${SERVER_URL}" | sed -E 's|https?://[^:]+:([0-9]+).*|\1|')
+              if [ -n "\$${PORT}" ]; then
+                kubectl config set-cluster kind-trading-cluster --server=https://host.docker.internal:\$${PORT} --insecure-skip-tls-verify=true 2>/dev/null || true
+              fi
+            fi
+          else
+            # Just add insecure-skip-tls-verify if server already uses host.docker.internal
+            kubectl config set-cluster kind-trading-cluster --insecure-skip-tls-verify=true 2>/dev/null || true
+          fi
         fi
         # Start Jenkins with original entrypoint
         exec /usr/local/bin/jenkins.sh

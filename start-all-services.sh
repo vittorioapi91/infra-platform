@@ -103,6 +103,8 @@ log "  - Prometheus: http://localhost:9090"
 log "  - Kubernetes Dashboard: https://localhost:8001"
 log "  - PostgreSQL: localhost:55432"
 log "  - Redis: localhost:6379"
+log "  - RedisInsight: http://localhost:5540 (Redis web GUI)"
+log "  - NATS: localhost:4222 (client), localhost:8222 (monitoring)"
 log ""
 log "Log file: $LOG_FILE"
 

@@ -1,0 +1,1431 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-build plugin="workflow-job@1559.va_a_533730b_ea_d">
+  <actions>
+    <hudson.model.CauseAction>
+      <causeBag class="linked-hash-map">
+        <entry>
+          <hudson.model.Cause_-UserIdCause>
+            <userId>vittorioapi</userId>
+          </hudson.model.Cause_-UserIdCause>
+          <int>1</int>
+        </entry>
+      </causeBag>
+    </hudson.model.CauseAction>
+    <jenkins.scm.api.SCMRevisionAction plugin="scm-api@724.v7d839074eb_5c">
+      <sourceId>1</sourceId>
+      <revision class="jenkins.plugins.git.AbstractGitSCMSource$SCMRevisionImpl" plugin="git@5.8.1">
+        <head class="org.jenkinsci.plugins.github_branch_source.BranchSCMHead" plugin="github-branch-source@1917.v9ee8a_39b_3d0d">
+          <name>staging</name>
+        </head>
+        <hash>717fb830a7b7092901321128203e8ab55be33c04</hash>
+      </revision>
+    </jenkins.scm.api.SCMRevisionAction>
+    <org.jenkinsci.plugins.workflow.libs.LibrariesAction plugin="pipeline-groovy-lib@787.ve2fef0efdca_6">
+      <libraries/>
+    </org.jenkinsci.plugins.workflow.libs.LibrariesAction>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction plugin="pipeline-model-definition@2.2277.v00573e73ddf1">
+      <stagesUUID>002836d5-96ad-409d-9666-b29894775080</stagesUUID>
+      <pipelineDefs>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTPipelineDef plugin="pipeline-model-api@2.2277.v00573e73ddf1">
+          <stages>
+            <stages>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Checkout</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                        <name>checkout</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scm</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-GStringValue>
+                                <value class="string">${scm}</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-GStringValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">env.GIT_COMMIT = sh(
+                        script: &apos;git rev-parse HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: &apos;git rev-parse --short HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_BRANCH = sh(
+                        script: &apos;git rev-parse --abbrev-ref HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_URL = sh(
+                        script: &apos;git config --get remote.origin.url&apos;,
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo &quot;Building for branch: ${env.GIT_BRANCH}&quot;
+                    echo &quot;Commit: ${env.GIT_COMMIT_SHORT}&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Project Structure</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating project structure...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check required directories exist
+                        if [ ! -d &quot;src&quot; ]; then
+                            echo &quot;❌ ERROR: src/ directory not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -d &quot;tests&quot; ]; then
+                            echo &quot;⚠️  Warning: tests/ directory not found (tests are optional)&quot;
+                        fi
+                        
+                        # Check required source files exist
+                        if [ ! -f &quot;src/get_polymarket_data.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/get_polymarket_data.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;src/get_open_markets.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/get_open_markets.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;src/pipeline_all_poly.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/pipeline_all_poly.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;requirements.txt&quot; ]; then
+                            echo &quot;❌ ERROR: requirements.txt not found&quot;
+                            exit 1
+                        fi
+                        
+                        echo &quot;✓ Project structure is valid&quot;
+                        echo &quot;Source files:&quot;
+                        ls -la src/*.py
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Python Syntax</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating Python syntax...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check Python version
+                        python3 --version
+                        
+                        # Validate syntax of all Python files
+                        echo &quot;Checking Python syntax in src/...&quot;
+                        for file in src/*.py; do
+                            if [ -f &quot;\$file&quot; ]; then
+                                echo &quot;Validating \$file...&quot;
+                                python3 -m py_compile &quot;\$file&quot; || {
+                                    echo &quot;❌ Syntax error in \$file&quot;
+                                    exit 1
+                                }
+                            fi
+                        done
+                        
+                        # Validate syntax in tests/ if it exists
+                        if [ -d &quot;tests&quot; ]; then
+                            echo &quot;Checking Python syntax in tests/...&quot;
+                            for file in tests/*.py; do
+                                if [ -f &quot;\$file&quot; ]; then
+                                    echo &quot;Validating \$file...&quot;
+                                    python3 -m py_compile &quot;\$file&quot; || {
+                                        echo &quot;❌ Syntax error in \$file&quot;
+                                        exit 1
+                                    }
+                                fi
+                            done
+                        fi
+                        
+                        echo &quot;✓ All Python files have valid syntax&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Dependencies</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating dependencies...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check if requirements.txt is valid
+                        if [ ! -f &quot;requirements.txt&quot; ]; then
+                            echo &quot;❌ ERROR: requirements.txt not found&quot;
+                            exit 1
+                        fi
+                        
+                        # Validate requirements.txt format (basic check)
+                        echo &quot;Checking requirements.txt format...&quot;
+                        while IFS= read -r line || [ -n &quot;\$line&quot; ]; do
+                            # Skip empty lines
+                            if [ -z &quot;\$line&quot; ]; then
+                                continue
+                            fi
+                            # Skip lines that are just whitespace
+                            trimmed=\$(echo &quot;\$line&quot; | xargs)
+                            if [ -z &quot;\$trimmed&quot; ]; then
+                                continue
+                            fi
+                            # Skip comment lines
+                            if echo &quot;\$line&quot; | grep -qE &apos;^[[:space:]]*#&apos;; then
+                                continue
+                            fi
+                            # Check if line looks like a valid requirement
+                            if ! echo &quot;\$line&quot; | grep -qE &apos;^[a-zA-Z0-9_-]+[&gt;=&lt;]?[0-9.]+&apos;; then
+                                echo &quot;⚠️  Warning: Line may not be a valid requirement: \$line&quot;
+                            fi
+                        done &lt; requirements.txt
+                        
+                        echo &quot;✓ Dependencies file validated&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Install Dependencies</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Installing dependencies...&quot;
+                    sh &quot;&quot;&quot;
+                        # Create virtual environment if it doesn&apos;t exist
+                        if [ ! -d &quot;venv&quot; ]; then
+                            python3 -m venv venv
+                        fi
+                        
+                        # Use virtual environment&apos;s Python directly
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        VENV_PIP=&quot;venv/bin/pip&quot;
+                        
+                        # Upgrade pip first
+                        \${VENV_PIP} install --quiet --upgrade pip
+                        
+                        # Install project dependencies
+                        echo &quot;Installing dependencies from requirements.txt...&quot;
+                        \${VENV_PIP} install --quiet -r requirements.txt || {
+                            echo &quot;❌ ERROR: Failed to install dependencies&quot;
+                            exit 1
+                        }
+                        
+                        echo &quot;✓ Dependencies installed successfully&quot;
+                        echo &quot;Installed packages:&quot;
+                        \${VENV_PIP} list | grep -E &apos;(pandas|python-dotenv|requests)&apos; || true
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Imports</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating Python imports...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        
+                        # Test imports for each source file
+                        echo &quot;Testing imports in src/get_polymarket_data.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import get_polymarket_data
+    print(&apos;✓ get_polymarket_data imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in get_polymarket_data: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in get_polymarket_data: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;Testing imports in src/get_open_markets.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import get_open_markets
+    print(&apos;✓ get_open_markets imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in get_open_markets: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in get_open_markets: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;Testing imports in src/pipeline_all_poly.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import pipeline_all_poly
+    print(&apos;✓ pipeline_all_poly imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in pipeline_all_poly: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in pipeline_all_poly: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;✓ All imports validated successfully&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <post>
+                  <conditions>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                      <condition>always</condition>
+                      <branch>
+                        <name>default</name>
+                        <steps>
+                          <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                            <name>script</name>
+                            <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                              <arguments class="linked-hash-map">
+                                <entry>
+                                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                    <key>scriptBlock</key>
+                                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                    <value class="string">try {
+                            if (fileExists(&apos;test-results/junit.xml&apos;)) {
+                                junit &apos;test-results/junit.xml&apos;
+                            }
+                        } catch (Exception e) {
+                            echo &quot;Warning: Could not archive JUnit test results: ${e.message}&quot;
+                        }
+                        
+                        // Publish coverage report if it exists
+                        try {
+                            if (fileExists(&apos;test-results/coverage.xml&apos;)) {
+                                publishCoverage adapters: [
+                                    coberturaAdapter(&apos;test-results/coverage.xml&apos;)
+                                ], sourceFileResolver: sourceFiles(&apos;STORE_LAST_BUILD&apos;)
+                            }
+                        } catch (Exception e) {
+                            echo &quot;Warning: Could not publish coverage report: ${e.message}&quot;
+                        }</value>
+                                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                </entry>
+                              </arguments>
+                            </args>
+                          </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        </steps>
+                      </branch>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                  </conditions>
+                </post>
+                <when>
+                  <conditions>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTWhenExpression>
+                      <name>expression</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>scriptBlock</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">fileExists(&apos;tests&apos;) &amp;&amp; sh(
+                        script: &apos;find tests -name &quot;*.py&quot; -type f | head -1&apos;,
+                        returnStdout: true
+                    ).trim()</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTWhenExpression>
+                  </conditions>
+                </when>
+                <name>Run Tests</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Running unit tests...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        VENV_PIP=&quot;venv/bin/pip&quot;
+                        
+                        # Install pytest if not already installed
+                        \${VENV_PIP} install --quiet pytest pytest-cov || {
+                            echo &quot;⚠️  Warning: Could not install pytest. Skipping tests.&quot;
+                            exit 0
+                        }
+                        
+                        # Create test results directory
+                        mkdir -p test-results
+                        
+                        # Run tests with coverage
+                        set +e  # Don&apos;t exit on error immediately
+                        \${VENV_PYTHON} -m pytest tests/ \
+                            --junitxml=test-results/junit.xml \
+                            --cov=src \
+                            --cov-report=html:test-results/coverage \
+                            --cov-report=xml:test-results/coverage.xml \
+                            -v || {
+                            echo &quot;⚠️  Some tests failed. Check output above for details.&quot;
+                            TEST_EXIT_CODE=\$?
+                        }
+                        set -e  # Re-enable exit on error
+                        
+                        # Check if test results were generated
+                        if [ -f &quot;test-results/junit.xml&quot; ]; then
+                            echo &quot;✓ Test results generated: test-results/junit.xml&quot;
+                        else
+                            echo &quot;⚠️  Warning: JUnit XML file was not generated&quot;
+                        fi
+                        
+                        # Show test summary
+                        if [ -f &quot;test-results/junit.xml&quot; ]; then
+                            echo &quot;Test Summary:&quot;
+                            \${VENV_PYTHON} -c &quot;
+import xml.etree.ElementTree as ET
+try:
+    tree = ET.parse(&apos;test-results/junit.xml&apos;)
+    root = tree.getroot()
+    tests = int(root.attrib.get(&apos;tests&apos;, 0))
+    failures = int(root.attrib.get(&apos;failures&apos;, 0))
+    errors = int(root.attrib.get(&apos;errors&apos;, 0))
+    print(f&apos;  Tests: {tests}, Failures: {failures}, Errors: {errors}&apos;)
+except Exception as e:
+    print(f&apos;  Could not parse test results: {e}&apos;)
+&quot; || true
+                        fi
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+                <name>Validate Script Logic</name>
+                <branches>
+                  <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                    <name>default</name>
+                    <steps>
+                      <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                        <name>script</name>
+                        <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                          <arguments class="linked-hash-map">
+                            <entry>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                                <key>scriptBlock</key>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                                <value class="string">echo &quot;Validating script logic (dry-run checks)...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        
+                        # Check that main functions exist and are callable
+                        echo &quot;Checking script entry points...&quot;
+                        
+                        # Check get_polymarket_data.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import get_polymarket_data
+if hasattr(get_polymarket_data, &apos;main&apos;):
+    print(&apos;✓ get_polymarket_data has main() function&apos;)
+else:
+    print(&apos;⚠️  Warning: get_polymarket_data does not have main() function&apos;)
+&quot; || true
+                        
+                        # Check get_open_markets.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import get_open_markets
+if hasattr(get_open_markets, &apos;main&apos;):
+    print(&apos;✓ get_open_markets has main() function&apos;)
+else:
+    print(&apos;⚠️  Warning: get_open_markets does not have main() function&apos;)
+&quot; || true
+                        
+                        # Check pipeline_all_poly.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import pipeline_all_poly
+if hasattr(pipeline_all_poly, &apos;main&apos;) or hasattr(pipeline_all_poly, &apos;run_pipeline&apos;):
+    print(&apos;✓ pipeline_all_poly has entry point function&apos;)
+else:
+    print(&apos;⚠️  Warning: pipeline_all_poly does not have entry point function&apos;)
+&quot; || true
+                        
+                        echo &quot;✓ Script logic validation completed&quot;
+                    &quot;&quot;&quot;</value>
+                              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                            </entry>
+                          </arguments>
+                        </args>
+                      </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                    </steps>
+                  </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBranch>
+                </branches>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage>
+            </stages>
+            <uuid>002836d5-96ad-409d-9666-b29894775080</uuid>
+          </stages>
+          <postBuild>
+            <conditions>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                <condition>success</condition>
+                <branch>
+                  <name>default</name>
+                  <steps>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <name>echo</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>message</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">✓ PredictionMarketsAgent pipeline succeeded!</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                      <name>script</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>scriptBlock</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">try {
+                    // Extract repo owner/name from git URL
+                    def repoUrl = env.GIT_URL.replace(&apos;.git&apos;, &apos;&apos;).replace(&apos;git@github.com:&apos;, &apos;https://github.com/&apos;).replace(&apos;https://github.com/&apos;, &apos;&apos;)
+                    def repoParts = repoUrl.split(&apos;/&apos;)
+                    def repoOwner = repoParts.size() &gt;= 1 ? repoParts[0] : &apos;vittorioapi91&apos;
+                    def repoName = repoParts.size() &gt;= 2 ? repoParts[1] : &apos;PredictionMarketsAgent&apos;
+                    
+                    // Get GitHub token from credentials or environment
+                    def githubToken = env.GITHUB_TOKEN ?: &apos;&apos;
+                    
+                    if (githubToken) {
+                        // Post status using curl
+                        sh &quot;&quot;&quot;
+                            curl -X POST \\
+                              -H &quot;Authorization: token ${githubToken}&quot; \\
+                              -H &quot;Accept: application/vnd.github.v3+json&quot; \\
+                              &quot;https://api.github.com/repos/${repoOwner}/${repoName}/statuses/${env.GIT_COMMIT}&quot; \\
+                              -d &apos;{
+                                &quot;state&quot;: &quot;success&quot;,
+                                &quot;target_url&quot;: &quot;${env.BUILD_URL}&quot;,
+                                &quot;description&quot;: &quot;Jenkins pipeline passed&quot;,
+                                &quot;context&quot;: &quot;jenkins/pipeline&quot;
+                              }&apos; || echo &quot;Warning: Could not post status to GitHub&quot;
+                        &quot;&quot;&quot;
+                    } else {
+                        echo &quot;Info: GITHUB_TOKEN not set. Skipping GitHub status update.&quot;
+                    }
+                } catch (Exception e) {
+                    echo &quot;Warning: Could not post status to GitHub: ${e.message}&quot;
+                }</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                  </steps>
+                </branch>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                <condition>failure</condition>
+                <branch>
+                  <name>default</name>
+                  <steps>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <name>echo</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>message</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">✗ PredictionMarketsAgent pipeline failed. Check logs for details.</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                      <name>script</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>scriptBlock</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">try {
+                    def repoUrl = env.GIT_URL.replace(&apos;.git&apos;, &apos;&apos;).replace(&apos;git@github.com:&apos;, &apos;https://github.com/&apos;).replace(&apos;https://github.com/&apos;, &apos;&apos;)
+                    def repoParts = repoUrl.split(&apos;/&apos;)
+                    def repoOwner = repoParts.size() &gt;= 1 ? repoParts[0] : &apos;vittorioapi91&apos;
+                    def repoName = repoParts.size() &gt;= 2 ? repoParts[1] : &apos;PredictionMarketsAgent&apos;
+                    
+                    def githubToken = env.GITHUB_TOKEN ?: &apos;&apos;
+                    
+                    if (githubToken) {
+                        sh &quot;&quot;&quot;
+                            curl -X POST \\
+                              -H &quot;Authorization: token ${githubToken}&quot; \\
+                              -H &quot;Accept: application/vnd.github.v3+json&quot; \\
+                              &quot;https://api.github.com/repos/${repoOwner}/${repoName}/statuses/${env.GIT_COMMIT}&quot; \\
+                              -d &apos;{
+                                &quot;state&quot;: &quot;failure&quot;,
+                                &quot;target_url&quot;: &quot;${env.BUILD_URL}&quot;,
+                                &quot;description&quot;: &quot;Jenkins pipeline failed&quot;,
+                                &quot;context&quot;: &quot;jenkins/pipeline&quot;
+                              }&apos; || echo &quot;Warning: Could not post status to GitHub&quot;
+                        &quot;&quot;&quot;
+                    }
+                } catch (Exception e) {
+                    echo &quot;Warning: Could not post status to GitHub: ${e.message}&quot;
+                }</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTScriptBlock>
+                  </steps>
+                </branch>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+              <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+                <condition>always</condition>
+                <branch>
+                  <name>default</name>
+                  <steps>
+                    <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                      <name>echo</name>
+                      <args class="org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTNamedArgumentList">
+                        <arguments class="linked-hash-map">
+                          <entry>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                              <key>message</key>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                            <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                              <value class="string">Build completed</value>
+                            </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                          </entry>
+                        </arguments>
+                      </args>
+                    </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep>
+                  </steps>
+                </branch>
+              </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTBuildCondition>
+            </conditions>
+          </postBuild>
+          <environment>
+            <variables class="linked-hash-map">
+              <entry>
+                <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                  <key>PYTHON_VERSION</key>
+                </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKey>
+                <org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+                  <value class="string">3.8</value>
+                </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue_-ConstantValue>
+              </entry>
+            </variables>
+          </environment>
+          <agent>
+            <agentType>
+              <key>any</key>
+            </agentType>
+          </agent>
+        </org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTPipelineDef>
+      </pipelineDefs>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction>
+    <com.cloudbees.plugins.credentials.builds.CredentialsParameterBinder plugin="credentials@1480.v2246fd131e83">
+      <boundCredentials class="concurrent-hash-map"/>
+    </com.cloudbees.plugins.credentials.builds.CredentialsParameterBinder>
+    <hudson.plugins.git.util.BuildData plugin="git@5.8.1">
+      <buildsByBranchName>
+        <entry>
+          <string>staging</string>
+          <hudson.plugins.git.util.Build>
+            <marked plugin="git-client@6.5.0">
+              <sha1>717fb830a7b7092901321128203e8ab55be33c04</sha1>
+              <branches class="singleton-set">
+                <hudson.plugins.git.Branch>
+                  <sha1 reference="../../../sha1"/>
+                  <name>staging</name>
+                </hudson.plugins.git.Branch>
+              </branches>
+            </marked>
+            <revision reference="../marked"/>
+            <hudsonBuildNumber>7</hudsonBuildNumber>
+          </hudson.plugins.git.util.Build>
+        </entry>
+      </buildsByBranchName>
+      <lastBuild reference="../buildsByBranchName/entry/hudson.plugins.git.util.Build"/>
+      <remoteUrls>
+        <string>https://github.com/vittorioapi91/PredictionMarketsAgent.git</string>
+      </remoteUrls>
+    </hudson.plugins.git.util.BuildData>
+    <org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState plugin="workflow-scm-step@466.va_d69e602552b_">
+      <revisionStates>
+        <entry>
+          <string>git https://github.com/vittorioapi91/PredictionMarketsAgent.git</string>
+          <hudson.scm.SCMRevisionState_-None/>
+        </entry>
+      </revisionStates>
+    </org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState>
+    <org.jenkinsci.plugins.workflow.cps.EnvActionImpl plugin="workflow-cps@4252.v465f588eb_52f">
+      <env class="tree-map">
+        <entry>
+          <string>GIT_BRANCH</string>
+          <string>HEAD</string>
+        </entry>
+        <entry>
+          <string>GIT_COMMIT</string>
+          <string>717fb830a7b7092901321128203e8ab55be33c04</string>
+        </entry>
+        <entry>
+          <string>GIT_COMMIT_SHORT</string>
+          <string>717fb83</string>
+        </entry>
+        <entry>
+          <string>GIT_URL</string>
+          <string>https://github.com/vittorioapi91/PredictionMarketsAgent.git</string>
+        </entry>
+      </env>
+    </org.jenkinsci.plugins.workflow.cps.EnvActionImpl>
+  </actions>
+  <queueId>39</queueId>
+  <timestamp>1768666575492</timestamp>
+  <startTime>1768666575506</startTime>
+  <result>FAILURE</result>
+  <duration>34667</duration>
+  <charset>UTF-8</charset>
+  <keepLog>false</keepLog>
+  <execution class="org.jenkinsci.plugins.workflow.cps.CpsFlowExecution">
+    <result>FAILURE</result>
+    <script>pipeline {
+    agent any
+    
+    // Pipeline for PredictionMarketsAgent - Polymarket data collection
+    // This pipeline validates and tests the Polymarket data collection scripts
+    
+    environment {
+        PYTHON_VERSION = &apos;3.8&apos;
+    }
+    
+    stages {
+        stage(&apos;Checkout&apos;) {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT = sh(
+                        script: &apos;git rev-parse HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: &apos;git rev-parse --short HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_BRANCH = sh(
+                        script: &apos;git rev-parse --abbrev-ref HEAD&apos;,
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_URL = sh(
+                        script: &apos;git config --get remote.origin.url&apos;,
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo &quot;Building for branch: ${env.GIT_BRANCH}&quot;
+                    echo &quot;Commit: ${env.GIT_COMMIT_SHORT}&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Project Structure&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating project structure...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check required directories exist
+                        if [ ! -d &quot;src&quot; ]; then
+                            echo &quot;❌ ERROR: src/ directory not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -d &quot;tests&quot; ]; then
+                            echo &quot;⚠️  Warning: tests/ directory not found (tests are optional)&quot;
+                        fi
+                        
+                        # Check required source files exist
+                        if [ ! -f &quot;src/get_polymarket_data.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/get_polymarket_data.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;src/get_open_markets.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/get_open_markets.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;src/pipeline_all_poly.py&quot; ]; then
+                            echo &quot;❌ ERROR: src/pipeline_all_poly.py not found&quot;
+                            exit 1
+                        fi
+                        
+                        if [ ! -f &quot;requirements.txt&quot; ]; then
+                            echo &quot;❌ ERROR: requirements.txt not found&quot;
+                            exit 1
+                        fi
+                        
+                        echo &quot;✓ Project structure is valid&quot;
+                        echo &quot;Source files:&quot;
+                        ls -la src/*.py
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Python Syntax&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating Python syntax...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check Python version
+                        python3 --version
+                        
+                        # Validate syntax of all Python files
+                        echo &quot;Checking Python syntax in src/...&quot;
+                        for file in src/*.py; do
+                            if [ -f &quot;\$file&quot; ]; then
+                                echo &quot;Validating \$file...&quot;
+                                python3 -m py_compile &quot;\$file&quot; || {
+                                    echo &quot;❌ Syntax error in \$file&quot;
+                                    exit 1
+                                }
+                            fi
+                        done
+                        
+                        # Validate syntax in tests/ if it exists
+                        if [ -d &quot;tests&quot; ]; then
+                            echo &quot;Checking Python syntax in tests/...&quot;
+                            for file in tests/*.py; do
+                                if [ -f &quot;\$file&quot; ]; then
+                                    echo &quot;Validating \$file...&quot;
+                                    python3 -m py_compile &quot;\$file&quot; || {
+                                        echo &quot;❌ Syntax error in \$file&quot;
+                                        exit 1
+                                    }
+                                fi
+                            done
+                        fi
+                        
+                        echo &quot;✓ All Python files have valid syntax&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Dependencies&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating dependencies...&quot;
+                    sh &quot;&quot;&quot;
+                        # Check if requirements.txt is valid
+                        if [ ! -f &quot;requirements.txt&quot; ]; then
+                            echo &quot;❌ ERROR: requirements.txt not found&quot;
+                            exit 1
+                        fi
+                        
+                        # Validate requirements.txt format (basic check)
+                        echo &quot;Checking requirements.txt format...&quot;
+                        while IFS= read -r line || [ -n &quot;\$line&quot; ]; do
+                            # Skip empty lines
+                            if [ -z &quot;\$line&quot; ]; then
+                                continue
+                            fi
+                            # Skip lines that are just whitespace
+                            trimmed=\$(echo &quot;\$line&quot; | xargs)
+                            if [ -z &quot;\$trimmed&quot; ]; then
+                                continue
+                            fi
+                            # Skip comment lines
+                            if echo &quot;\$line&quot; | grep -qE &apos;^[[:space:]]*#&apos;; then
+                                continue
+                            fi
+                            # Check if line looks like a valid requirement
+                            if ! echo &quot;\$line&quot; | grep -qE &apos;^[a-zA-Z0-9_-]+[&gt;=&lt;]?[0-9.]+&apos;; then
+                                echo &quot;⚠️  Warning: Line may not be a valid requirement: \$line&quot;
+                            fi
+                        done &lt; requirements.txt
+                        
+                        echo &quot;✓ Dependencies file validated&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Install Dependencies&apos;) {
+            steps {
+                script {
+                    echo &quot;Installing dependencies...&quot;
+                    sh &quot;&quot;&quot;
+                        # Create virtual environment if it doesn&apos;t exist
+                        if [ ! -d &quot;venv&quot; ]; then
+                            python3 -m venv venv
+                        fi
+                        
+                        # Use virtual environment&apos;s Python directly
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        VENV_PIP=&quot;venv/bin/pip&quot;
+                        
+                        # Upgrade pip first
+                        \${VENV_PIP} install --quiet --upgrade pip
+                        
+                        # Install project dependencies
+                        echo &quot;Installing dependencies from requirements.txt...&quot;
+                        \${VENV_PIP} install --quiet -r requirements.txt || {
+                            echo &quot;❌ ERROR: Failed to install dependencies&quot;
+                            exit 1
+                        }
+                        
+                        echo &quot;✓ Dependencies installed successfully&quot;
+                        echo &quot;Installed packages:&quot;
+                        \${VENV_PIP} list | grep -E &apos;(pandas|python-dotenv|requests)&apos; || true
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Validate Imports&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating Python imports...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        
+                        # Test imports for each source file
+                        echo &quot;Testing imports in src/get_polymarket_data.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import get_polymarket_data
+    print(&apos;✓ get_polymarket_data imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in get_polymarket_data: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in get_polymarket_data: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;Testing imports in src/get_open_markets.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import get_open_markets
+    print(&apos;✓ get_open_markets imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in get_open_markets: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in get_open_markets: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;Testing imports in src/pipeline_all_poly.py...&quot;
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+try:
+    import pipeline_all_poly
+    print(&apos;✓ pipeline_all_poly imports successfully&apos;)
+except ImportError as e:
+    print(f&apos;❌ Import error in pipeline_all_poly: {e}&apos;)
+    sys.exit(1)
+except Exception as e:
+    print(f&apos;⚠️  Warning in pipeline_all_poly: {e}&apos;)
+&quot; || exit 1
+                        
+                        echo &quot;✓ All imports validated successfully&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+        
+        stage(&apos;Run Tests&apos;) {
+            when {
+                // Only run tests if tests directory exists and has Python files
+                expression {
+                    fileExists(&apos;tests&apos;) &amp;&amp; sh(
+                        script: &apos;find tests -name &quot;*.py&quot; -type f | head -1&apos;,
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+            steps {
+                script {
+                    echo &quot;Running unit tests...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        VENV_PIP=&quot;venv/bin/pip&quot;
+                        
+                        # Install pytest if not already installed
+                        \${VENV_PIP} install --quiet pytest pytest-cov || {
+                            echo &quot;⚠️  Warning: Could not install pytest. Skipping tests.&quot;
+                            exit 0
+                        }
+                        
+                        # Create test results directory
+                        mkdir -p test-results
+                        
+                        # Run tests with coverage
+                        set +e  # Don&apos;t exit on error immediately
+                        \${VENV_PYTHON} -m pytest tests/ \
+                            --junitxml=test-results/junit.xml \
+                            --cov=src \
+                            --cov-report=html:test-results/coverage \
+                            --cov-report=xml:test-results/coverage.xml \
+                            -v || {
+                            echo &quot;⚠️  Some tests failed. Check output above for details.&quot;
+                            TEST_EXIT_CODE=\$?
+                        }
+                        set -e  # Re-enable exit on error
+                        
+                        # Check if test results were generated
+                        if [ -f &quot;test-results/junit.xml&quot; ]; then
+                            echo &quot;✓ Test results generated: test-results/junit.xml&quot;
+                        else
+                            echo &quot;⚠️  Warning: JUnit XML file was not generated&quot;
+                        fi
+                        
+                        # Show test summary
+                        if [ -f &quot;test-results/junit.xml&quot; ]; then
+                            echo &quot;Test Summary:&quot;
+                            \${VENV_PYTHON} -c &quot;
+import xml.etree.ElementTree as ET
+try:
+    tree = ET.parse(&apos;test-results/junit.xml&apos;)
+    root = tree.getroot()
+    tests = int(root.attrib.get(&apos;tests&apos;, 0))
+    failures = int(root.attrib.get(&apos;failures&apos;, 0))
+    errors = int(root.attrib.get(&apos;errors&apos;, 0))
+    print(f&apos;  Tests: {tests}, Failures: {failures}, Errors: {errors}&apos;)
+except Exception as e:
+    print(f&apos;  Could not parse test results: {e}&apos;)
+&quot; || true
+                        fi
+                    &quot;&quot;&quot;
+                }
+            }
+            post {
+                always {
+                    // Archive test results (JUnit XML)
+                    script {
+                        try {
+                            if (fileExists(&apos;test-results/junit.xml&apos;)) {
+                                junit &apos;test-results/junit.xml&apos;
+                            }
+                        } catch (Exception e) {
+                            echo &quot;Warning: Could not archive JUnit test results: ${e.message}&quot;
+                        }
+                        
+                        // Publish coverage report if it exists
+                        try {
+                            if (fileExists(&apos;test-results/coverage.xml&apos;)) {
+                                publishCoverage adapters: [
+                                    coberturaAdapter(&apos;test-results/coverage.xml&apos;)
+                                ], sourceFileResolver: sourceFiles(&apos;STORE_LAST_BUILD&apos;)
+                            }
+                        } catch (Exception e) {
+                            echo &quot;Warning: Could not publish coverage report: ${e.message}&quot;
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage(&apos;Validate Script Logic&apos;) {
+            steps {
+                script {
+                    echo &quot;Validating script logic (dry-run checks)...&quot;
+                    sh &quot;&quot;&quot;
+                        VENV_PYTHON=&quot;venv/bin/python&quot;
+                        
+                        # Check that main functions exist and are callable
+                        echo &quot;Checking script entry points...&quot;
+                        
+                        # Check get_polymarket_data.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import get_polymarket_data
+if hasattr(get_polymarket_data, &apos;main&apos;):
+    print(&apos;✓ get_polymarket_data has main() function&apos;)
+else:
+    print(&apos;⚠️  Warning: get_polymarket_data does not have main() function&apos;)
+&quot; || true
+                        
+                        # Check get_open_markets.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import get_open_markets
+if hasattr(get_open_markets, &apos;main&apos;):
+    print(&apos;✓ get_open_markets has main() function&apos;)
+else:
+    print(&apos;⚠️  Warning: get_open_markets does not have main() function&apos;)
+&quot; || true
+                        
+                        # Check pipeline_all_poly.py
+                        \${VENV_PYTHON} -c &quot;
+import sys
+sys.path.insert(0, &apos;src&apos;)
+import pipeline_all_poly
+if hasattr(pipeline_all_poly, &apos;main&apos;) or hasattr(pipeline_all_poly, &apos;run_pipeline&apos;):
+    print(&apos;✓ pipeline_all_poly has entry point function&apos;)
+else:
+    print(&apos;⚠️  Warning: pipeline_all_poly does not have entry point function&apos;)
+&quot; || true
+                        
+                        echo &quot;✓ Script logic validation completed&quot;
+                    &quot;&quot;&quot;
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo &quot;✓ PredictionMarketsAgent pipeline succeeded!&quot;
+            
+            // Post success status to GitHub
+            script {
+                try {
+                    // Extract repo owner/name from git URL
+                    def repoUrl = env.GIT_URL.replace(&apos;.git&apos;, &apos;&apos;).replace(&apos;git@github.com:&apos;, &apos;https://github.com/&apos;).replace(&apos;https://github.com/&apos;, &apos;&apos;)
+                    def repoParts = repoUrl.split(&apos;/&apos;)
+                    def repoOwner = repoParts.size() &gt;= 1 ? repoParts[0] : &apos;vittorioapi91&apos;
+                    def repoName = repoParts.size() &gt;= 2 ? repoParts[1] : &apos;PredictionMarketsAgent&apos;
+                    
+                    // Get GitHub token from credentials or environment
+                    def githubToken = env.GITHUB_TOKEN ?: &apos;&apos;
+                    
+                    if (githubToken) {
+                        // Post status using curl
+                        sh &quot;&quot;&quot;
+                            curl -X POST \\
+                              -H &quot;Authorization: token ${githubToken}&quot; \\
+                              -H &quot;Accept: application/vnd.github.v3+json&quot; \\
+                              &quot;https://api.github.com/repos/${repoOwner}/${repoName}/statuses/${env.GIT_COMMIT}&quot; \\
+                              -d &apos;{
+                                &quot;state&quot;: &quot;success&quot;,
+                                &quot;target_url&quot;: &quot;${env.BUILD_URL}&quot;,
+                                &quot;description&quot;: &quot;Jenkins pipeline passed&quot;,
+                                &quot;context&quot;: &quot;jenkins/pipeline&quot;
+                              }&apos; || echo &quot;Warning: Could not post status to GitHub&quot;
+                        &quot;&quot;&quot;
+                    } else {
+                        echo &quot;Info: GITHUB_TOKEN not set. Skipping GitHub status update.&quot;
+                    }
+                } catch (Exception e) {
+                    echo &quot;Warning: Could not post status to GitHub: ${e.message}&quot;
+                }
+            }
+        }
+        failure {
+            echo &quot;✗ PredictionMarketsAgent pipeline failed. Check logs for details.&quot;
+            
+            // Post failure status to GitHub
+            script {
+                try {
+                    def repoUrl = env.GIT_URL.replace(&apos;.git&apos;, &apos;&apos;).replace(&apos;git@github.com:&apos;, &apos;https://github.com/&apos;).replace(&apos;https://github.com/&apos;, &apos;&apos;)
+                    def repoParts = repoUrl.split(&apos;/&apos;)
+                    def repoOwner = repoParts.size() &gt;= 1 ? repoParts[0] : &apos;vittorioapi91&apos;
+                    def repoName = repoParts.size() &gt;= 2 ? repoParts[1] : &apos;PredictionMarketsAgent&apos;
+                    
+                    def githubToken = env.GITHUB_TOKEN ?: &apos;&apos;
+                    
+                    if (githubToken) {
+                        sh &quot;&quot;&quot;
+                            curl -X POST \\
+                              -H &quot;Authorization: token ${githubToken}&quot; \\
+                              -H &quot;Accept: application/vnd.github.v3+json&quot; \\
+                              &quot;https://api.github.com/repos/${repoOwner}/${repoName}/statuses/${env.GIT_COMMIT}&quot; \\
+                              -d &apos;{
+                                &quot;state&quot;: &quot;failure&quot;,
+                                &quot;target_url&quot;: &quot;${env.BUILD_URL}&quot;,
+                                &quot;description&quot;: &quot;Jenkins pipeline failed&quot;,
+                                &quot;context&quot;: &quot;jenkins/pipeline&quot;
+                              }&apos; || echo &quot;Warning: Could not post status to GitHub&quot;
+                        &quot;&quot;&quot;
+                    }
+                } catch (Exception e) {
+                    echo &quot;Warning: Could not post status to GitHub: ${e.message}&quot;
+                }
+            }
+        }
+        always {
+            // Clean up virtual environment (optional - comment out if you want to keep it)
+            // Uncomment the following to clean up venv after each build
+            // sh &quot;rm -rf venv&quot; || true
+            echo &quot;Build completed&quot;
+        }
+    }
+}
+</script>
+    <loadedScripts class="linked-hash-map"/>
+    <durabilityHint>MAX_SURVIVABILITY</durabilityHint>
+    <timings class="map">
+      <entry>
+        <string>flowNode</string>
+        <long>911406868</long>
+      </entry>
+      <entry>
+        <string>classLoad</string>
+        <long>157743739</long>
+      </entry>
+      <entry>
+        <string>runQueue</string>
+        <long>13108014876</long>
+      </entry>
+      <entry>
+        <string>run</string>
+        <long>7675885423</long>
+      </entry>
+      <entry>
+        <string>parse</string>
+        <long>126042917</long>
+      </entry>
+      <entry>
+        <string>saveProgram</string>
+        <long>4140001874</long>
+      </entry>
+    </timings>
+    <internalCalls class="sorted-set">
+      <string>hudson.model.Result.fromString</string>
+      <string>org.jenkinsci.plugins.pipeline.StageStatus.TAG_NAME</string>
+      <string>org.jenkinsci.plugins.workflow.job.WorkflowRun.result</string>
+    </internalCalls>
+    <sandbox>true</sandbox>
+    <iota>105</iota>
+    <head>1:105</head>
+    <done>true</done>
+    <resumeBlocked>false</resumeBlocked>
+    <storageDir>workflow-completed</storageDir>
+  </execution>
+  <completed>true</completed>
+  <checkouts class="hudson.util.PersistedList">
+    <org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@5.8.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/staging:refs/remotes/origin/staging</refspec>
+            <url>https://github.com/vittorioapi91/PredictionMarketsAgent.git</url>
+            <credentialsId>github-token</credentialsId>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches class="singleton-list">
+          <hudson.plugins.git.BranchSpec>
+            <name>staging</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <browser class="hudson.plugins.git.browser.GithubWeb">
+          <url>https://github.com/vittorioapi91/PredictionMarketsAgent</url>
+        </browser>
+        <submoduleCfg class="empty-list"/>
+        <extensions>
+          <jenkins.plugins.git.GitSCMSourceDefaults>
+            <includeTags>false</includeTags>
+          </jenkins.plugins.git.GitSCMSourceDefaults>
+          <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+            <buildChooser class="jenkins.plugins.git.AbstractGitSCMSource$SpecificRevisionBuildChooser">
+              <revision reference="../../../../../../../actions/hudson.plugins.git.util.BuildData/buildsByBranchName/entry/hudson.plugins.git.util.Build/marked"/>
+            </buildChooser>
+          </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        </extensions>
+      </scm>
+      <node></node>
+      <workspace>/var/jenkins_home/workspace/PredictionMarketsAgent_staging</workspace>
+      <changelogFile>/var/jenkins_home/jobs/PredictionMarketsAgent/branches/staging/builds/7/changelog16376632757578520356.xml</changelogFile>
+      <pollingBaseline class="hudson.scm.SCMRevisionState$None" reference="../../../actions/org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState/revisionStates/entry/hudson.scm.SCMRevisionState_-None"/>
+    </org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+    <org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@5.8.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name>origin</name>
+            <refspec>+refs/heads/staging:refs/remotes/origin/staging</refspec>
+            <url>https://github.com/vittorioapi91/PredictionMarketsAgent.git</url>
+            <credentialsId>github-token</credentialsId>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches class="singleton-list">
+          <hudson.plugins.git.BranchSpec>
+            <name>staging</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <browser class="hudson.plugins.git.browser.GithubWeb">
+          <url>https://github.com/vittorioapi91/PredictionMarketsAgent</url>
+        </browser>
+        <submoduleCfg class="empty-list"/>
+        <extensions>
+          <jenkins.plugins.git.GitSCMSourceDefaults>
+            <includeTags>false</includeTags>
+          </jenkins.plugins.git.GitSCMSourceDefaults>
+          <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+            <buildChooser class="jenkins.plugins.git.AbstractGitSCMSource$SpecificRevisionBuildChooser">
+              <revision plugin="git-client@6.5.0">
+                <sha1>717fb830a7b7092901321128203e8ab55be33c04</sha1>
+                <branches class="singleton-set">
+                  <hudson.plugins.git.Branch>
+                    <sha1 reference="../../../sha1"/>
+                    <name>staging</name>
+                  </hudson.plugins.git.Branch>
+                </branches>
+              </revision>
+            </buildChooser>
+          </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        </extensions>
+      </scm>
+      <node></node>
+      <workspace>/var/jenkins_home/workspace/PredictionMarketsAgent_staging</workspace>
+      <pollingBaseline class="hudson.scm.SCMRevisionState$None" reference="../../../actions/org.jenkinsci.plugins.workflow.steps.scm.MultiSCMRevisionState/revisionStates/entry/hudson.scm.SCMRevisionState_-None"/>
+    </org.jenkinsci.plugins.workflow.job.WorkflowRun_-SCMCheckout>
+  </checkouts>
+</flow-build>

@@ -1,0 +1,306 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>4.18</version>
+	</parent>
+
+	<properties>
+		<java.level>8</java.level>
+		<!-- <slf4jVersion>1.7.30</slf4jVersion> -->
+		<findbugs.failOnError>false</findbugs.failOnError>
+		<!--  jenkins.version>2.222.4</jenkins.version>-->
+		<jenkins.version>2.263.1</jenkins.version>
+        <scm-api.version>2.6.4</scm-api.version>
+        <git-plugin.version>4.5.2</git-plugin.version>
+		<maven.javadoc.skip>true</maven.javadoc.skip>
+		<violations.version>1.18</violations.version>
+	</properties>
+
+	<groupId>igalg.jenkins.plugins</groupId>
+	<artifactId>multibranch-scan-webhook-trigger</artifactId>
+	<version>1.0.11</version>
+	<name>Multibranch Scan Webhook Trigger</name>
+	<description>Trigger that can receive any HTTP request and trigger a multibranch scan.</description>
+	
+	<url>https://github.com/jenkinsci/multibranch-scan-webhook-trigger-plugin</url>
+	
+	<packaging>hpi</packaging>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
+	<developers>
+        <developer>
+            <id>igalg</id>
+            <name>Igal Gluh</name>
+            <email>igal.gluh@gmail.com</email>
+        </developer>
+    </developers>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/jenkinsci/multibranch-scan-webhook-trigger</url>
+	</issueManagement>
+
+	
+
+
+
+	<scm>
+        <connection>scm:git:ssh://git@github.com/jenkinsci/multibranch-scan-webhook-trigger.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/multibranch-scan-webhook-trigger.git</developerConnection>
+        <url>https://github.com/jenkinsci/multibranch-scan-webhook-trigger.git</url>
+    <tag>multibranch-scan-webhook-trigger-1.0.11</tag>
+  </scm>
+
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>https://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>https://repo.jenkins-ci.org/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+
+    <distributionManagement>
+		<repository>
+			<id>maven.jenkins-ci.org</id>
+			<name>jenkinsci-releases</name>
+			<url>https://repo.jenkins-ci.org/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven.jenkins-ci.org</id>
+			<name>jenkinsci-snapshots</name>
+			<url>https://repo.jenkins-ci.org/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			
+			
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+
+
+	<dependencies>
+		<dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>access-modifier-annotation</artifactId>
+             <!-- <version>1.11</version> -->
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci</groupId>
+            <artifactId>annotation-indexer</artifactId>
+             <!-- <version>1.12</version> -->
+        </dependency>
+        <!-- <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>junit</artifactId>
+            <version>1.50</version>
+        </dependency> -->
+		
+		
+		 <!-- plugin dependencies -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>scm-api</artifactId>
+            <version>${scm-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.116</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>git</artifactId>
+            <version>${git-plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>branch-api</artifactId>
+            <version>2.5.9</version>
+        </dependency>
+        <!-- /plugin dependencies -->
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>structs</artifactId>
+			<version>1.22</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>credentials</artifactId>
+			<version>2.3.19</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jenkins-ci.plugins</groupId>
+					<artifactId>structs</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- test // -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>2.1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+             <!-- <version>1.6.4</version> -->
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <!-- <version>1.6.4</version> -->
+            <scope>test</scope>
+        </dependency>
+		
+		
+		<!-- For interactive testing via hpi:run -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-job</artifactId>
+            <version>2.41</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-cps</artifactId>
+            <version>2.92</version>
+            <scope>test</scope>
+        </dependency>
+        
+        
+        
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-step-api</artifactId>
+            <version>2.23</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>token-macro</artifactId>
+            <version>2.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>plain-credentials</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>script-security</artifactId>
+            <version>1.77</version>
+            <scope>test</scope>
+        </dependency>
+       
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-scm-step</artifactId>
+            <version>2.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-aggregator</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>github-branch-source</artifactId>
+            <version>2.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>matrix-project</artifactId>
+            <version>1.18</version>
+            <scope>test</scope>
+        </dependency>
+        
+       <!--  <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>cloudbees-bitbucket-branch-source</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency> -->
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</dependencies>
+</project>

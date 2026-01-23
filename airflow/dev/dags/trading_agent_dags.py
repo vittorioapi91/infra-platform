@@ -42,6 +42,12 @@ workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
 if workspace_root and workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
 
+# Set PYTHONPATH environment variable so tasks can find trading_agent module
+# This is needed for subprocess calls like: python -m trading_agent.fundamentals.edgar.edgar-filings
+# Tasks inherit this environment variable when they execute
+existing_pythonpath = os.environ.get('PYTHONPATH', '')
+os.environ['PYTHONPATH'] = workspace_root + (f":{existing_pythonpath}" if existing_pythonpath else "")
+
 # Add source code path so DAGs can import from fundamentals, macro, etc.
 # (TradingPythonAgent source is mounted at /workspace/trading-agent)
 # The source has src/fundamentals/, but DAGs import trading_agent.fundamentals

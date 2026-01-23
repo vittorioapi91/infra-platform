@@ -1,0 +1,56 @@
+commit 371f17ced19549eb57c9685b2c7714eb32a30aea
+tree 48b894254d7158291d9e3143e8d594070da0ad3b
+parent c2a7b2cd47296d9dbb4a56908d723dd3b11f3c80
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:17:05 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:17:05 +0000
+
+    [DEV-6] Update DAGs to use environment-specific storage paths and fix wheel package name
+    
+    - All DAGs now write to storage/{env} directories (storage/dev, storage/test, storage/prod)
+    - Updated edgar_filings_dag, edgar_filings_quarterly_dag, edgar_company_tickers_dag, edgar_master_idx_dag
+    - Added environment-aware storage configuration to macro_data_downloads DAG
+    - Fixed wheel METADATA to use 'trading_agent' (underscore) instead of normalized 'trading-agent'
+
+
+:100644 100644 0f77f52b99f1474fa20da0acac0a4036de81c4c6 07183f5a2d40581baa85a2cf4e680fbd74c1d305 M	Jenkinsfile
+:100644 100644 9271451b9ea1fea9b57230b3201d287e892935b6 286eb8950b27c200ddb5f02703755b3f2eada2e8 M	setup.py
+:100644 100644 8319da1bbd0267e51bc29b489e276543cedb3ef9 c8346ef6c9e1ebccd4ed73c156234b4bfff59b5f M	src/_airflow_dags_/edgar_company_tickers_dag.py
+:100644 100644 00dff46bdcfda27635233f600250af2b66ea4343 88057fb657bb2c607f4540eaa35b4ddf26e86046 M	src/_airflow_dags_/edgar_filings_dag.py
+:100644 100644 1502fd10ce6acb94d06f611ad0a1f37e654c07ab ed0295df16ca7cb0213d5d2d1f975ce5a036ecd1 M	src/_airflow_dags_/edgar_filings_quarterly_dag.py
+:100644 100644 92611bc19319f57f21eefa673ba51c1d314b4bc8 5564a1656f0336776eced0fc0a4770995fc42ad2 M	src/_airflow_dags_/edgar_master_idx_dag.py
+:100644 100644 c3f96790fd4270ba49451e11aa8a0edd03bf88a0 b15ee2b677ea4ee0e74753d3d0b1eced1ed7f55d M	src/_airflow_dags_/macro_data_downloads.py
+commit c2a7b2cd47296d9dbb4a56908d723dd3b11f3c80
+tree 96aa8929fea1da1defd3717c0e2012a954d8b34a
+parent 54df3985667a9e8096214e8304b449e7773b37dc
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 13:13:03 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 13:13:03 +0000
+
+    [DEV-6] Update build system and rename airflow-dags directory
+    
+    - Enable shallow clones for dev/* and staging branches in Jenkinsfile
+    - Remove unused dependencies from requirements.txt (beautifulsoup4, pyyaml, joblib, apache-airflow)
+    - Fix Docker buildx command variable expansion issues in Jenkinsfile
+    - Reorganize wheel builds: remove env suffix from package name, organize wheels in dist/{env}/ folders
+    - Update macOS platform tag to Python 3.13 format (macosx_26_2_arm64)
+    - Add Linux ARM64 (manylinux2014_aarch64) wheel support for Docker builds
+    - Rename .airflow-dags to _airflow_dags_ and update all references
+    - Include _airflow_dags_ as package in wheels using CustomBuildPy
+    - Update Jenkinsfile, setup.py, MANIFEST.in, and install-dags.sh for new directory name
+
+
+:100644 100644 634c35013592d5faeacba24dc9a619740a02ca78 7c8db5da9751672a2665d31825c12ff83693ec3f M	JENKINS.md
+:100644 100644 6e8a2cb83285c322e6e2dd400fd235bcffd2e173 0f77f52b99f1474fa20da0acac0a4036de81c4c6 M	Jenkinsfile
+:000000 100644 0000000000000000000000000000000000000000 0d5d1c6d67fc274bcda3beba175631f4035bc556 A	MANIFEST.in
+:100755 100755 fc4e06d43a578b5ad984ad471af8be3b00a54b79 323c7b028d87ad5f93813976774f8f8500f118cc M	build-wheel.sh
+:100755 100755 b882815b22323d8803c315cfb3d2d45507c6ba74 b2b24b7c1ffaf2417ea03e2ec80a2ef1e3adeedc M	install-dags.sh
+:100644 100644 7d2879170974f800631f4aa9504f55ad7b031546 d71e4eff011093f0e9f7701c62dce9f3db1cefd8 M	requirements.txt
+:100644 100644 d44d690058ad9d5640b9d71b83b4c0fafd1f9c93 9271451b9ea1fea9b57230b3201d287e892935b6 M	setup.py
+:100644 100644 45282b674928802e0b2dc09678e8f57c8b83bc2d 45282b674928802e0b2dc09678e8f57c8b83bc2d R100	src/.airflow-dags/README.md	src/_airflow_dags_/README.md
+:100644 100644 0701bc469a0dd9fdda6172cda92b390b17d3d4bf 7632677ad692e0d1454299f2714a769fb48b13a2 R074	src/.airflow-dags/__init__.py	src/_airflow_dags_/__init__.py
+:100644 100644 8319da1bbd0267e51bc29b489e276543cedb3ef9 8319da1bbd0267e51bc29b489e276543cedb3ef9 R100	src/.airflow-dags/edgar_company_tickers_dag.py	src/_airflow_dags_/edgar_company_tickers_dag.py
+:100644 100644 00dff46bdcfda27635233f600250af2b66ea4343 00dff46bdcfda27635233f600250af2b66ea4343 R100	src/.airflow-dags/edgar_filings_dag.py	src/_airflow_dags_/edgar_filings_dag.py
+:100644 100644 1502fd10ce6acb94d06f611ad0a1f37e654c07ab 1502fd10ce6acb94d06f611ad0a1f37e654c07ab R100	src/.airflow-dags/edgar_filings_quarterly_dag.py	src/_airflow_dags_/edgar_filings_quarterly_dag.py
+:100644 100644 92611bc19319f57f21eefa673ba51c1d314b4bc8 92611bc19319f57f21eefa673ba51c1d314b4bc8 R100	src/.airflow-dags/edgar_master_idx_dag.py	src/_airflow_dags_/edgar_master_idx_dag.py
+:100644 100644 c3f96790fd4270ba49451e11aa8a0edd03bf88a0 c3f96790fd4270ba49451e11aa8a0edd03bf88a0 R100	src/.airflow-dags/macro_data_downloads.py	src/_airflow_dags_/macro_data_downloads.py
+:100644 100644 a247d7ffb2877d18d81ec6c9824b817d91ebe3eb a247d7ffb2877d18d81ec6c9824b817d91ebe3eb R100	src/.airflow-dags/macro_master_dag.py	src/_airflow_dags_/macro_master_dag.py
+:100644 100644 77002e3abecb1d745e8968428e97f20531ff70a8 77002e3abecb1d745e8968428e97f20531ff70a8 R100	src/.airflow-dags/macro_sql_workflows.py	src/_airflow_dags_/macro_sql_workflows.py

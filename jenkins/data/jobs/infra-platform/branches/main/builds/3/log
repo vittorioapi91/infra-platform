@@ -1,0 +1,231 @@
+Branch indexing
+[8mha:////4AkCGSdTlh1BOdUJC3Ty+pxhBf7NPYvaQz0ECFEPFEPxAAAAhR+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM/kHbwAAxFQEoo4AAAA=[0mConnecting to https://api.github.com with no credentials, anonymous access
+Obtained Jenkinsfile.infra-platform from 52fe1f0c306eea53b2862d14ea324939ba6eb10c
+[8mha:////4G5xSNjGocdkcq86yJDUg0A2Zdr+gadeJpGE1o56nw2dAAAAoh+LCAAAAAAAAP9tjTEOwjAQBM8BClpKHuFItIiK1krDC0x8GCfWnbEdkooX8TX+gCESFVvtrLSa5wtWKcKBo5UdUu8otU4GP9jS5Mixv3geZcdn2TIl9igbHBs2eJyx4YwwR1SwULBGaj0nRzbDRnX6rmuvydanHMu2V1A5c4MHCFXMWcf8hSnC9jqYxPTz/BXAFEIGsfuclm8zQVqFvQAAAA==[0m[Pipeline] Start of Pipeline
+[8mha:////4DC+Eg2mk4qTurzJVaOtIeufyIFKmMsKxPP+kAsnCRluAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycohUghExsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jduZBmjwAAAAA==[0m[Pipeline] node
+Running on [8mha:////4FlCY5xJ8pNecZQKKQitVFE3trXq+G/tl0ROssUTG354AAAAoR+LCAAAAAAAAP9b85aBtbiIQTGjNKU4P08vOT+vOD8nVc83PyU1x6OyILUoJzMv2y+/JJUBAhiZGBgqihhk0NSjKDWzXb3RdlLBUSYGJk8GtpzUvPSSDB8G5tKinBIGIZ+sxLJE/ZzEvHT94JKizLx0a6BxUmjGOUNodHsLgAz2EgZR/eT83ILSktQifY2k0sycEt3MPE19AHHxbH3KAAAA[0mJenkins in /var/jenkins_home/workspace/infra-platform_main
+[8mha:////4N9alMcc9/UFbSPYm09qfubqZCIog+L0yxZ5WbyteEHZAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0gA0xsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jfoP95RwAAAAA==[0m[Pipeline] {
+[8mha:////4EtDZKdhClZ/cFDHrgEuiFN/VgTwpWO/WXvq0VNJQMQMAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0gQkxsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jc09154wAAAAA==[0m[Pipeline] stage
+[8mha:////4Lq6v0TWvnro/YOKB76mLNO3BToxRmELMkR8B86//tDyAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0ggUxsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jek7ggRwAAAAA==[0m[Pipeline] { (Declarative: Checkout SCM)
+[8mha:////4ABAhoZe7Ohv8haOk+zJEnSsJXukN62jxkw+RiMF6vsJAAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQTbaWGsbAmNJ0AWEZb8zwLrbuWJvJp3kLiJlZNMMm+a93rDOic4UbLcG+wdZu14DKOti0+U+lugiXu6ck2YKRguzSSpM+cFJRUDS1gDKwEbgzpQdmgLbIVXD9UGhba9lFS/o4DGdQM8gYlqLiqVL8wJdvexy4Q/z18BzLEA29ce4gfg7KmOvAAAAA==[0m[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/infra-platform_main/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/vittorioapi91/infra-platform.git # timeout=10
+Fetching without tags
+Fetching upstream changes from https://github.com/vittorioapi91/infra-platform.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- https://github.com/vittorioapi91/infra-platform.git +refs/heads/main:refs/remotes/origin/main # timeout=10
+Checking out Revision 52fe1f0c306eea53b2862d14ea324939ba6eb10c (main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 52fe1f0c306eea53b2862d14ea324939ba6eb10c # timeout=10
+Commit message: "Fix: Ensure docker-compose.infra-platform.yml is valid (no duplicate volumes)"
+ > git rev-list --no-walk d4c5d7c102c595fc834c6394f65f7510a1c20b9f # timeout=10
+[8mha:////4B2Zv/A0P5rTIWagfoQrqGsVUPvIG9v+XF5yF8mc3icPAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM/l33ACbht9KjgAAAA==[0mJenkins-Imposed API Limiter: Current quota for Github API usage has 34 remaining (1 over budget). Next quota of 60 in 32 min. Sleeping for 5 min 17 sec.
+[8mha:////4CflKGyYvKWHp1P+4Yupwtws6863oQdoZGtIT7BmcPjTAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM/l3PACcq2etjgAAAA==[0mJenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
+[8mha:////4HrUx+eIGiRm+aBOAuwxaxgk6wZHaSHRxj8XNRTo/c3eAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM0ULTAHEoKcUjgAAAA==[0mJenkins-Imposed API Limiter: Still sleeping, now only 2 min 15 sec remaining.
+
+Could not update commit status. Message: {
+  "message": "Requires authentication",
+  "documentation_url": "https://docs.github.com/rest",
+  "status": "401"
+}
+
+[8mha:////4L51pxCVVDRAC2OJw4fk6MjnsQgG1YViSgcOPbsoqmsCAAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQTbGRNjZUtoPAGyiLDkfxZYdytP5NW8g8RNrJxkknnTvNcb1jnBiZLl3mDvMGvHYxhtXXyi1N8CTdzTlWvCTMFwaSZJnTkvKKkYWMIaWAnYGNSBskNbYCu8eqg2KLTtpaT6HQU0rhvgCUxUc1GpfGFOsLuPXSb8ef4KYI6xADvU7j9Dg2gqvAAAAA==[0m[Pipeline] }
+[8mha:////4Hy6C6gfm7ek5/ki5WEZNBsJIKkDodEDE7LiVdaMW5Y0AAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQRbWRhjZUtoPAGyiLDkfxZYdytP5NW8g8RNrJxkknnTvNcb1jnBiZLl3mDvMGvHYxhtXXyi1N8CTdzTlWvCTMFwaSZJnTkvKKkYWMIaWAnYGNSBskNbYCu8eqg2KLTtpaT6HQU0rhvgCUxUc1GpfGFOsLuPXSb8ef4KYI6xADvU7j9J+wGOvAAAAA==[0m[Pipeline] // stage
+[8mha:////4OSBpivty5/mC4Vkra+8fdL5be0IScIz1dUjrUlgCRO2AAAAph+LCAAAAAAAAP9tjTEOwjAQBM9BKWgpeYQDEh2iorXc8AITG+PEugv2haTiRXyNPxCIRMVWOyut5vmCMic4UPKycdgGzHWQXez91ORAqb1EGmRDZ1kTZopOajdosu44oyZ2MEcUsFCwdFhHygE9w0o15m6qaNBXJ07TtldQBHuDBwg1mdkk/sKYYH3tbSb8ef4KYOwYxI6h2G4+x/INtuQqUcEAAAA=[0m[Pipeline] withEnv
+[8mha:////4G1Ed92H6tTHre+RLstXgbiCee0ajA+6ISuRn/HoS3FOAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+DOrAycoiUzoiJNerCCUITQtLo/zZJSSdOxNW4Ay2VmPBg2Zas93pDGQOcKBjuNHYWY2t570czJ54pdDdPmTu68pYwkte80bkhpc9rbShpWFUw2AjYamw9RYsmwU44+ZCVl2iqSwrzdhTArBrgCYWYyUmG9C1TgP19VJHwx/kLgKlPwOrDYvXyLD8BobDcwgAAAA==[0m[Pipeline] {
+[8mha:////4OUTsec0nuSl1MrIE9jeY+TI611vQHyB3dsS8uvEosCKAAAAph+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUZUVMrFEWThCaEJJG/7dJSjpxIq7GHWipxIQHy7ZkvdcbqhjgRMEwp7GzGFvLej+aObFMobt5yszRlbWEkbxmQmdBSp/XKihpWFWUsOGw1dh6ihZNgh138iFrL9HUlxTm7cihtGqAJxR8JicZ0rdMAfb3UUXCH+cvAKY+Qdk0ix2WZ/UBbwyqm8IAAAA=[0m[Pipeline] stage
+[8mha:////4GVgeyOyPMdnXjgsTzz6NLiKMGYGhbSR/cOwM9NtXuBxAAAAph+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUwIiYukZZOEFoQkgb/V9+UtqJE3E17kBLJSY8WLYl673eUESGE7ETjcXWY6y96ELvpiQG4vYaaBANXURNGClYoeygyNhqqYqShUVZDisJa4t1oOjRJdjIRj90GTS68px42o4Scm/u8IRMTuSkOX3LyLC99SYS/jh/ATB2CfLdfrbD/Cw+y7kUycIAAAA=[0m[Pipeline] { (Checkout)
+[8mha:////4OrWiN503Cd1LHo5aexqpNiZP/vNs+25BcWuYx4K8CSDAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiBB2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyu3uU/vwBgq0rvS+AAAA[0m[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/infra-platform_main/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/vittorioapi91/infra-platform.git # timeout=10
+Fetching without tags
+Fetching upstream changes from https://github.com/vittorioapi91/infra-platform.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- https://github.com/vittorioapi91/infra-platform.git +refs/heads/main:refs/remotes/origin/main # timeout=10
+Checking out Revision 52fe1f0c306eea53b2862d14ea324939ba6eb10c (main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 52fe1f0c306eea53b2862d14ea324939ba6eb10c # timeout=10
+Commit message: "Fix: Ensure docker-compose.infra-platform.yml is valid (no duplicate volumes)"
+[8mha:////4Fbzu/zzudwXAGeF/k0qjFkmVc2+DSRh2EtCCCZmtOKcAAAAhR+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsMyV7XwEAL38q+Y4AAAA=[0mJenkins-Imposed API Limiter: Current quota for Github API usage has 31 remaining (1 over budget). Next quota of 60 in 26 min. Sleeping for 4 min 18 sec.
+[8mha:////4BbVKMXsjPlR+06Kp+4cb+d2tdAzO8qyaHa/1Vzs7/B0AAAAhR+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsMyV7XwMAuU8tjo4AAAA=[0mJenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
+[8mha:////4Mw1BUgClx9ZzreHoqnw2/Hr4hII+sn07sICx+Dk901EAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM+WNywAytfX3jgAAAA==[0mJenkins-Imposed API Limiter: Still sleeping, now only 1 min 16 sec remaining.
+
+Could not update commit status. Message: {
+  "message": "Requires authentication",
+  "documentation_url": "https://docs.github.com/rest",
+  "status": "401"
+}
+
+[8mha:////4F/iRxL3MP3dbGe+yRMOMcrEUe+n7mmvuK28FmcGcf3jAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIihKgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGMIGcrt/lO7N7BnLt++AAAA[0m[Pipeline] }
+[8mha:////4AsQWLdCzvLyOY8d9IAX6IccV6qxFCdpRFjLxn5VwtjwAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiKGgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGMIGcrt/lO7N4glvS6+AAAA[0m[Pipeline] // stage
+[8mha:////4NaUk/sldV/+NXVYDv8mgbUboRvnZjU8K1/74Q3fo/RpAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUnRgQE2uUhROEJoSk0f9tkpJOnIircQdaKjHhwbItWe/1hioGOFEwzGnsLMbWst6PZk4sU+hunjJzdGUtYSSvmdBZkNLntQpKGlYVJWw4bDW2nqJFk2DHnXzI2ks09SWFeTtyKK0a4AkFn8lJhvQtU4D9fVSR8Mf5C4CpT1A2zWKH5Vl9ANydZ8vCAAAA[0m[Pipeline] stage
+[8mha:////4LkAPpTrG9EXyeSxSHN28RcfFETKAfZxPwlI/VD/LPsrAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUTCAhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD0rlhNLCAAAA[0m[Pipeline] { (Validate Infra-Platform Configuration)
+[8mha:////4HtCQc6wwt+OUQ8TxUNMjWEw/P/G1iIxGchhHvx13Cs7AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUbCDE1DXKwglCE0La6P/yk9JOnIircQdaKjHhwbItWe/1hiIynIidaCy2HmPtRRd6NyUxELfXQINo6CJqwkjBCmUHRcZWS1WULCzKclhJWFusA0WPLsFGNvqhy6DRlefE03aUkHtzhydkciInzelbRobtrTeR8Mf5C4CxS5Dv9rMd5mfxASnCIIrCAAAA[0m[Pipeline] script
+[8mha:////4DpwB/INnM6nJrePuq9zxNpYQiPqZ59tSjYKIs3lFTX+AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycogU2BDqxBp14QShCSFp9H9JUtKJE3E17kCgEhMeLNuS9Z4vqIKHhrxmVmFvMHSGDW7UObFEvr84SszSmXWEgZxirUotSXWca0tRwayihAWHpcLOUTCoI6y4FXdRO4G6PkWftwOH0sgbPKDgmRyFj98yeVhfRxkIf5y/AJiGCOV2n223+TyrN7xWSV3CAAAA[0m[Pipeline] {
+[8mha:////4EWqewSGw/pm2jF+oY/Mz+jOWh0N1ZWn5/nFbv4bwu2BAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICtIgqreWGF5jYGCfWnbEdkooX8TX+QCASFVusdraZ5wuWKcKRo8XWUOcoNQ6D7+20cODYXTwP2PIZG6bE3qA0g2Rt6hklZwNzihIWAlaGGs/Jkc2wFq26q8orstUpx+k7CCidvsEDCjGZs4r5C2OEzbXXienn+SuAMWQo99tP7cIbaOP4NL4AAAA=[0m[Pipeline] echo
+Validating infra-platform configuration...
+[8mha:////4CtVCk3zaUd/3fz21FJgdnFpHFHgyibX0D7DSx3miOP4AAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKC0iIqWisNLzCJMXasO8d2cCpexNf4A4FIVGyx2tlmni9YxwBHDhqtot5QbA16N+p5YebQXx1ntHzBlimyU9io3HCnTgs2nBQsKUpYCdgoah1HQzrBVlh5l5WTpKtzCvN3EFCaboAHFGI2JxnSF6YAu9vYRaaf568AJp+grPefqv0bq7DVH74AAAA=[0m[Pipeline] sh
++ [ -f docker/docker-compose.infra-platform.yml ]
++ echo Validating docker-compose.infra-platform.yml...
+Validating docker-compose.infra-platform.yml...
++ docker compose -f docker/docker-compose.infra-platform.yml config
++ echo ✓ docker-compose.infra-platform.yml is valid
+✓ docker-compose.infra-platform.yml is valid
++ [ -f docker/docker-compose.yml ]
++ echo Validating docker-compose.yml...
+Validating docker-compose.yml...
++ docker compose -f docker/docker-compose.yml config
+time="2026-01-17T15:00:21Z" level=warning msg="/var/jenkins_home/workspace/infra-platform_main/docker/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
++ echo ✓ docker-compose.yml is valid
+✓ docker-compose.yml is valid
++ [ -d airflow/dags ]
++ echo Validating Airflow DAGs...
+Validating Airflow DAGs...
++ python3 -m venv /tmp/infra_venv
++ /tmp/infra_venv/bin/pip install --quiet apache-airflow tqdm pandas psycopg2-binary requests python-dotenv
++ export AIRFLOW_HOME=/tmp/airflow_infra_home
++ export AIRFLOW__CORE__DAGS_FOLDER=airflow/dags
++ export AIRFLOW__CORE__LOAD_EXAMPLES=False
++ export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////tmp/airflow_infra_home/airflow.db
++ mkdir -p /tmp/airflow_infra_home
++ /tmp/infra_venv/bin/python -m airflow db migrate
++ true
++ /tmp/infra_venv/bin/python -m airflow dags list
++ echo ⚠️  Warning: Could not validate Airflow DAGs (may need full Airflow setup)
+⚠️  Warning: Could not validate Airflow DAGs (may need full Airflow setup)
++ echo ✓ Infra-platform configuration validated
+✓ Infra-platform configuration validated
+[8mha:////4OqgKM9YN9R9Ac1/V/EMm1Yf46Q6KagP//YnMfTdrRfFAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCoERUaS03vMDExjix7oztkFS8iK/xBwKRqNhitbPNPF+wTBGOHC22hjpHqXEYfG+nhQPH7uJ5wJbP2DAl9galGSRrU88oORuYU5SwELAy1HhOjmyGtWjVXVVeka1OOU7fQUDp9A0eUIjJnFXMXxgjbK69Tkw/z18BjCFkKHf7T23fSZy7ir4AAAA=[0m[Pipeline] }
+[8mha:////4OGh4EIN8yzlDQ0ur7CXEDPPv3M0pOzZe7r//0OCMT0qAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiEA1CqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDu9rm2hw+WR0/FvgAAAA==[0m[Pipeline] // script
+[8mha:////4FL/aKIi40wYNcg2TM3fVfJxlRpIKFi5EPtOy87fsgckAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIikJCQUCpayw0vMIkxTqy7YDs4FS/ia/wBi0hUbLHa2WZeb1gGDzV7g52m3lJoLA5uNHlhYt9fHSfs+IINU2CnUeokudWnGSVHDXOKEhYCVpoax8GSibAWnXqoyiky1Tn6/B0FlLa9wxMKkc1R+fiFycPmNraB6ef5K4BpGCKUu32u7eEDpaQUeb4AAAA=[0m[Pipeline] }
+[8mha:////4Jt2loGhhaYU8PZot/h1hd76lqaX3UYiIXaEMFdig7GRAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiKKBAqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDu9rm2hw+ayz9vvgAAAA==[0m[Pipeline] // stage
+[8mha:////4Cn0nRi+HpMFV5vKtg184wQI4ckG7lxd1lCjokbmAX6eAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUZWFATF2jLpwgNCEkjf4vSUo6cSKuxh0IVGLCg2Vbst7zBVXwcCSvmVU4GAy9YaObdE4skR8ujhKzdGY9YSCnWKdSR1K1S+0oKlhUlLDisFbYOwoGdYQNt+IuaidQ16fo83bgUBp5gwcUPJOj8PFbZg/b6yQD4Y/zFwDzGKFsmmy7/edZvQFBh4/6wgAAAA==[0m[Pipeline] stage
+[8mha:////4DypK8j4ccDsf1OH6AN+hXcdW4AIeNsZkWmMOKM8SUQyAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUYgEJMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLku/1sh/lZfAAnLfKUwgAAAA==[0m[Pipeline] { (Build Infra-Platform Images)
+[8mha:////4HAKr+Bjg+wS7fQXvRrbA0Pj3viWrHWmbsDzGsOVeuvJAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUYgIhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD0QKVszCAAAA[0m[Pipeline] script
+[8mha:////4IGoRfJeOQU9hIAetfMgLckO5F7zBkZR4NnF6NB08dp7AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycogUwYRQJ9aoCycITQhJo/9LkpJOnIircQcClZjwYNmWrPd8QRU8NOQ1swp7g6EzbHCjzokl8v3FUWKWzqwjDOQUa1VqSarjXFuKCmYVJSw4LBV2joJBHWHFrbiL2gnU9Sn6vB04lEbe4AEFz+QofPyWycP6OspA+OP8BcA0RCi3+2y7zedZvQH4j6CMwgAAAA==[0m[Pipeline] {
+[8mha:////4J7vdrDu49MgHSKLRDiMN9BDjw5rPcmjD7BBSxmPIrL+AAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICokRUaS03vMDExjix7oztkFS8iK/xBwKRqNhitbPNPF+wTBGOHC22hjpHqXEYfG+nhQPH7uJ5wJbP2DAl9galGSRrU88oORuYU5SwELAy1HhOjmyGtWjVXVVeka1OOU7fQUDp9A0eUIjJnFXMXxgjbK69Tkw/z18BjCFDud9+ahfewYmQ+b4AAAA=[0m[Pipeline] echo
+Building infra-platform Docker images...
+[8mha:////4PcSmEsaZY7V9ml0qx399UZW/78TlTE7indIasQWV46MAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCoERUaS03vMDExjix7oztkFS8iK/xBwKRqNhitbPNPF+wTBGOHC22hjpHqXEYfG+nhQPH7uJ5wJbP2DAl9galGSRrU88oORuYU5SwELAy1HhOjmyGtWjVXVVeka1OOU7fQUDp9A0eUIjJnFXMXxgjbK69Tkw/z18BjCFDud9+ahfeAtq90r4AAAA=[0m[Pipeline] sh
++ docker buildx version
+github.com/docker/buildx v0.30.1 9e66234aa13328a5e75b75aa5574e1ca6d6d9c01
++ docker buildx create --use --name builder
+builder
++ docker images --format {{.Repository}}:{{.Tag}}
++ grep -q ^jenkins-custom:base$
++ echo ✓ Base Jenkins image found: jenkins-custom:base
+✓ Base Jenkins image found: jenkins-custom:base
++ echo Switching to default builder for local base image access...
+Switching to default builder for local base image access...
++ docker buildx use default
++ [ -f docker/Dockerfile.jenkins ]
++ echo Building incremental Jenkins image: jenkins-custom:lts (FROM base)...
+Building incremental Jenkins image: jenkins-custom:lts (FROM base)...
++ docker buildx build --platform linux/amd64 -f docker/Dockerfile.jenkins -t jenkins-custom:lts --load docker/
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.jenkins
+#1 transferring dockerfile: 611B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/jenkins-custom:base
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 1.07kB done
+#3 DONE 0.0s
+
+#4 [1/1] FROM docker.io/library/jenkins-custom:base@sha256:53ac130f853e3e87c780cc87a8136f5af46aa00b183ed7de10f140a0022688cf
+#4 resolve docker.io/library/jenkins-custom:base@sha256:53ac130f853e3e87c780cc87a8136f5af46aa00b183ed7de10f140a0022688cf 0.0s done
+#4 CACHED
+
+#5 exporting to image
+#5 exporting layers done
+#5 exporting manifest sha256:7ce4cf8b37325d0daf6c5781a6d116554b457f43fd30a63aa544cbdfd969c875 done
+#5 exporting config sha256:11074705e79da5da04fbeebea46a6c55a7aca83b0fde2fa16549f87e72436e34 done
+#5 exporting attestation manifest sha256:bb5567b1d137c92232ab43287dba29dd3729893b176970d8586a565041feaaf9 0.0s done
+#5 exporting manifest list sha256:d06cabec660a324776bcb5383fdb071fd9d775c709b2310eb523c07d998d0d57 done
+#5 naming to docker.io/library/jenkins-custom:lts done
+#5 DONE 0.1s
++ echo ✓ Incremental Jenkins image built: jenkins-custom:lts
+✓ Incremental Jenkins image built: jenkins-custom:lts
++ echo ✓ Infra-platform images built successfully
+✓ Infra-platform images built successfully
+[8mha:////4I2g/f0DkVqit6vZ5GccQhf4P57HN+lHbMKc8AMgc6NWAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKClBJR0VppeIFJjLFj3Tm2g1PxIr7GHwhEomKL1c4283zBOgY4ctBoFfWGYmvQu1HPCzOH/uo4o+ULtkyRncJG5YY7dVqw4aRgSVHCSsBGUes4GtIJtsLKu6ycJF2dU5i/g4DSdAM8oBCzOcmQvjAF2N3GLjL9PH8FMHmfoKzrT+3fvKbXNb4AAAA=[0m[Pipeline] }
+[8mha:////4P0tpsex2RZsydUDsrXmx9L3bN9hCQMYBX7JxvvtVW++AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiAQ1CqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDu9rm2hw/hHxVIvgAAAA==[0m[Pipeline] // script
+[8mha:////4E+x3zAWmxNTtHufAcue9bQ7848mcwrNqhS/hcCUf8MIAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIigZCQUCpayw0vMIkxTqy7YDs4FS/ia/wBi0hUbLHa2WZeb1gGDzV7g52m3lJoLA5uNHlhYt9fHSfs+IINU2CnUeokudWnGSVHDXOKEhYCVpoax8GSibAWnXqoyiky1Tn6/B0FlLa9wxMKkc1R+fiFycPmNraB6ef5K4BpGCKUu32u7eED0vxO9L4AAAA=[0m[Pipeline] }
+[8mha:////4LGosdEWCoMo1ipBfGA+P0XAPdJbZH9pczFkMdJYdDNAAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIigQQFSkVrueEFJjHGiXUXbAen4kV8jT9gEYmKLVY728zrDcvgoWZvsNPUWwqNxcGNJi9M7Pur44QdX7BhCuw0Sp0kt/o0o+SoYU5RwkLASlPjOFgyEdaiUw9VOUWmOkefv6OA0rZ3eEIhsjkqH78wedjcxjYw/Tx/BTANQ4Ryt8+1PXwA7ZNl4r4AAAA=[0m[Pipeline] // stage
+[8mha:////4OHkB8I/zkU6v8esgez/gO0kTp8qJTSv/HR3Pk9d4bRyAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUFQMDYuoadeEEoQkhafR/SVLSiRNxNe5AoBITHizbkvWeL6iChyN5zazCwWDoDRvdpHNiifxwcZSYpTPrCQM5xTqVOpKqXWpHUcGiooQVh7XC3lEwqCNsuBV3UTuBuj5Fn7cDh9LIGzyg4JkchY/fMnvYXicZCH+cvwCYxwhl02Tb7T/P6g31jPhcwgAAAA==[0m[Pipeline] stage
+[8mha:////4FszL796H6ZvZG7ZNnM5AQ4/f/LxEtiGJdMpjxQS0CopAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0YAAJMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLku/1sh/lZfAD8aiCpwgAAAA==[0m[Pipeline] { (Validate Infra-Platform Services)
+[8mha:////4FK0HSxo+AgYuaHmu85ULZafnxYpY492rCN8l1EcNIIeAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0YAEhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD59NhPHCAAAA[0m[Pipeline] script
+[8mha:////4LNG039NsMisEW/xNKOPFBxAQb//ngVp53YTJv1Dtn7FAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycogUCRaEOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK53WfbbT7P6g0Z/aLSwgAAAA==[0m[Pipeline] {
+[8mha:////4B/2qhHf8QSyO3VNiTGaU73dIsYjltIgFdp5X3XoZUb4AAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICEh2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBl2WGva+AAAA[0m[Pipeline] echo
+Validating infra-platform services can start...
+[8mha:////4Ng5pxiuiNy4cug8a8XGoTO0a1TDuDPLdJROHN84ONLhAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCEB2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBp7FN92+AAAA[0m[Pipeline] sh
++ [ -f docker/docker-compose.infra-platform.yml ]
++ echo Checking infra-platform services...
+Checking infra-platform services...
++ + docker compose -f docker/docker-compose.infra-platform.ymlhead -10 config --services
+
+prometheus
+grafana
+jenkins
+postgres
+airflow-prod
+mlflow
+airflow-dev
+airflow-test
+nginx-proxy
+redis
++ echo ✓ Infra-platform services configuration is valid
+✓ Infra-platform services configuration is valid
+[8mha:////4HBUNfdXlt0osGYjs77Ygjw3bSlDjdFU4DR15bf2Ya6QAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCBB2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwhQ7nffWr7BvUOMb++AAAA[0m[Pipeline] }
+[8mha:////4OHEqLJsyR4814v2dMOjmqOfXh3/DMRdmDL3UzSUNM45AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMIpSIMQVVorDS8w8WGcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThyM6JEGS7GzwrvR5CUmDsPV8SR6voiOKbJD0eLUssZmwZYTwpKihJWEDVLnOFoyCbayVw9VOUWmOqeQv6OE0uo7PKGQ2ZxUSF+YA+xuo45MP89fAczeJyjrOtf+8AEuEKmUvgAAAA==[0m[Pipeline] // script
+[8mha:////4GaY1E3bKzR0mHu5/F1+3fwmsFB+TKgVQ9VkDp5kAvFPAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSABISSkVrueEFJjHGiXUXbAen4kV8jT9gEYmKLVY728zrDcvgoWZvsNPUWwqNxcGNJi9M7Pur44QdX7BhCuw0Sp0kt/o0o+SoYU5RwkLASlPjOFgyEdaiUw9VOUWmOkefv6OA0rZ3eEIhsjkqH78wedjcxjYw/Tx/BTANQ4Ryt8+1PXwAHfPyKL4AAAA=[0m[Pipeline] }
+[8mha:////4J6XlkzgjybCSSpO6YDkcfoo3HzzqsDb/JyNpB3jncMMAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSgKBAqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDu9rm2hw8inNk+vgAAAA==[0m[Pipeline] // stage
+[8mha:////4Polf9HIq2+7vaGbln/IoX2MXrjtoXC5Fa667Zzhbe8qAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUlZAYEFPXqAsnCE0ISaP/S5KSTpyIq3EHApWY8GDZlqz3fEEVPBzJa2YVDgZDb9joJp0TS+SHi6PELJ1ZTxjIKdap1JFU7VI7igoWFSWsOKwV9o6CQR1hw624i9oJ1PUp+rwdOJRG3uABBc/kKHz8ltnD9jrJQPjj/AXAPEYomybbbv95Vm97sl+ZwgAAAA==[0m[Pipeline] stage
+[8mha:////4JoCrp6CBm0yabw/oqCZSaTK5+Vq4Cb3omRZFB7gcev0AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QQIJMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLku/1sh/lZfAD9vR8YwgAAAA==[0m[Pipeline] { (Validate Kubernetes/Kind Cluster)
+[8mha:////4AO77/K5U2HwppENl1PpPYeN0RPZI0gGhHOq6vP6Rl/mAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0YQAhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD56au0DCAAAA[0m[Pipeline] script
+[8mha:////4OK20pvtAYIF6Xh+DM8/rhY0l0JvOLPFR+jzV/bAd3bjAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoiUAQaEOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK53WfbbT7P6g0iH00AwgAAAA==[0m[Pipeline] {
+[8mha:////4HfsTJiBwJ3tuX9z3JV8pM0jheMuHJoo2k+O+7RXJAudAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICBRWiSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBvT8cju+AAAA[0m[Pipeline] echo
+Validating Kubernetes/kind cluster configuration...
+[8mha:////4L+8Ll8DCgSJiO6WwFvdoglHoG88T3r8y2qLDaxhaWpMAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCkKgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUO63n9qFNzevXxC+AAAA[0m[Pipeline] sh
++ 
++ + echocommand -v ⚠️  Warning: kind command not found. Kubernetes validation skipped.
+ kind
+⚠️  Warning: kind command not found. Kubernetes validation skipped.
++ /usr/local/bin/kind
+exit 0
+[8mha:////4NJqRCtwtcqli/7DlRsn0MKArGW04XY2trXCindeYyzrAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKChKgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGMIGcr97lPbNwA0XQC+AAAA[0m[Pipeline] }
+[8mha:////4IedJK62OkbcEnBd2BuPNsaxuHOZ+qLzHt6Ct+HdzlmVAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLShAIhqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJyj3da768AFdjZ99vgAAAA==[0m[Pipeline] // script
+[8mha:////4AL82/MnCmjYa2nw9QhcAYz33G3nk37mDFHOe++Ef0bYAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMJpiISEqNJaaXiBiQ/jxLoztkNS8SK+xh+wiETFFqudbeb1hnUMcOJgRI80WIqdFd6NJi8xcRiujifR80V0TJEdihanljU2C7acEJYUJawkbJA6x9GSSbCVvXqoyiky1TmF/B0llFbf4QmFzOakQvrCHGB3G3Vk+nn+CmD2PkFZ17n2hw9ubsTBvgAAAA==[0m[Pipeline] }
+[8mha:////4Ky5cv20bbsO0GEPaGDAqyoZI58z+wV6ppD2mHT3qH4gAAAApR+LCAAAAAAAAP9tjTsOwjAQRDdBFLSUHGLT8ClQKlrLDScwiTFOrN1gOzgVJ+Jq3AGLSFRMMZo3zXu9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDu9rm2hw9RAe/XvgAAAA==[0m[Pipeline] // stage
+[8mha:////4Ee7nyFzPLhOk7ldxEpmSiT5HsPGI/nn3G0HGmurWNzEAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUHRADYuoadeEEoQkhafR/SVLSiRNxNe5AoBITHizbkvWeL6iChyN5zazCwWDoDRvdpHNiifxwcZSYpTPrCQM5xTqVOpKqXWpHUcGiooQVh7XC3lEwqCNsuBV3UTuBuj5Fn7cDh9LIGzyg4JkchY/fMnvYXicZCH+cvwCYxwhl02Tb7T/P6g3PuSg/wgAAAA==[0m[Pipeline] stage
+[8mha:////4N7Vnsy43/G1/y/doLcs498uW6rw/b64C7XrzUILeDV7AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QiAhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LDyb6zSXCAAAA[0m[Pipeline] { (Declarative: Post Actions)
+[8mha:////4MoyCfVUurf9gTytE28Vk7xgSgyB5AJsA7rm1XfEn2xMAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSIYEQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUG53n9qHN5s4RMC+AAAA[0m[Pipeline] echo
+✓ Infra-platform pipeline succeeded!
+[8mha:////4KlRNx9vjoaz++/JDz31GlLXHU44j9LUmulNm563jp3eAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCA0JCqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDut7l2hw8B1Pq5vgAAAA==[0m[Pipeline] }
+[8mha:////4MoY0SeiklO4RnTJn0StN927VURREvtjZARb6GXRDIVNAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiCqBAqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDut7l2hw81GhnivgAAAA==[0m[Pipeline] // stage
+[8mha:////4NLMk3Uhi6auWvKqAtpBO9MNl9+Lp8mP5xV/j6OcXZgSAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKiUNAgqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJygP+1x1/QGqCILpvgAAAA==[0m[Pipeline] }
+[8mha:////4PXWvtmxA27xBS6bh6fRFCBHeVg9f6MfjVykZR+MMFHZAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICQqJBqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFAe9rl22w+Z69lVvgAAAA==[0m[Pipeline] // withEnv
+[8mha:////4Kyo+hTJKSodtCURleKQNgrjp1zoGHanhs4vweQuvxduAAAAox+LCAAAAAAAAP9tjTESgjAQRT84FraWHiI0jI1jZZuh8QQRYgxkdjFZhMoTeTXvICMzVv7qv9e81xvrFHHk6FRrqfOUaq/6MLj5qZFjdw08qpYvqmZKHKyq7FhxY08LViwWy7IcK42NpTpw8uQEW92ahymCIVecJc7uoJH75o4nMj2XxUT5whSxuw1NYvp1/gYw9b0g35eCrPwA/b3AOr0AAAA=[0m[Pipeline] }
+[8mha:////4FnxevsHokyCs8UZEvQWAlKYWRT5mWcGl3RNp+hdtgy+AAAAox+LCAAAAAAAAP9tjTEOwjAQBDdBFLSUPMIpEDSIitZKwwtMYowT6y7YF5KKF/E1/kBEJCq22plmXm8sU8SRo1ONpdZTqrzqQu+mpwaO7TXwoBq+qIopcbCqtEPJtT3NWLJYzMtyLDRWlqrAyZMTrHVjHqYIhlxxlji5g0bu6zueyPRUFhPlC2PE5tbXienX+RvA2HWCfL8TZNsP7gHEmb0AAAA=[0m[Pipeline] // node
+[8mha:////4HhiiyP3GyQvpvHKOCp8/6jqjNCvFsPVGgRYD93monGfAAAAox+LCAAAAAAAAP9tjbEOgjAURS8YB1dHP6IkDizGybVh8Qsq1Fpo3sP2IUx+kb/mP0gkcfJO95zlvN5Yp4gjR6daS52nVHvVh8HNT40cu2vgUbV8UTVT4mBVZceKG3tasGKxWJblWGlsLNWBkycn2OrWPEwRDLniLHF2B43cN3c8kem5LCbKF6aI3W1oEtOv8zeAqe8FeVkKsv0HqEtjqb0AAAA=[0m[Pipeline] End of Pipeline
+[8mha:////4BmrAFtqHN5BML09zMJ3IlAOweUt/EveDWJ+22igiRpFAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM5V2cwFrwz0vjgAAAA==[0mJenkins-Imposed API Limiter: Current quota for Github API usage has 27 remaining (2 over budget). Next quota of 60 in 21 min. Sleeping for 5 min 34 sec.
+[8mha:////4A1Xf+/MCr6vCGWXZRzC/pxJ34w4oyuA/5/iUBvHryR4AAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsM5V28wDRkjS2jgAAAA==[0mJenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
+[8mha:////4AQVmQq8+kg0ON3Z2KjiGd912UQJf1zUcrbuhQAIUItEAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsMzVMYQBHY7NWjgAAAA==[0mJenkins-Imposed API Limiter: Still sleeping, now only 2 min 31 sec remaining.
+
+Could not update commit status. Message: {
+  "message": "Requires authentication",
+  "documentation_url": "https://docs.github.com/rest",
+  "status": "401"
+}
+
+Finished: SUCCESS

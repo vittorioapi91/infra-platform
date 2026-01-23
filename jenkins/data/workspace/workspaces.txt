@@ -1,0 +1,14 @@
+PredictionMarketsAgent/main
+PredictionMarketsAgent_main
+PredictionMarketsAgent/staging
+PredictionMarketsAgent_staging
+TradingPythonAgent/dev%2FDEV-6%2Ftrading_agent-fundamentals
+DEV-6_trading_agent-fundamentals
+TradingPythonAgent/main
+TradingPythonAgent_main
+TradingPythonAgent/staging
+TradingPythonAgent_staging
+infra-platform/main
+infra-platform_main
+infra-platform/staging
+infra-platform_staging

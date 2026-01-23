@@ -148,6 +148,7 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 prometheus.local.info
 127.0.0.1 redisinsight.local.info
 127.0.0.1 nats.local.info
+127.0.0.1 openproject.local.info
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
@@ -184,6 +185,9 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
   - `/routez` - Cluster routing (if clustered)
   - `/jsz` - JetStream statistics
   - `/healthz` - Health check
+- `http://openproject.local.info` → OpenProject (Project Management - replacement for Jira)
+  - Direct: http://localhost:8086
+  - Default admin credentials: admin/admin (change on first login)
 - `http://mlflow.local.info` → MLflow
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
 - `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)

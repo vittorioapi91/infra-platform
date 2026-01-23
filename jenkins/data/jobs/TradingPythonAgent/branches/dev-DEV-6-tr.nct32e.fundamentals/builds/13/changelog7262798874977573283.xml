@@ -1,0 +1,14 @@
+commit f9dab589d7ab1a66801016b0c354671cdd9c4be1
+tree 9dbb58bc0835f35c73eb72de31985c9f89c1ac0b
+parent f0bcd05ca324ce4c1510367cc7be0d51a68c129b
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:39:41 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:39:41 +0000
+
+    [DEV-6] Remove Install Airflow DAGs stage from pipeline
+    
+    - Removed the Install Airflow DAGs stage that was failing due to read-only file system
+    - DAGs are now included in the wheel and installed via wheel installation process
+    - Pipeline now skips directly from Validate Airflow DAGs to Run Tests
+
+
+:100644 100644 51de647daba42ea6af698ec223f3a7ec6763f94c 2e0dc8f4d73bb938336ceb6de5741b048a5a8bf8 M	Jenkinsfile

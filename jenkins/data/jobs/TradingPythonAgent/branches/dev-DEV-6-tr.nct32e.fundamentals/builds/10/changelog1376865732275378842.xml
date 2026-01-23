@@ -1,0 +1,15 @@
+commit f0bcd05ca324ce4c1510367cc7be0d51a68c129b
+tree 236b79b8908ce07d0dd4b65ea22011131c0d56a7
+parent 371f17ced19549eb57c9685b2c7714eb32a30aea
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:23:42 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 16:23:42 +0000
+
+    [DEV-6] Make infra-platform path configurable via INFRA_PLATFORM_PATH environment variable
+    
+    - Added INFRA_PLATFORM_PATH environment variable (defaults to ../infra-platform)
+    - Replaced all hardcoded ../infra-platform paths with configurable variable
+    - Updated verification checks to use configurable path
+    - Allows overriding path via Jenkins job configuration for different deployment scenarios
+
+
+:100644 100644 07183f5a2d40581baa85a2cf4e680fbd74c1d305 51de647daba42ea6af698ec223f3a7ec6763f94c M	Jenkinsfile

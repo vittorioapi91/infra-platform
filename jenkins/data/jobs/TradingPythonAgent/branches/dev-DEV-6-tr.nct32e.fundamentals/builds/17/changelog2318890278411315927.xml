@@ -1,0 +1,14 @@
+commit 064429ce089459922a38886c37bb8deced678d97
+tree d61e3b7e683f896e718a0e1d55a71f78cee8f652
+parent 62b6e0f04456db4b7fbc2d6efe84c743073559a9
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:03:51 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:03:51 +0000
+
+    [DEV-6] Fix build-wheel.sh to handle pipefail correctly
+    
+    - Replaced 'head -1 | grep -q .' pattern with direct test for non-empty output
+    - This prevents script failure with 'set -euo pipefail' when grep doesn't find matches
+    - Also fixed 'head -n 20' in unzip pipe to use '|| true' to prevent failures
+
+
+:100755 100755 323c7b028d87ad5f93813976774f8f8500f118cc 262bdb14cfa986aa3e328aa1789c3330ddb12124 M	build-wheel.sh

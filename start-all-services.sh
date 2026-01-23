@@ -105,6 +105,7 @@ log "  - PostgreSQL: localhost:55432"
 log "  - Redis: localhost:6379"
 log "  - RedisInsight: http://localhost:5540 (Redis web GUI)"
 log "  - NATS: localhost:4222 (client), localhost:8222 (monitoring)"
+log "  - OpenProject: http://localhost:8086 (Project Management - replacement for Jira)"
 log ""
 log "Log file: $LOG_FILE"
 

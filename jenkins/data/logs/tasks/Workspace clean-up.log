@@ -1,0 +1,22 @@
+Started at Thu Jan 22 01:34:55 UTC 2026
+Checking infra-platform
+Deleting /var/jenkins_home/workspace/infra-platform on Jenkins
+Checking PredictionMarketsAgent
+Deleting /var/jenkins_home/workspace/PredictionMarketsAgent on Jenkins
+Checking TradingPythonAgent
+Deleting /var/jenkins_home/workspace/TradingPythonAgent on Jenkins
+Checking TradingPythonAgent » dev/DEV-6/trading_agent-fundamentals
+Deleting /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals on Jenkins
+Checking TradingPythonAgent » main
+Deleting /var/jenkins_home/workspace/TradingPythonAgent_main on Jenkins
+Checking TradingPythonAgent » staging
+Deleting /var/jenkins_home/workspace/TradingPythonAgent_staging on Jenkins
+Checking PredictionMarketsAgent » main
+Deleting /var/jenkins_home/workspace/PredictionMarketsAgent_main on Jenkins
+Checking PredictionMarketsAgent » staging
+Deleting /var/jenkins_home/workspace/PredictionMarketsAgent_staging on Jenkins
+Checking infra-platform » main
+Deleting /var/jenkins_home/workspace/infra-platform_main on Jenkins
+Checking infra-platform » staging
+Deleting /var/jenkins_home/workspace/infra-platform_staging on Jenkins
+Finished at Thu Jan 22 01:34:55 UTC 2026. 336ms

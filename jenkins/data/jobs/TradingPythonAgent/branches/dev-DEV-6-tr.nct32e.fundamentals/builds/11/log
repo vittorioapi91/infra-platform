@@ -1,0 +1,586 @@
+Started by user [8mha:////4PKOWJyeFSbY0O+f0A/J/0rXoTIzbnSqq2PB2vosPsaoAAAAnR+LCAAAAAAAAP9b85aBtbiIQTGjNKU4P08vOT+vOD8nVc83PyU1x6OyILUoJzMv2y+/JJUBAhiZGBgqihhk0NSjKDWzXb3RdlLBUSYGJk8GtpzUvPSSDB8G5tKinBIGIZ+sxLJE/ZzEvHT94JKizLx0a6BxUmjGOUNodHsLgAzBEgZB/dLi1CL9ssySkvyizPzEgkwAxWsLYcYAAAA=[0mVittorio Apicella
+[8mha:////4E5s3B/gF8tvbGx30lGhikaOl0wD9aBHlIcffZBy3iocAAAAhB+LCAAAAAAAAP9b85aBtbiIwSa/KF0vKzUvOzOvODlTryCnNB3I0kvPLMkoTYpPKkrMS86IL84vLUpO1XPPLPEoTXLOzyvOz0n1yy9JZYAARiYGRi8GzpLM3NTiksTcgooiBqmM0pTi/Dy9ZIhiPayaGCoKgPTsi28DDAB5xU0kjgAAAA==[0mConnecting to https://api.github.com using vittorioapi91/******
+Obtained Jenkinsfile from f0bcd05ca324ce4c1510367cc7be0d51a68c129b
+[8mha:////4G5xSNjGocdkcq86yJDUg0A2Zdr+gadeJpGE1o56nw2dAAAAoh+LCAAAAAAAAP9tjTEOwjAQBM8BClpKHuFItIiK1krDC0x8GCfWnbEdkooX8TX+gCESFVvtrLSa5wtWKcKBo5UdUu8otU4GP9jS5Mixv3geZcdn2TIl9igbHBs2eJyx4YwwR1SwULBGaj0nRzbDRnX6rmuvydanHMu2V1A5c4MHCFXMWcf8hSnC9jqYxPTz/BXAFEIGsfuclm8zQVqFvQAAAA==[0m[Pipeline] Start of Pipeline
+[8mha:////4DC+Eg2mk4qTurzJVaOtIeufyIFKmMsKxPP+kAsnCRluAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycohUghExsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jduZBmjwAAAAA==[0m[Pipeline] node
+Running on [8mha:////4FlCY5xJ8pNecZQKKQitVFE3trXq+G/tl0ROssUTG354AAAAoR+LCAAAAAAAAP9b85aBtbiIQTGjNKU4P08vOT+vOD8nVc83PyU1x6OyILUoJzMv2y+/JJUBAhiZGBgqihhk0NSjKDWzXb3RdlLBUSYGJk8GtpzUvPSSDB8G5tKinBIGIZ+sxLJE/ZzEvHT94JKizLx0a6BxUmjGOUNodHsLgAz2EgZR/eT83ILSktQifY2k0sycEt3MPE19AHHxbH3KAAAA[0mJenkins in /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals
+[8mha:////4N9alMcc9/UFbSPYm09qfubqZCIog+L0yxZ5WbyteEHZAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0gA0xsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jfoP95RwAAAAA==[0m[Pipeline] {
+[8mha:////4EtDZKdhClZ/cFDHrgEuiFN/VgTwpWO/WXvq0VNJQMQMAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0gQkxsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jc09154wAAAAA==[0m[Pipeline] stage
+[8mha:////4Lq6v0TWvnro/YOKB76mLNO3BToxRmELMkR8B86//tDyAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+KOrAycoh0ggUxsUZZOEFIQkgb/d8mKe3EibgadyBQiQlLlmxL1nu+oE4RjhQdby12HpP2vA+jK4lPFLtroIm3dOGaMFGwXNpJkrGnpUrKFhaxClYC1hZ1oOTRZdiIVt1VExS65pxj2Q4CKm8GeAAThZxVzN8yR9jeRpMIf5y/AJj7DGxXvP/86jek7ggRwAAAAA==[0m[Pipeline] { (Declarative: Checkout SCM)
+[8mha:////4ABAhoZe7Ohv8haOk+zJEnSsJXukN62jxkw+RiMF6vsJAAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQTbaWGsbAmNJ0AWEZb8zwLrbuWJvJp3kLiJlZNMMm+a93rDOic4UbLcG+wdZu14DKOti0+U+lugiXu6ck2YKRguzSSpM+cFJRUDS1gDKwEbgzpQdmgLbIVXD9UGhba9lFS/o4DGdQM8gYlqLiqVL8wJdvexy4Q/z18BzLEA29ce4gfg7KmOvAAAAA==[0m[Pipeline] checkout
+The recommended git tool is: NONE
+using credential github-token
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/vittorioapi91/TradingPythonAgent.git # timeout=10
+Fetching without tags
+Fetching upstream changes from https://github.com/vittorioapi91/TradingPythonAgent.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials 
+ > git fetch --no-tags --force --progress -- https://github.com/vittorioapi91/TradingPythonAgent.git +refs/heads/dev/DEV-6/trading_agent-fundamentals:refs/remotes/origin/dev/DEV-6/trading_agent-fundamentals # timeout=10
+Checking out Revision f0bcd05ca324ce4c1510367cc7be0d51a68c129b (dev/DEV-6/trading_agent-fundamentals)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f f0bcd05ca324ce4c1510367cc7be0d51a68c129b # timeout=10
+Commit message: "[DEV-6] Make infra-platform path configurable via INFRA_PLATFORM_PATH environment variable"
+ > git rev-list --no-walk f0bcd05ca324ce4c1510367cc7be0d51a68c129b # timeout=10
+[8mha:////4L51pxCVVDRAC2OJw4fk6MjnsQgG1YViSgcOPbsoqmsCAAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQTbGRNjZUtoPAGyiLDkfxZYdytP5NW8g8RNrJxkknnTvNcb1jnBiZLl3mDvMGvHYxhtXXyi1N8CTdzTlWvCTMFwaSZJnTkvKKkYWMIaWAnYGNSBskNbYCu8eqg2KLTtpaT6HQU0rhvgCUxUc1GpfGFOsLuPXSb8ef4KYI6xADvU7j9Dg2gqvAAAAA==[0m[Pipeline] }
+[8mha:////4Hy6C6gfm7ek5/ki5WEZNBsJIKkDodEDE7LiVdaMW5Y0AAAAoh+LCAAAAAAAAP9tjTEOAiEURD9rLGwtPQRbWRhjZUtoPAGyiLDkfxZYdytP5NW8g8RNrJxkknnTvNcb1jnBiZLl3mDvMGvHYxhtXXyi1N8CTdzTlWvCTMFwaSZJnTkvKKkYWMIaWAnYGNSBskNbYCu8eqg2KLTtpaT6HQU0rhvgCUxUc1GpfGFOsLuPXSb8ef4KYI6xADvU7j9J+wGOvAAAAA==[0m[Pipeline] // stage
+[8mha:////4OSBpivty5/mC4Vkra+8fdL5be0IScIz1dUjrUlgCRO2AAAAph+LCAAAAAAAAP9tjTEOwjAQBM9BKWgpeYQDEh2iorXc8AITG+PEugv2haTiRXyNPxCIRMVWOyut5vmCMic4UPKycdgGzHWQXez91ORAqb1EGmRDZ1kTZopOajdosu44oyZ2MEcUsFCwdFhHygE9w0o15m6qaNBXJ07TtldQBHuDBwg1mdkk/sKYYH3tbSb8ef4KYOwYxI6h2G4+x/INtuQqUcEAAAA=[0m[Pipeline] withEnv
+[8mha:////4G1Ed92H6tTHre+RLstXgbiCee0ajA+6ISuRn/HoS3FOAAAApR+LCAAAAAAAAP9tjTEOwjAUQ3+DOrAycoiUzoiJNerCCUITQtLo/zZJSSdOxNW4Ay2VmPBg2Zas93pDGQOcKBjuNHYWY2t570czJ54pdDdPmTu68pYwkte80bkhpc9rbShpWFUw2AjYamw9RYsmwU44+ZCVl2iqSwrzdhTArBrgCYWYyUmG9C1TgP19VJHwx/kLgKlPwOrDYvXyLD8BobDcwgAAAA==[0m[Pipeline] {
+[8mha:////4OUTsec0nuSl1MrIE9jeY+TI611vQHyB3dsS8uvEosCKAAAAph+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUZUVMrFEWThCaEJJG/7dJSjpxIq7GHWipxIQHy7ZkvdcbqhjgRMEwp7GzGFvLej+aObFMobt5yszRlbWEkbxmQmdBSp/XKihpWFWUsOGw1dh6ihZNgh138iFrL9HUlxTm7cihtGqAJxR8JicZ0rdMAfb3UUXCH+cvAKY+Qdk0ix2WZ/UBbwyqm8IAAAA=[0m[Pipeline] withEnv
+[8mha:////4GVgeyOyPMdnXjgsTzz6NLiKMGYGhbSR/cOwM9NtXuBxAAAAph+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUwIiYukZZOEFoQkgb/V9+UtqJE3E17kBLJSY8WLYl673eUESGE7ETjcXWY6y96ELvpiQG4vYaaBANXURNGClYoeygyNhqqYqShUVZDisJa4t1oOjRJdjIRj90GTS68px42o4Scm/u8IRMTuSkOX3LyLC99SYS/jh/ATB2CfLdfrbD/Cw+y7kUycIAAAA=[0m[Pipeline] {
+[8mha:////4KRzTpl90VtfgnAUBPcun+wNuT4P2tTsw/guj4XxwJ4qAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUCDbE1DXKwglCE0La6P/yk9JOnIircQdaKjHhwbItWe/1hiIynIidaCy2HmPtRRd6NyUxELfXQINo6CJqwkjBCmUHRcZWS1WULCzKclhJWFusA0WPLsFGNvqhy6DRlefE03aUkHtzhydkciInzelbRobtrTeR8Mf5C4CxS5Dv9rMd5mfxAbNWnxXCAAAA[0m[Pipeline] stage
+[8mha:////4OjFQdrtsG0p6B6KeNNCFCtpwcqLaVm3rZ6EVN8KIg5bAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUSDAhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD5WQ+PfCAAAA[0m[Pipeline] { (Checkout)
+[8mha:////4CIRTmHtq1RDsxzL6uuaDz26yg3TBbbhsSF1o4gKfFTPAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUDLAgpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD/s94rDCAAAA[0m[Pipeline] script
+[8mha:////4D0wXxs0DlCprXMBQy2/egdwuNM9Unu7jcAjyklCC79GAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohULDAgpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD1+IXOLCAAAA[0m[Pipeline] {
+[8mha:////4DWziObh2bkzflaCcT3JG2mn47KGy/SnjgVrfOFuDB2OAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiKpAQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUG53n9qHNxXfVKy+AAAA[0m[Pipeline] echo
+Using shallow clone for branch: dev/DEV-6/trading_agent-fundamentals
+[8mha:////4LqWVuXIi/aP/lCR2o1WABGSmIAJTdK5QyuLAcODHDFTAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiKoQQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUG53n9qHN1TuT7W+AAAA[0m[Pipeline] checkout
+The recommended git tool is: NONE
+using credential github-token
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/vittorioapi91/TradingPythonAgent.git # timeout=10
+Using shallow fetch with depth 1
+Fetching upstream changes from https://github.com/vittorioapi91/TradingPythonAgent.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress --depth=1 -- https://github.com/vittorioapi91/TradingPythonAgent.git +refs/heads/dev/DEV-6/trading_agent-fundamentals:refs/remotes/origin/dev/DEV-6/trading_agent-fundamentals # timeout=10
+ > git rev-parse refs/remotes/origin/dev/DEV-6/trading_agent-fundamentals^{commit} # timeout=10
+ > git rev-parse dev/DEV-6/trading_agent-fundamentals^{commit} # timeout=10
+Checking out Revision f0bcd05ca324ce4c1510367cc7be0d51a68c129b (refs/remotes/origin/dev/DEV-6/trading_agent-fundamentals)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f f0bcd05ca324ce4c1510367cc7be0d51a68c129b # timeout=10
+Commit message: "[DEV-6] Make infra-platform path configurable via INFRA_PLATFORM_PATH environment variable"
+[8mha:////4ABFhOq5rCmJUnH4+ozj4UwmdecQtLgURanWohBAVep7AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICNBQoFa3lhheYxBgn1l2wHZyKF/E1/oBFJCq2WO1sM683LIOHmr3BTlNvKTQWBzeavDCx76+OE3Z8wYYpsNModZLc6tOMkqOGOUUJCwErTY3jYMlEWItOPVTlFJnqHH3+jgJK297hCYXI5qh8/MLkYXMb28D08/wVwDQMEcr9Ntfu8AGHKGa5vgAAAA==[0m[Pipeline] }
+[8mha:////4Df+TQbcJ+46lWc7vgqDXmNNAWmUmQSUOjMboOqHlgFHAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKiUNAgqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJyj3da768AG0yz0FvgAAAA==[0m[Pipeline] // script
+[8mha:////4OgwkUCdPchL+fvJw+XS3Kp3djfbkrkzamRhZqguS+kVAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUVGJCTF2jLJwgJCGkjf4vSUo7cSKuxh0IVGLCg2Vbst7zBVUMcKRgWWewdxiVY4MfbU5sotBfPE2sozNThJG8YcJMgrRplyooGVhUlLDisDaoPEWHNsGGd/Iuay/R1qcU8nbgUDp9gwcUPJOTDOlb5gDb66gj4Y/zFwDzkKDc7bM1zedZvQFwZZsawgAAAA==[0m[Pipeline] script
+[8mha:////4FhFmWIr2BZOTwKhZcK/flpTcwLJxootbfedfO3epUS4AAAAph+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUKiNiYo2ycILQhJA0+r9NUtKJE3E17kBLJSY8WLYl673eUMUAJwqGOY2dxdha1vvRzIllCt3NU2aOrqwljOQ1EzoLUvq8VkFJw6qihA2HrcbWU7RoEuy4kw9Ze4mmvqQwb0cOpVUDPKHgMznJkL5lCrC/jyoS/jh/ATD1CcqmWeywPKsPpnFij8IAAAA=[0m[Pipeline] {
+[8mha:////4LRxOy2ny+hngLuRaNw93LjbtMA1k68pH1JPkMxKCGCHAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiAR2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyu3uU/vwBrANZ3i+AAAA[0m[Pipeline] sh
++ git rev-parse HEAD
+[8mha:////4DKMfwEMWvOTkGa50ET4sjyDbE+KKx7qtn2xiuhPUXbcAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIigagQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUG53n9qHN/E8fGG+AAAA[0m[Pipeline] sh
++ git rev-parse --short HEAD
+[8mha:////4F6X1bEQnYDibKrB5GasVN0cfW0BELM5//uDvrelu5lLAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIigUSDqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK7+9Q+vAEyb1FKvgAAAA==[0m[Pipeline] sh
++ git rev-parse --abbrev-ref HEAD
+[8mha:////4JtGKQJ28rkyoJ+2O1YoJ3Dyk8GitFFuD703WWG22su0AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiQUGBqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK7+9Q+vAFzXkpTvgAAAA==[0m[Pipeline] sh
++ git config --get remote.origin.url
+[8mha:////4LpwYhk9vk0JedgehjjOAlCBCjKumEf1KRDygekRRJ6UAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiQYOEqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK7+9Q+vAG8QtLUvgAAAA==[0m[Pipeline] echo
+Building for branch: dev/DEV-6/trading_agent-fundamentals
+[8mha:////4JTEFmORIFG1LdoNqRm3sQAAyj5mCL5/6QnuboncXtq3AAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiQYUQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUG53n9qHN/1zyc2+AAAA[0m[Pipeline] echo
+Environment: dev
+[8mha:////4NTy+cv8Qr5FlVYhKe23zzhFxyAofD4KHb+M6UKpchIRAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCSImo0lppeIGJjXFi3RnbIal4EV/jD1hEomKL1c4283rDOgY4cTDYaxosxc6id6PJCycOw9XxhD1fsGOK7DS2empZ6WbBlpOGJUUJKwEbTZ3jaMkk2IpePmTlJJnqnEL+jgJKq+7whEJkc5IhfWEOsLuNKjL9PH8FMPsE5aHOVe/9B4OiyR2+AAAA[0m[Pipeline] echo
+Feature branch detected: JIRA issue=DEV-6, project=trading_agent, subproject=fundamentals
+[8mha:////4EUaSj+usiicWdg/Cmag6CDWXTBaFIMMJ6aY6ctEfdwaAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiSImo0lppeIGJjXFi3RnbIal4EV/jD1hEomKL1c4283rDOgY4cTDYaxosxc6id6PJCycOw9XxhD1fsGOK7DS2empZ6WbBlpOGJUUJKwEbTZ3jaMkk2IpePmTlJJnqnEL+jgJKq+7whEJkc5IhfWEOsLuNKjL9PH8FMPsE5aHOVe/9B8KT0gS+AAAA[0m[Pipeline] echo
+Module path: src/fundamentals
+[8mha:////4CsCDjMDdE66XAi5EJ0oFee9F3ndB0uETXWev/wnysFdAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMKRkhJR0VppeIGJjXFi3Tn2haTiRXyNP2ARiYotVjvbzOsN2xThRNGK3uDgMHVOBD/ZvMRMcbh5mkVPV9ERJvJGtGZuSZvzii2xgTVFCRsJO4Odp+TQMuxlrx6q8gptdeGYv6OE0ukRnlDIbGYV+QtLhMN90onw5/krgCUwlHWTq6nDBwHA/y++AAAA[0m[Pipeline] echo
+Image: hmm-model-training-dev:dev-11-f0bcd05
+[8mha:////4L7zvDBQhgv6WnzHGcMGaQucXnOxs3ntRt1yy8M0cAUFAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMKRSImoaC03vMAkh3Fi3Rnbwal4EV/jD1hEomKL1c4283rDOgY4cjBiQBotxc4K7yZTlsgcxqvjLAa+iI4pskOhMCvu8bSg4oSwpKphJWGD1DmOlkyCrRz0QzdOk2nOKZTvIKG2/R2eUMliTjqkL8wBdrepj0w/z18BzD5BvW9Lta3/AEDx5Da+AAAA[0m[Pipeline] echo
+Namespace: trading-monitoring-dev
+[8mha:////4KLc+RNdRnO/Ut21bksslQ6g8Pxl8SPWIv0PWVyO8A/IAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMKRCB2iSmul4QUmPowT687YDknFi/gaf8AiEhVbrHa2mdcb1jHAiYMRPdJgKXZWeDeavMTEYbg6nkTPF9ExRXYoWpxa1tgs2HJCWFKUsJKwQeocR0smwVb26qEqp8hU5xTyd5RQWn2HJxQym5MK6QtzgN1t1JHp5/krgNn7BGV9yLWvP//2wKi+AAAA[0m[Pipeline] }
+[8mha:////4FMo/QDE+tISEwdNRdyLymCnTHqqxwgFx7beOLMA8Za4AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiBVEhqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJyj3h1x1/QHMFZsUvgAAAA==[0m[Pipeline] // script
+[8mha:////4MCiLWZMUTqYuiOk0kY6vQO/IkHk0rPtTdjuQDKERG9gAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIihKBBqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDuDrm2+w8CoUYnvgAAAA==[0m[Pipeline] }
+[8mha:////4G4ri4JiZUNblh19QeLBxZUnt5JkJLqQpAZmJpr9tYpXAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiBBIFSkVrueEFJjHGiXUXbAen4kV8jT9gEYmKLVY728zrDcvgoWZvsNPUWwqNxcGNJi9M7Pur44QdX7BhCuw0Sp0kt/o0o+SoYU5RwkLASlPjOFgyEdaiUw9VOUWmOkefv6OA0rZ3eEIhsjkqH78wedjcxjYw/Tx/BTANQ4Ryd8i13X8AMUIdm74AAAA=[0m[Pipeline] // stage
+[8mha:////4Lh41t0XEMSYHqLuDQdk8MUf79QR70mdlQf1qDZuO7n8AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUqAsSYuoaZeEEIQkhbfR/SVLaiRNxNe5AoBITHizbkvWeL6higCMFyzqDvcOoHBv8aHNiE4X+4mliHZ2ZIozkDRNmEqRNu1RBycCiooQVh7VB5Sk6tAk2vJN3WXuJtj6lkLcDh9LpGzyg4JmcZEjfMgfYXkcdCX+cvwCYhwTlrsnW7D/P6g3hh8L1wgAAAA==[0m[Pipeline] stage
+[8mha:////4FK0HSxo+AgYuaHmu85ULZafnxYpY492rCN8l1EcNIIeAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0YAEhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD59NhPHCAAAA[0m[Pipeline] { (Test JIRA Connection)
+[8mha:////4LNG039NsMisEW/xNKOPFBxAQb//ngVp53YTJv1Dtn7FAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycogUCRaEOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK53WfbbT7P6g0Z/aLSwgAAAA==[0m[Pipeline] script
+[8mha:////4KQjHpyQjt08kLbjhGQwTHLDCBFoHfycSytjlxywPneLAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycogUJDbE1DXKwglCE0La6P/yk9JOnIircQdaKjHhwbItWe/1hiIynIidaCy2HmPtRRd6NyUxELfXQINo6CJqwkjBCmUHRcZWS1WULCzKclhJWFusA0WPLsFGNvqhy6DRlefE03aUkHtzhydkciInzelbRobtrTeR8Mf5C4CxS5AfdrPt52fxAbb5KxbCAAAA[0m[Pipeline] {
+[8mha:////4Fzm2KQmtFp6WKG724683+Bape170Ojl2Y84575jayAnAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiEB2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBirOQHu+AAAA[0m[Pipeline] echo
+Testing JIRA connection...
+[8mha:////4C41g2sVj3cWsSZYWCUQrfZnBMI6QKPGlZ97wZtcYLCsAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiBB2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBmv/W2K+AAAA[0m[Pipeline] echo
+JIRA URL: https://vittorioapi91.atlassian.net
+[8mha:////4GtPU14yl+s3UgYasp9iyOpqWT1sTzv8unbGdV1ib7GrAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIipHSIitZKwwtMYowd686xHZyKF/E1/kAgEhVbrHa2mecL1jHAkYNGq6g3FFuD3o16Xpg59FfHGS1fsGWK7BQ2KjfcqdOCDScFS4oSVgI2ilrH0ZBOsBVW3mXlJOnqnML8HQSUphvgAYWYzUmG9IUpwO42dpHp5/krgMknKOv9p2r/BqxpGi2+AAAA[0m[Pipeline] echo
+JIRA User: vittorioapi91@gmail.com
+[8mha:////4IwOVCxZob5UWPKwubsowmKq3UVjo/NK+vS6qgWceHk4AAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiJKgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUO62n9qHN+1YATS+AAAA[0m[Pipeline] echo
+JIRA Token length: 192 characters
+[8mha:////4A5hK6vQvJBHkkBMcc31VvWKvKkvtE6JbSQYiAkCIrZeAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiJESDqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK3/dQ+vAEuCywfvgAAAA==[0m[Pipeline] echo
+JIRA Token starts with: ATATT3xFfG...
+[8mha:////4BE8STrADCxjDT4JY7WrrepGnXvEP6fpw99RvyDFAIM4AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiJCQKRJXWcsMLTGyME+vO2A5JxYv4Gn8gEImKLVY728zzBcsU4cjRYmuoc5Qah8H3dlo4cOwungds+YwNU2JvUJpBsjb1jJKzgTlFCQsBK0ON5+TIZliLVt1V5RXZ6pTj9B0ElE7f4AGFmMxZxfyFMcLm2uvE9PP8FcAYMpS77af24Q1vOjcGvgAAAA==[0m[Pipeline] sh
++ + tee /tmp/jira_test_curl_debug.logcurl -v -s
+ -o /tmp/jira_test_response.json -w %{http_code} -u vittorioapi91@gmail.com:ATATT3xFfGF0X2ORyNBVPCGC44Z2a0VdyOa2IpPHQ-Hoe3ER0z7J19uGZisnrDMgJNjnWVfgUD1TBnJQpLxhe3mmPU4RXoQrZYPzJklEsesER06GUaSHq0SJcVXcIzXzRkwbA8j31_8paZCn0H_PB06naDKgdiPP6Wcl1FJppzvtRDRfZKU-Bew=2190D79E -X GET -H Accept: application/json https://vittorioapi91.atlassian.net/rest/api/3/myself
+[8mha:////4OJ+CMD8gR/PjkYfWM+JpCAW07I0AGVgowRloe6cIPtSAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiJAokRJXWcsMLTGyME+vO2A5JxYv4Gn8gEImKLVY728zzBcsU4cjRYmuoc5Qah8H3dlo4cOwungds+YwNU2JvUJpBsjb1jJKzgTlFCQsBK0ON5+TIZliLVt1V5RXZ6pTj9B0ElE7f4AGFmMxZxfyFMcLm2uvE9PP8FcAYMpS77af24Q2gJq+BvgAAAA==[0m[Pipeline] echo
+Debug information:
+[8mha:////4FYqRJpPaFp0w+Rxc9mbt2SL7tl92k96tvQ8AmCPUgkTAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiJBqEqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK3/dQ+vAHhF7SYvgAAAA==[0m[Pipeline] sh
++ echo Response code: 401
+Response code: 401
++ echo Curl debug log (showing auth header info):
+Curl debug log (showing auth header info):
++ grep -i authorization\|www-authenticate\|401\|403 /tmp/jira_test_curl_debug.log
++ head -10
+* [HTTP/2] [1] [authorization: Basic dml0dG9yaW9hcGk5MUBnbWFpbC5jb206QVRBVFQzeEZmR0YwWDJPUnlOQlZQQ0dDNDRaMmEwVmR5T2EySXBQSFEtSG9lM0VSMHo3SjE5dUdaaXNuckRNZ0pOam5XVmZnVUQxVEJuSlFwTHhoZTNtbVBVNFJYb1FyWllQekprbEVzZXNFUjA2R1VhU0hxMFNKY1ZYY0l6WHpSa3diQThqMzFfOHBhWkNuMEhfUEIwNm5hREtnZGlQUDZXY2wxRkpwcHp2dFJEUmZaS1UtQmV3PTIxOTBENzlF]
+> Authorization: Basic dml0dG9yaW9hcGk5MUBnbWFpbC5jb206QVRBVFQzeEZmR0YwWDJPUnlOQlZQQ0dDNDRaMmEwVmR5T2EySXBQSFEtSG9lM0VSMHo3SjE5dUdaaXNuckRNZ0pOam5XVmZnVUQxVEJuSlFwTHhoZTNtbVBVNFJYb1FyWllQekprbEVzZXNFUjA2R1VhU0hxMFNKY1ZYY0l6WHpSa3diQThqMzFfOHBhWkNuMEhfUEIwNm5hREtnZGlQUDZXY2wxRkpwcHp2dFJEUmZaS1UtQmV3PTIxOTBENzlF
+< HTTP/2 401 
+< www-authenticate: OAuth realm="https%3A%2F%2Fvittorioapi91.atlassian.net"
+401
++ echo 
+
++ echo Response body:
+Response body:
++ head+ cat -20
+ /tmp/jira_test_response.json
+Client must be authenticated to access this resource.
+[8mha:////4FIxe1jxJMv/Gq1j3OVw9eSwp9lDJzYPur2BBDQNqMOvAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICElQoFa3lhheYxBgn1l2wHZyKF/E1/oBFJCq2WO1sM683LIOHmr3BTlNvKTQWBzeavDCx76+OE3Z8wYYpsNModZLc6tOMkqOGOUUJCwErTY3jYMlEWItOPVTlFJnqHH3+jgJK297hCYXI5qh8/MLkYXMb28D08/wVwDREKPe7XIft8AGfxrRIvgAAAA==[0m[Pipeline] echo
+Attempting alternative authentication method...
+[8mha:////4P+z3VyETQe0imfcYAkYUVSBwhSfBFkMDWHWkG/dzjHNAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKiSFAhqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAcw+Qbmvcx1q/wHe969RvgAAAA==[0m[Pipeline] sh
++ curl -s -o /tmp/jira_test_response2.json -w %{http_code} -u vittorioapi91@gmail.com:ATATT3xFfGF0X2ORyNBVPCGC44Z2a0VdyOa2IpPHQ-Hoe3ER0z7J19uGZisnrDMgJNjnWVfgUD1TBnJQpLxhe3mmPU4RXoQrZYPzJklEsesER06GUaSHq0SJcVXcIzXzRkwbA8j31_8paZCn0H_PB06naDKgdiPP6Wcl1FJppzvtRDRfZKU-Bew=2190D79E -X GET -H Accept: application/json https://vittorioapi91.atlassian.net/rest/api/3/myself
+[8mha:////4G2Gd8zKIwquPu8ez197Y+F9hoZmc0Wx3G5LebHhcYsvAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiEFQoFa3lhheYxBgn1l2wHZyKF/E1/oBFJCq2WO1sM683LIOHmr3BTlNvKTQWBzeavDCx76+OE3Z8wYYpsNModZLc6tOMkqOGOUUJCwErTY3jYMlEWItOPVTlFJnqHH3+jgJK297hCYXI5qh8/MLkYXMb28D08/wVwDREKPfbXIfd8AEdpIJ6vgAAAA==[0m[Pipeline] echo
+⚠️  WARNING: JIRA authentication failed (HTTP 401). Please check JIRA_USER and JIRA_API_TOKEN credentials. Note: New tokens may take up to a minute to activate. Pipeline will continue.
+[8mha:////4Nxjjr8pAdiZNeu/0Rtm/yplQRyUmaT8b/oLYKI/N1CbAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiBFQoFa3lhheYxBgn1l2wHZyKF/E1/oBFJCq2WO1sM683LIOHmr3BTlNvKTQWBzeavDCx76+OE3Z8wYYpsNModZLc6tOMkqOGOUUJCwErTY3jYMlEWItOPVTlFJnqHH3+jgJK297hCYXI5qh8/MLkYXMb28D08/wVwDQMEcrDLtd++wHXNUFuvgAAAA==[0m[Pipeline] }
+[8mha:////4LZcaB3GdxLE5Zo8/sN6izB/V8Lb6tX6ABEHYtLSkPyAAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMKhCBWiSmul4QUmPowT687YDknFi/gaf8AiEhVbrHa2mdcb1jHAiYMRPdJgKXZWeDeavMTEYbg6nkTPF9ExRXYoWpxa1tgs2HJCWFKUsJKwQeocR0smwVb26qEqp8hU5xTyd5RQWn2HJxQym5MK6QtzgN1t1JHp5/krgNn7BOWhzlXvP/k1QwS+AAAA[0m[Pipeline] // script
+[8mha:////4GIfB6pm7Zeu7cWXt7vSl6+gZUbBsCio+tBSjwsSUAs9AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPMIpUAqEqNJaaXiBiQ/jxLoztkNS8SK+xh+wiETFFqudbeb1hnUMcOJgRI80WIqdFd6NJi8xcRiujifR80V0TJEdihanljU2C7acEJYUJawkbJA6x9GSSbCVvXqoyiky1TmF/B0llFbf4QmFzOakQvrCHGB3G3Vk+nn+CmD2PkFZ17n2hw8/yIL5vgAAAA==[0m[Pipeline] }
+[8mha:////4Ieu2DvKOj+a+ZjgljWdqDDTPjiUQv5BNPSkMPnf62D1AAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSIBASSkVrueEFJjHGiXUXbAen4kV8jT9gEYmKLVY728zrDcvgoWZvsNPUWwqNxcGNJi9M7Pur44QdX7BhCuw0Sp0kt/o0o+SoYU5RwkLASlPjOFgyEdaiUw9VOUWmOkefv6OA0rZ3eEIhsjkqH78wedjcxjYw/Tx/BTANQ4Ryt8+1PXwAB4oRCL4AAAA=[0m[Pipeline] // stage
+[8mha:////4N7PGCMMFekdyLkhlczOpR2UfeEtJ6hX64f1E4vUUPzPAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUCCEG1Ik16sIJQhNC0uj/kqSkEyfiatyBQCUmPFi2Jes9X1AFDw15zazC3mDoDBvcqHNiiXx/cZSYpTPrCAM5xVqVWpLqONeWooJZRQkLDkuFnaNgUEdYcSvuonYCdX2KPm8HDqWRN3hAwTM5Ch+/ZfKwvo4yEP44fwEwDRHKzTbbbv95Vm8OAERnwgAAAA==[0m[Pipeline] stage
+[8mha:////4N7Vnsy43/G1/y/doLcs498uW6rw/b64C7XrzUILeDV7AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QiAhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LDyb6zSXCAAAA[0m[Pipeline] { (Validate JIRA Issue)
+[8mha:////4M6DuBSKHYNg+53aLGxeJApTNJT2Txq6X/+nVh82Aj0+AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QgIhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYJ8t5/tMD+LD0XdaX3CAAAA[0m[Pipeline] script
+[8mha:////4Jsz4dut6HqdSnUaXMibhUIm/8bUe6qvTLjXJ2dwHjHiAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoiUBSSEOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK53WfbbT7P6g3QSQCqwgAAAA==[0m[Pipeline] {
+[8mha:////4FzN9xFolrdI8TNEhnQdotpgPJfG5PexUBTYsfgCg4/pAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOICDQ2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBk5Fu7e+AAAA[0m[Pipeline] echo
+Validating JIRA issue: DEV-6
+[8mha:////4LxQmxwwVH7FnBhVTL497xDAHhKcbfH75S7m5hMCmHSnAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCKGgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUO63n9qFN40Wlpy+AAAA[0m[Pipeline] echo
+JIRA Issue: DEV-6
+[8mha:////4OkqTUY0a8vFUZa/rTYD7GoyFBGGalrs9rO3dMynp+43AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKChESDqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK//dQuvAHMJ42FvgAAAA==[0m[Pipeline] echo
+API Endpoint: https://vittorioapi91.atlassian.net/rest/api/3/issue/DEV-6
+[8mha:////4Fpa4Hn/FodCdMXK/CNOzeapzdbrfkfZtacbfK8n8DyaAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCgWgQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUO63n9qFNwuxzMq+AAAA[0m[Pipeline] sh
++ + tee /tmp/jira_curl_debug.log
+curl -v -s -o /tmp/jira_response.json -w %{http_code} -u vittorioapi91@gmail.com:ATATT3xFfGF0X2ORyNBVPCGC44Z2a0VdyOa2IpPHQ-Hoe3ER0z7J19uGZisnrDMgJNjnWVfgUD1TBnJQpLxhe3mmPU4RXoQrZYPzJklEsesER06GUaSHq0SJcVXcIzXzRkwbA8j31_8paZCn0H_PB06naDKgdiPP6Wcl1FJppzvtRDRfZKU-Bew=2190D79E -X GET -H Accept: application/json https://vittorioapi91.atlassian.net/rest/api/3/issue/DEV-6
+[8mha:////4MjQwUauaX3+sg4QZllm5JKqQDz1YD+EGa1e+Oc6L6SIAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCAw2iSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBkqA19O+AAAA[0m[Pipeline] echo
+Debug information:
+[8mha:////4JMLm0Ak2KwAYXCxOSCxcHs7CeUtGq59OvZG7Or20CW5AAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJClQZR0VppeIFJjLFj3Tm2g1PxIr7GHwhEomKL1c4283zBOgY4ctBoFfWGYmvQu1HPCzOH/uo4o+ULtkyRncJG5YY7dVqw4aRgSVHCSsBGUes4GtIJtsLKu6ycJF2dU5i/g4DSdAM8oBCzOcmQvjAF2N3GLjL9PH8FMPkEZb3/VO3fidP6+L4AAAA=[0m[Pipeline] sh
++ echo Response code: 404
+Response code: 404
++ echo Curl debug log:
+Curl debug log:
++ cat /tmp/jira_curl_debug.log
++ tail -20
+< x-arequestid: 18e82845341e575d5493a05fdca1924a
+< x-seraph-loginreason: AUTHENTICATED_FAILED
+< set-cookie: atlassian.xsrf.token=eee687e241cb5adbcaa2604099fd8a5cfdf8678c_lout; Path=/; SameSite=None; Secure
+< cache-control: no-cache, no-store, no-transform
+< x-content-type-options: nosniff
+< x-xss-protection: 1; mode=block
+< atl-traceid: cffb06ee48d44751bf113a8ebdad97b6
+< atl-request-id: cffb06ee-48d4-4751-bf11-3a8ebdad97b6
+< strict-transport-security: max-age=63072000; includeSubDomains; preload
+< report-to: {"endpoints": [{"url": "https://dz8aopenkvv6s.cloudfront.net"}], "group": "endpoint-1", "include_subdomains": true, "max_age": 600}
+< nel: {"failure_fraction": 0.01, "include_subdomains": true, "max_age": 600, "report_to": "endpoint-1"}
+< server-timing: atl-edge;dur=240,atl-edge-internal;dur=29,atl-edge-upstream;dur=211,atl-edge-pop;desc="aws-eu-central-2"
+< x-cache: Error from cloudfront
+< via: 1.1 8a32bcda17aac10b77bbbc1e28b30222.cloudfront.net (CloudFront)
+< x-amz-cf-pop: FCO50-P7
+< x-amz-cf-id: OiTW-9cxehEppYyqFAOxUrE3TxYsySeL0m3s-7DJm9dDroq9LozINA==
+< 
+{ [95 bytes data]
+* Connection #0 to host vittorioapi91.atlassian.net left intact
+404+ echo 
+
++ echo Response body:
+Response body:
++ cat /tmp/jira_response.json+ head
+ -50
+{"errorMessages":["Issue does not exist or you do not have permission to see it."],"errors":{}}
+[8mha:////4FdpIpLzFDANHae7I8f5IbVBxjRZkU48B/5wpoFet3UJAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCBQWiSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyt32U/vwBsji4eG+AAAA[0m[Pipeline] echo
+⚠️  WARNING: JIRA issue DEV-6 does not exist (HTTP 404). Please verify the issue exists at https://vittorioapi91.atlassian.net/browse/DEV-6. Pipeline will continue.
+[8mha:////4FpCtH5aS5LAeW8JV81k3bPIMMGdGqxBA1H8yp+2FXatAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJChZAQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGMIGcrd/lPbN52NX3C+AAAA[0m[Pipeline] }
+[8mha:////4D0jpUQWz4axSY1XbkQYlBZmf7AcYd1XBTSIKA0/7cpwAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSgRQhqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJygPda59/QFftfLpvgAAAA==[0m[Pipeline] // script
+[8mha:////4Av1HWd+CV5kN+f8OsrIVeuutQ5uuCgpcC1iF+2H1CzgAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCg0BCqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFDut7l2hw+1340fvgAAAA==[0m[Pipeline] }
+[8mha:////4G3pRl4wAmC9++mnWSgePays/+0OscDb882fcjxiJq4FAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiCpQCUaW10vACExvjxLoztkNS8SK+xh+wiETFFqudbeb1hnUMcOJgsNc0WIqdRe9GkxdOHIar4wl7vmDHFNlpbPXUstLNgi0nDUuKElYCNpo6x9GSSbAVvXzIykky1TmF/B0FlFbd4QmFyOYkQ/rCHGB3G1Vk+nn+CmD2PkFZ73Md6g+BEW5EvgAAAA==[0m[Pipeline] // stage
+[8mha:////4Odhbj2hZSG3f97eYJeaBNVIZUi1++LSXCJRBb39RQCsAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUwMCAOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK52WXbbz/P6g2UgBagwgAAAA==[0m[Pipeline] stage
+[8mha:////4BPcafi9od7XKaQLpHI1w7cQbmT+pY5rRbp/vw9eOGDqAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUgoEBMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLkh91s+/lZfAARKflFwgAAAA==[0m[Pipeline] { (Validate Module)
+[8mha:////4GPTw9TTgC8dy7MFyTgGddMx88dPMCo6egPtl8qKso8sAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0AIkBMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLkh91s+/lZfABpxnKZwgAAAA==[0m[Pipeline] script
+[8mha:////4MfDGayiFV8cpgDw487HrEhfatvvQET1uWZ6QzOSHYE4AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0ATEgpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYL8sJttPz+LD08AFXvCAAAA[0m[Pipeline] {
+[8mha:////4Ir4IhyqyxvQ9e3yc+DuCqO8Fain5hej/VGWGDbiggRqAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSAQWiSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBoeWqme+AAAA[0m[Pipeline] echo
+Validating module path: src/fundamentals
+[8mha:////4PBliBxgVMzErSfVpu2FdPX2vDa/QUz6I9QOwZeccsywAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSoRSIitZKwwtMYowd686xHZyKF/E1/kAgEhVbrHa2mecL1jHAkYNGq6g3FFuD3o16Xpg59FfHGS1fsGWK7BQ2KjfcqdOCDScFS4oSVgI2ilrH0ZBOsBVW3mXlJOnqnML8HQSUphvgAYWYzUmG9IUpwO42dpHp5/krgMknKOv9p2r/BsansX6+AAAA[0m[Pipeline] sh
++ [ ! -d src/fundamentals ]
++ echo ✓ Module path exists: src/fundamentals
+✓ Module path exists: src/fundamentals
++ echo Module contents:
+Module contents:
++ ls -la src/fundamentals
++ head -20
+total 4
+drwxr-xr-x  5 root root  160 Jan 18 05:07 .
+drwxr-xr-x 15 root root  480 Jan 18 16:17 ..
+drwxr-xr-x  3 root root   96 Jan 18 05:07 __pycache__
+-rw-r--r--  1 root root 3596 Jan 18 04:36 download_logger.py
+drwxr-xr-x 13 root root  416 Jan 18 05:07 edgar
+[8mha:////4JWxKeRQ9CeH63AiXkrsseboJQU2P9vMDPtxqwEGOieDAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSIZAQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGMIGcrd/lPbN+dDWb++AAAA[0m[Pipeline] }
+[8mha:////4H0KPt8HTccENUy05oLK7x+6zOVF0E7KXabtbU5Sv/1uAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLSICGEqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDyFDu9p/avgHUoAIDvgAAAA==[0m[Pipeline] // script
+[8mha:////4ARus5oD+OvDX7+5c56MmxzNSLok21pcBSexNvwJ4PtcAAAAph+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOKCRAESSkVrueEFJjHGiXUXbAen4kV8jT9gEYmKLVY728zrDcvgoWZvsNPUWwqNxcGNJi9M7Pur44QdX7BhCuw0Sp0kt/o0o+SoYU5RwkLASlPjOFgyEdaiUw9VOUWmOkefv6OA0rZ3eEIhsjkqH78wedjcxjYw/Tx/BTANQ4TysM21330AVhQhTL4AAAA=[0m[Pipeline] }
+[8mha:////4HIHXJoI/t/5IettM6YMRGeVW/iTjkZuJo1+zHcqG5TxAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiaEBCqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFAetrn2uw9l93rwvgAAAA==[0m[Pipeline] // stage
+[8mha:////4GZ53bCn7TkLeE8mmucnRPk5JKgoTRxG/j71VYPDXF/4AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUwIKEOrFGXThBaEJIGv1fkpR04kRcjTsQqMSEB8u2ZL3nC6rgoSGvmVXYGwydYYMbdU4ske8vjhKzdGYdYSCnWKtSS1Id59pSVDCrKGHBYamwcxQM6ggrbsVd1E6grk/R5+3AoTTyBg8oeCZH4eO3TB7W11EGwh/nLwCmIUK52WXbbz/P6g198F5WwgAAAA==[0m[Pipeline] stage
+[8mha:////4E17sT6qZQlzS+qLHdoVISJsFPaS0oOsSyQYu3A0zU73AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUggUJMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLkh91s+/lZfACJxiXBwgAAAA==[0m[Pipeline] { (Validate Airflow DAGs)
+[8mha:////4FKRPpWI2zd5AG7nxy+8vcvoajlrlo9k/zkSyojedKQ7AAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSQIGEqNJabniBiY1xYt0Z2yGpeBFf4w8EIlGxxWpnm3m+YJkiHDlabA11jlLjMPjeTgsHjt3F84Atn7FhSuwNSjNI1qaeUXI2MKcoYSFgZajxnBzZDGvRqruqvCJbnXKcvoOA0ukbPKAQkzmrmL8wRthce52Yfp6/AhhDhnK//dQuvAGulDDkvgAAAA==[0m[Pipeline] fileExists
+[8mha:////4P7SUBx/mecMSvkhyeFq2NbYHiAelsm+7bST2v4oLJahAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QEhIiKlrlIUThCaEtNH/5SelnTgRV+MOtFRiwoNlW7Le6w1FZDgRO9FYbD3G2osu9G5KYiBur4EG0dBF1ISRghXKDoqMrZaqKFlYlOWwkrC2WAeKHl2CjWz0Q5dBoyvPiaftKCH35g5PyORETprTt4wM21tvIuGP8xcAY5cgP+xm28/P4gNU+vLWwgAAAA==[0m[Pipeline] script
+[8mha:////4BO60yMeCXu8EsDJuqGhPmxiKtpgXJIGlDMd5HLSkNTBAAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0AiEhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYL8sJttPz+LD7lC07jCAAAA[0m[Pipeline] {
+[8mha:////4JkB/cNCyURB8zlWdykzj9+oJieNiqkkSg8T0HesPgUcAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLSARKiSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwZyv32U7vwBsroJZ2+AAAA[0m[Pipeline] echo
+Validating Airflow DAGs from src/_airflow_dags_/...
+[8mha:////4EXC3KkEyFU432y3zIwN6nB3y2PQBaeXLrmk82VDYcGpAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLSoUiIitZKwwtMYowd686xHZyKF/E1/kAgEhVbrHa2mecL1jHAkYNGq6g3FFuD3o16Xpg59FfHGS1fsGWK7BQ2KjfcqdOCDScFS4oSVgI2ilrH0ZBOsBVW3mXlJOnqnML8HQSUphvgAYWYzUmG9IUpwO42dpHp5/krgMknKOv9p2r/BgX0vRq+AAAA[0m[Pipeline] sh
++ [ ! -d venv ]
++ VENV_PYTHON=venv/bin/python
++ VENV_PIP=venv/bin/pip
++ venv/bin/pip install --quiet --upgrade pip
++ venv/bin/pip install --quiet apache-airflow
++ venv/bin/pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv
++ export AIRFLOW_HOME=/tmp/airflow_home
++ export AIRFLOW__CORE__DAGS_FOLDER=src/_airflow_dags_
++ export AIRFLOW__CORE__LOAD_EXAMPLES=False
++ export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////tmp/airflow_home/airflow.db
++ mkdir -p /tmp/airflow_home
++ echo [core]
++ echo dags_folder = src/_airflow_dags_
++ echo load_examples = False
++ echo [database]
++ echo sql_alchemy_conn = sqlite:////tmp/airflow_home/airflow.db
++ venv/bin/python -m airflow db migrate
+2026-01-18T16:26:08.953250Z [info     ] setup plugin alembic.autogenerate.schemas [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:08.954816Z [info     ] setup plugin alembic.autogenerate.tables [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:08.955061Z [info     ] setup plugin alembic.autogenerate.types [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:08.955207Z [info     ] setup plugin alembic.autogenerate.constraints [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:08.955328Z [info     ] setup plugin alembic.autogenerate.defaults [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:08.955432Z [info     ] setup plugin alembic.autogenerate.comments [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:10.670394Z [info     ] Context impl SQLiteImpl.       [alembic.runtime.migration] loc=migration.py:210
+2026-01-18T16:26:10.670638Z [info     ] Will assume non-transactional DDL. [alembic.runtime.migration] loc=migration.py:213
+2026-01-18T16:26:10.673908Z [info     ] Migrating the Airflow database [airflow.utils.db] loc=db.py:1129
+2026-01-18T16:26:10.680355Z [info     ] Context impl SQLiteImpl.       [alembic.runtime.migration] loc=migration.py:210
+2026-01-18T16:26:10.680551Z [info     ] Will assume non-transactional DDL. [alembic.runtime.migration] loc=migration.py:213
+2026-01-18T16:26:10.736831Z [info     ] Context impl SQLiteImpl.       [alembic.runtime.migration] loc=migration.py:210
+2026-01-18T16:26:10.737060Z [info     ] Will assume non-transactional DDL. [alembic.runtime.migration] loc=migration.py:213
+DB: sqlite:////tmp/airflow_home/airflow.db
+Performing upgrade to the metadata database sqlite:////tmp/airflow_home/airflow.db
+Database migrating done!
++ echo Validating DAG files from src/_airflow_dags_/...
+Validating DAG files from src/_airflow_dags_/...
++ venv/bin/python -m airflow dags list
+2026-01-18T16:26:12.830257Z [info     ] setup plugin alembic.autogenerate.schemas [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:12.831490Z [info     ] setup plugin alembic.autogenerate.tables [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:12.831679Z [info     ] setup plugin alembic.autogenerate.types [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:12.831810Z [info     ] setup plugin alembic.autogenerate.constraints [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:12.831910Z [info     ] setup plugin alembic.autogenerate.defaults [alembic.runtime.plugins] loc=plugins.py:37
+2026-01-18T16:26:12.832073Z [info     ] setup plugin alembic.autogenerate.comments [alembic.runtime.plugins] loc=plugins.py:37
+/var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/venv/lib/python3.13/site-packages/airflow/cli/commands/dag_command.py:49 UserWarning: Could not import graphviz. Rendering graph to the graphical format will not be possible.
+You might need to install the graphviz package and necessary system packages.
+Run `pip install graphviz` to attempt to install it.
+No data found
++ echo ✓ All DAGs validated successfully
+✓ All DAGs validated successfully
+[8mha:////4Bddx8uNCTQ/dzuuBZe1DFXFWH/PjgZio+DLvH7eJ/nIAAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLSIRCiSmu54QUmNsaJdWdsh6TiRXyNPxCIRMUWq51t5vmCZYpw5GixNdQ5So3D4Hs7LRw4dhfPA7Z8xoYpsTcozSBZm3pGydnAnKKEhYCVocZzcmQzrEWr7qryimx1ynH6DgJKp2/wgEJM5qxi/sIYYXPtdWL6ef4KYAwhQ7nbf2r7Bt6t3Jy+AAAA[0m[Pipeline] }
+[8mha:////4AJp2BYx5bOzUibx4iudm+1Y5rM8pa5VKtav7nToXKTOAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJCgwRCqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFAetrn2uw8Ypq2EvgAAAA==[0m[Pipeline] // script
+[8mha:////4O/yQX9pd+cK5V9y4RKRrH75ITcHHumKSRipIbu84WJTAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIiRANCqWgtN7zAJMY4se6C7eBUvIiv8QcsIlGxxWpnm3m9YRk81OwNdpp6S6GxOLjR5IWJfX91nLDjCzZMgZ1GqZPkVp9mlBw1zClKWAhYaWocB0smwlp06qEqp8hU5+jzdxRQ2vYOTyhENkfl4xcmD5vb2Aamn+evAKZhiFAetrn2uw+I0JKmvgAAAA==[0m[Pipeline] }
+[8mha:////4A7xTA/Ui+CC5L58yoAl7ivxoet6lpqi7dlrDhkDVvLmAAAApR+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOIipQIhqrRWGl5gYmOcWHfGdkgqXsTX+AMWkajYYrWzzbzesI4BThwM9poGS7Gz6N1o8sKJw3B1PGHPF+yYIjuNrZ5aVrpZsOWkYUlRwkrARlPnOFoyCbailw9ZOUmmOqeQv6OA0qo7PKEQ2ZxkSF+YA+xuo4pMP89fAczeJygPda59/QGwkgFXvgAAAA==[0m[Pipeline] // stage
+[8mha:////4OtkxeYGL/vKAEGySZos+nbSInqByNe8YRWooTcFJnD9AAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycohUqBNCTF2jLJwgJCGkjf4vSUo7cSKuxh0IVGLCg2Vbst7zBVUMcKRgWWewdxiVY4MfbU5sotBfPE2sozNThJG8YcJMgrRplyooGVhUlLDisDaoPEWHNsGGd/Iuay/R1qcU8nbgUDp9gwcUPJOTDOlb5gDb66gj4Y/zFwDzkKDcNdn2zedZvQFsKHU7wgAAAA==[0m[Pipeline] stage
+[8mha:////4ONhwh7ueROKrYf4XRQu4RXWC4nidWxB/10Hp7KAFu75AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0gAUhpq5RFk4QmhDSRv+Xn5R24kRcjTvQUokJD5ZtyXqvNxSR4UTsRGOx9RhrL7rQuymJgbi9BhpEQxdRE0YKVig7KDK2WqqiZGFRlsNKwtpiHSh6dAk2stEPXQaNrjwnnrajhNybOzwhkxM5aU7fMjJsb72JhD/OXwCMXYL8sJttPz+LDypufCDCAAAA[0m[Pipeline] { (Install Airflow DAGs)
+[8mha:////4IG56AZ23PDftgwSQwnq1PIDZcwJQvahlmfojLI1wmz2AAAApB+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOLSQIEQVVrLDS8wsTFOrDtjOyQVL+Jr/IFAJCq2WO1sM88XLFOEI0eLraHOUWocBt/baeHAsbt4HrDlMzZMib1BaQbJ2tQzSs4G5hQlLASsDDWekyObYS1adVeVV2SrU47TdxBQOn2DBxRiMmcV8xfGCJtrrxPTz/NXAGPIUO63n9qFN8jx5PW+AAAA[0m[Pipeline] fileExists
+[8mha:////4IdFdZ2ka1t5nWNSivKt2eY14nmw5hmbrIEN/ObLl96sAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0QUgIMXWNsnCC0ISQNvq//KS0EyfiatyBlkpMeLBsS9Z7vaGIDCdiJxqLrcdYe9GF3k1JDMTtNdAgGrqImjBSsELZQZGx1VIVJQuLshxWEtYW60DRo0uwkY1+6DJodOU58bQdJeTe3OEJmZzISXP6lpFhe+tNJPxx/gJg7BLkh91s+/lZfACi2o9EwgAAAA==[0m[Pipeline] script
+[8mha:////4H/EGuV4V7IMRK1ARmOe9f1u2isKhKwM5lwre5S4glw/AAAApx+LCAAAAAAAAP9tjTEOwjAUQ3+LOrAycoh0AyHE1DXKwglCE0La6P/yk9JOnIircQdaKjHhwbItWe/1hiIynIidaCy2HmPtRRd6NyUxELfXQINo6CJqwkjBCmUHRcZWS1WULCzKclhJWFusA0WPLsFGNvqhy6DRlefE03aUkHtzhydkciInzelbRobtrTeR8Mf5C4CxS5AfdrPt52fxAcawv9fCAAAA[0m[Pipeline] {
+[8mha:////4ExiL1pBebECXfQwrNrHEasv2YL60khUgAzxqvalbbptAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSAkJUaS03vMDExjix7oztkFS8iK/xBwKRqNhitbPNPF+wTBGOHC22hjpHqXEYfG+nhQPH7uJ5wJbP2DAl9galGSRrU88oORuYU5SwELAy1HhOjmyGtWjVXVVeka1OOU7fQUDp9A0eUIjJnFXMXxgjbK69Tkw/z18BjCFDud9+ahfeGJWicb4AAAA=[0m[Pipeline] echo
+Installing Airflow DAGs from src/_airflow_dags_/ to ../infra-platform/airflow/dags/...
+[8mha:////4BIz6z+U/ONKIR07gZVwxGuriBChg3e1ucKEPvcfrGcGAAAAox+LCAAAAAAAAP9tjTEOwjAQBC9BFLSUPOJSoghR0VppeIFJjLFj3Tm2g1PxIr7GHwhEomKL1c4283zBOgY4ctBoFfWGYmvQu1HPCzOH/uo4o+ULtkyRncJG5YY7dVqw4aRgSVHCSsBGUes4GtIJtsLKu6ycJF2dU5i/g4DSdAM8oBCzOcmQvjAF2N3GLjL9PH8FMPkEZb3/VO3fWaS5aL4AAAA=[0m[Pipeline] sh
++ [ -f ./install-dags.sh ]
++ chmod +x ./install-dags.sh
++ ./install-dags.sh
+[0;32m[INFO][0m Installing Airflow DAGs...
+[0;32m[INFO][0m   From: /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/src/_airflow_dags_
+[0;32m[INFO][0m   To:   /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/../infra-platform/airflow/dags
+[0;32m[INFO][0m Found 9 file(s) to install
+[0;34m[DEBUG][0m   Copied: macro_master_dag.py
+[0;34m[DEBUG][0m   Copied: edgar_master_idx_dag.py
+[0;34m[DEBUG][0m   Skipped: __init__.py (preserving existing file)
+[0;34m[DEBUG][0m   Copied: edgar_filings_quarterly_dag.py
+[0;34m[DEBUG][0m   Copied: edgar_company_tickers_dag.py
+[0;34m[DEBUG][0m   Copied: README.md
+[0;34m[DEBUG][0m   Copied: edgar_filings_dag.py
+[0;34m[DEBUG][0m   Copied: macro_data_downloads.py
+[0;34m[DEBUG][0m   Copied: macro_sql_workflows.py
+[0;32m[INFO][0m ✓ Installed 8 file(s) to /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/../infra-platform/airflow/dags
+[0;32m[INFO][0m Python DAG files in destination:
+  - macro_master_dag.py
+  - edgar_master_idx_dag.py
+  - __init__.py
+  - edgar_filings_quarterly_dag.py
+  - edgar_company_tickers_dag.py
+  - edgar_filings_dag.py
+  - macro_data_downloads.py
+  - macro_sql_workflows.py
+[8mha:////4MZwRB+LzA0DQaZcNnQmTeiaJiADx0kV+B9lwObcggGPAAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxGwchyHyjZD4wliiDGQ2cVkESpP5NW8gxmZsfJX/73mvd6wigFqClZ0BnuHUTsx+NGmJyYK/dXTJDq6CE0YyRvRmKmh1pwWbIgNLMtyKCSsDWpP0aFl2MhOPVTpFdryzCG5o4TctXd4QiZTmVXgL8wBtrexjYS/zt8AzMPAUOyqiiE/7D8wmRIKvwAAAA==[0m[Pipeline] }
+[8mha:////4CergVczkmHJtwoFU1xN/CpeOzfhsYTi7VvmiCf22BjHAAAAph+LCAAAAAAAAP9tjbEOgjAURR8QB1dHP6LIYmIMk2vD4hdUWmuheQ/bhzD5Rf6a/2AjiZN3uucs5/WGVQxQU7CiM9g7jK0Tgx9temKi0F89TaKji2gJI3kjGjM1pM1pwYbYwLIsh0LC2mDrKTq0DBvZqYcqvUJbnjkkd5SQO32HJ2QylVkF/sIcYHsbdST8df4GYB4GhqLaVQz5Yf8BA3pJtr8AAAA=[0m[Pipeline] // script
+[8mha:////4OCHKnilEEOAz4BiCqxvx6QTTWqm15Ug9S40V6Sl8aQYAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQDiAZFVLRWGl5gYmOcWHfBvpBUvIiv8QcsIlGx1c4083rDIgY4UrCiNdg5jI0TvR9semKk0F09jaKli2gII3kjajPWpM1pxprYwLwsh0LC0mDjKTq0DCvZqocqvUJbnjkkV0nInb7DEzKZyqwCf2EKsL4NOhL+On8DMPU9Q7Hd7Bjyw/4DgWnT3r8AAAA=[0m[Pipeline] }
+[8mha:////4NLHOk9BLf8WyF/MF5reVNbJvsZTCrd1p/4B0+EiCsvBAAAApR+LCAAAAAAAAP9tjTESgjAQRZcwFraWHiLoUDkOlW2GxhPEEGMgs4vJIlSeyKt5BxmZsfJX/73mvd6wShEqik62FjuPyXjZh8HNT44Uu2ugUbZ0kYYwUbCytmNNjT0tWBNbWJYJyBWsLZpAyaNj2KhWP3QRNLrizHF2RwXCN3d4QqbmMuvIX5gibG9Dkwh/nb8BmPqeId/vSgZxKD+HL+uLvwAAAA==[0m[Pipeline] // stage
+[8mha:////4IZBiNwDfAANrb8BrrCUHZEYsWD1+Z20Fc4TFOnIIkQPAAAAqB+LCAAAAAAAAP9tjbEOgjAURR8QBldHP6JIdDNMrg2LX1BLrYXmPWwfwuQX+Wv+gyiJk3e65yY35/mCPAaoKFjRGuwcRu1E7wc7NzFS6C6eRtHSWWjCSN6I2ow1Nea4YE1sYEmSQiZhZVB7ig4tw1q26q4Kr9AWJw7zdpCQuuYGD0jkbGYV+AtTgM11aCLhz/NXAFPPkJY7hqzc7j/X/A0iYv4gwwAAAA==[0m[Pipeline] stage
+[8mha:////4GKvI1vWYqB/cae+gasq9Wmz8i/OAXd4KMkTvhFb2d1LAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BApSDChTqxRF04QkhCSRv+XJKWdOBFX4w6UVmLCg2Vbst7rDWUMUFMwzGlsLUZpWed7MyU2UGivngbm6MIkYSSvWaOHhpQ+LbWhpGFRlkPBYaVReooWTYI1d+IhKi/QVOcUpu3IIbfqDk/I+EROIqS5jAE2t15Fwh/nLwDGLkGx2+5nP3y/5QdMFRcmxAAAAA==[0m[Pipeline] { (Run Tests)
+[8mha:////4Ixk+OSHaqnwIiYs+vD+m/IAAdWHJ04AhNp0XjNcU8XkAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BApDLCgTqxRF04QkhCSRv+XJKWdOBFX4w6UVmLCg2Vbst7rDWUMUFMwzGlsLUZpWed7MyU2UGivngbm6MIkYSSvWaOHhpQ+LbWhpGFRlkPBYaVReooWTYI1d+IhKi/QVOcUpu3IIbfqDk/I+EROIqS5jAE2t15Fwh/nLwDGLkGx2+5nP3y/5QeNKyY7xAAAAA==[0m[Pipeline] script
+[8mha:////4KEzlGCZ1iK+d2ovye+NyHPELAWhT+WEekrlDZC/W1cJAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BApLDCgTqxRF04QkhCSRv+XJKWdOBFX4w6UVmLCg2Vbst7rDWUMUFMwzGlsLUZpWed7MyU2UGivngbm6MIkYSSvWaOHhpQ+LbWhpGFRlkPBYaVReooWTYI1d+IhKi/QVOcUpu3IIbfqDk/I+EROIqS5jAE2t15Fwh/nLwDGLkGx2+5nP3y/5QfYKuSHxAAAAA==[0m[Pipeline] {
+[8mha:////4Eq493JfEdbCmilTutRbC2x0HBwCetJW9g8nbLhwYWEPAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQDFUgoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNrvDnMf+y+lUfumwAAAAA==[0m[Pipeline] echo
+Running unit tests...
+[8mha:////4BByTCCg1xToe4pOs3y8yVTXGSLyi94kdZnCfnU+zvAfAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQDFUIoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNrvDnMf+y/kYOC/wAAAAA==[0m[Pipeline] sh
++ [ ! -d venv ]
++ VENV_PYTHON=venv/bin/python
++ VENV_PIP=venv/bin/pip
++ venv/bin/pip install --quiet --upgrade pip
++ [ dev/DEV-6/trading_agent-fundamentals = staging ]
++ [ dev/DEV-6/trading_agent-fundamentals = main ]
++ REQ_FILE=requirements-dev.txt
++ [ ! -f requirements-dev.txt ]
++ stat -c %Y requirements-dev.txt
++ REQ_MTIME=1768710982
++ basename requirements-dev.txt
++ REQ_CACHE_FILE=venv/.requirements-requirements-dev.txt.mtime
++ [ -f venv/.requirements-requirements-dev.txt.mtime ]
++ cat venv/.requirements-requirements-dev.txt.mtime
++ CACHED_MTIME=1768710982
++ [ 1768710982 = 1768710982 ]
++ echo ✓ Requirements already installed (no changes detected)
+✓ Requirements already installed (no changes detected)
++ echo   Skipping installation from requirements-dev.txt
+  Skipping installation from requirements-dev.txt
++ mkdir -p test-results
++ set +e
++ venv/bin/python -m pytest tests/ --junitxml=test-results/junit.xml --html=test-results/report.html --self-contained-html
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.5', 'Platform': 'Linux-6.12.54-linuxkit-x86_64-with-glibc2.41', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'mock': '3.15.1', 'html': '4.1.1', 'xdist': '3.8.0', 'metadata': '3.1.1', 'typeguard': '4.4.4', 'cov': '7.0.0'}, 'CI': 'true', 'BUILD_NUMBER': '11', 'BUILD_ID': '11', 'NODE_NAME': 'built-in', 'JOB_NAME': 'hmm-model-calibration-dev', 'BUILD_TAG': 'jenkins-TradingPythonAgent-dev%2FDEV-6%2Ftrading_agent-fundamentals-11', 'EXECUTOR_NUMBER': '0', 'JAVA_HOME': '/opt/java/openjdk', 'WORKSPACE': '/var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals', 'GIT_COMMIT': 'f0bcd05ca324ce4c1510367cc7be0d51a68c129b', 'GIT_URL': 'https://github.com/vittorioapi91/TradingPythonAgent.git', 'GIT_BRANCH': 'dev/DEV-6/trading_agent-fundamentals'}
+rootdir: /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals
+configfile: pytest.ini
+plugins: anyio-4.12.1, mock-3.15.1, html-4.1.1, xdist-3.8.0, metadata-3.1.1, typeguard-4.4.4, cov-7.0.0
+collecting ... collected 43 items
+
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_default_arguments PASSED [  2%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_start_year_argument PASSED [  4%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_output_dir_argument PASSED [  6%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_user_agent_argument PASSED [  9%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_generate_catalog_flag PASSED [ 11%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_download_companies_flag PASSED [ 13%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_process_zips_argument PASSED [ 16%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_no_recursive_flag PASSED [ 18%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_database_arguments PASSED [ 20%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_database_defaults PASSED [ 23%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_combined_arguments PASSED [ 25%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_invalid_start_year_type PASSED [ 27%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_invalid_dbport_type PASSED [ 30%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArguments::test_help_flag PASSED [ 32%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArgumentGroups::test_catalog_generation_group PASSED [ 34%]
+tests/trading_agent/fundamentals/edgar/test_edgar_cli.py::TestEDGARCLIArgumentGroups::test_database_connection_group PASSED [ 37%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_valid_content PASSED [ 39%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_with_gzip PASSED [ 41%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_skips_header_lines PASSED [ 44%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_invalid_lines PASSED [ 46%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_empty_content PASSED [ 48%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxParsing::test_parse_master_idx_date_formats PASSED [ 51%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxSaving::test_save_master_idx_content_uncompressed PASSED [ 53%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxSaving::test_save_master_idx_content_compressed PASSED [ 55%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxDownload::test_save_master_idx_to_disk_success_uncompressed PASSED [ 58%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxDownload::test_save_master_idx_to_disk_failure PASSED [ 60%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxDownload::test_save_master_idx_to_disk_skips_successful_quarters PASSED [ 62%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxDatabase::test_save_master_idx_to_db_loads_csv_files PASSED [ 65%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxDatabase::test_save_master_idx_to_db_skips_non_csv_files PASSED [ 67%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxLedger::test_get_master_idx_download_status_not_found PASSED [ 69%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxLedger::test_mark_master_idx_download_success PASSED [ 72%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxLedger::test_mark_master_idx_download_failed PASSED [ 74%]
+tests/trading_agent/fundamentals/edgar/test_edgar_master_idx.py::TestEDGARMasterIdxLedger::test_get_pending_or_failed_quarters PASSED [ 76%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filing_by_path_success PASSED [ 79%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filing_by_path_not_found PASSED [ 81%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_by_year_only PASSED [ 83%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_by_year_quarter_form_type PASSED [ 86%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_by_cik PASSED [ 88%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_by_filename PASSED [ 90%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_no_filters_raises_error PASSED [ 93%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_invalid_filter_raises_error PASSED [ 95%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_no_results PASSED [ 97%]
+tests/trading_agent/fundamentals/edgar/test_filings.py::TestFilingDownloader::test_download_filings_handles_download_errors PASSED [100%]
+
+- generated xml file: /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/test-results/junit.xml -
+- Generated html report: file:///var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/test-results/report.html -
+======================== 43 passed, 2 warnings in 1.26s ========================
++ TEST_EXIT_CODE=0
++ set -e
++ [ -f test-results/junit.xml ]
++ echo ✓ Test results generated: test-results/junit.xml
+✓ Test results generated: test-results/junit.xml
++ [ -f test-results/report.html ]
++ echo ✓ HTML report generated: test-results/report.html
+✓ HTML report generated: test-results/report.html
++ [ 0 -ne 0 ]
++ echo ✓ All tests passed
+✓ All tests passed
+[8mha:////4BruObanUIiSefx/PJ+py/n4AlHsaoNVVPyZyMOFLyFrAAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxGgsnCsbDM0niCSGAOZXUwWofJEXs07GGXGyl/8+e837/mCVQxwoGBFZ7B3GFsnBj/atMREob94mkRHZ9ESRvJGNGZqSJvjgg2xgSVZDoWEtcHWU3RoGTayU3dVeoW2PHFI315C7vQNHpDJZGYV+AtzgO111JHw5/krgHkYGIq6rj5d7d4zyCh5wAAAAA==[0m[Pipeline] }
+[8mha:////4KGZolc1EcSsUiCeHKtqN8amk/ScLDFeA1duh5TIxYoDAAAApR+LCAAAAAAAAP9tjTESwiAURH+SsbC19BBEGhvHKi2TxhMgIJIw/0cgJpUn8mreQTQzVm6xs2+b93zBKgY4UrCsM9g7jMqxwY82LzZR6C+eJtbRmSnCSN6w1kwtadMs2FIysKQooRKwNqg8RYc2wUZ08i5rL9HWpxTydxBQOn2DBxQim5MM6QtzgO111JHw5/krgHkYElSc80/v9m8R81iowAAAAA==[0m[Pipeline] // script
+Post stage
+[8mha:////4CeuSdztkLWc/XDSsG0bLkEnjp5mwil9L9WE2OHhgpqKAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BApRWJCTKxRF04Q2hCSRv+XJCWdOBFX4w6kVGLCg2Vbst7rDaV3cCSnmJHYa/StZoMdVUoskuuvliIzdGEtoScrWSNjQ508LbWhIGFRlkPBYSWxteQ1qgBrbsRDVFagqs7Bpe3AIdfdHZ6Q8UQOwoVvmRxsbmPnCX+cvwCYhgBFvd3PXu/mb/kBL2LABsQAAAA=[0m[Pipeline] script
+[8mha:////4DzFkb15w+WNaaUgzzVDz6v5QyBNipTWmznS6G1gwzgTAAAApx+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkQJOhon1obFJ6il1kLz/9gWy+QT+Wq+gxUSJ2+43F1y+V5vKL2DEznNeoWDQS8NG+2kU2KR3HC1FFlPFyYJPVnFWhVb6lSz1paCglVZDgWHjUJpyRvUAba8Fw9RWYG6OgeXtiOH3HR3eELGEzkIF5YyO9jdps4T/jh/ATCPAYq63i9++H7LD4CBkmTEAAAA[0m[Pipeline] {
+[8mha:////4OtNX4r5IPz4XgoIp7kxz+uTqEL2EUZrw84GsGkzMT0/AAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjCDpEldZKwwtMbIwd687YDknFi/gaf8BKJCq2WO1sM+8PbGKAMwXNrMLBYOwN827UebGJwnBzNDFLV9YTRnKKdWrqSKp2xY6SgjVFCRWHrcLeUTSoE+y4FU9RO4G6vqSQvxOH0sgHvKDg2ZxESAvMAfb3UUbCn+evAGafoGqaw9JH/wUnbr2YwAAAAA==[0m[Pipeline] junit
+Recording test results
+[Checks API] No suitable checks publisher found.
+[8mha:////4IIMY5xSEXCI3hoMofvijUuur5rDsX7SGUJarOeP6WokAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjCFEhqrRWGl5gYmPsWHfGdkgqXsTX+ANWIlGxxWpnm3l/YBMDnCloZhUOBmNvmHejzotNFIabo4lZurKeMJJTrFNTR1K1K3aUFKwpSqg4bBX2jqJBnWDHrXiK2gnU9SWF/J04lEY+4AUFz+YkQlpgDrC/jzIS/jx/BTD7BFXTHJY++i9mX6aBwAAAAA==[0m[Pipeline] fileExists
+[8mha:////4I1JDDWSbvi1LRX4Qng7u0w3dP12PoiTRatI0MjGCb1OAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjCIkGUaW10vACExtjx7oztkNS8SK+xh+wEomKLVY728z7A5sY4ExBM6twMBh7w7wbdV5sojDcHE3M0pX1hJGcYp2aOpKqXbGjpGBNUULFYauwdxQN6gQ7bsVT1E6gri8p5O/EoTTyAS8oeDYnEdICc4D9fZSR8Of5K4DZJ6ia5rD00X8BpQyLqsAAAAA=[0m[Pipeline] publishHTML
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level /var/jenkins_home/workspace/DEV-6_trading_agent-fundamentals/test-results to Test_20Report
+[htmlpublisher] Copying recursive using current thread
+[8mha:////4KOVwK33+IhiQG5uPWX5hKWIvyi5PJIY+01SlfPJE+S5AAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjiIICUaW10vACExtjx7oztkNS8SK+xh+wEomKLVY728z7A5sY4ExBM6twMBh7w7wbdV5sojDcHE3M0pX1hJGcYp2aOpKqXbGjpGBNUULFYauwdxQN6gQ7bsVT1E6gri8p5O/EoTTyAS8oeDYnEdICc4D9fZSR8Of5K4DZ+wRV0xyXPnwB5QP5osAAAAA=[0m[Pipeline] }
+[8mha:////4KgUFzukkIG7xdQkwH8T1xpA3ZRS1Di2TOx3AReDpn0/AAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjUCEhqrRWGl5gYmPsWHfGdkgqXsTX+ANWIlGxxWpnm3l/YBMDnCloZhUOBmNvmHejzotNFIabo4lZurKeMJJTrFNTR1K1K3aUFKwpSqg4bBX2jqJBnWDHrXiK2gnU9SWF/J04lEY+4AUFz+YkQlpgDrC/jzIS/jx/BTB7n6BqmuPShy+aQ7YjwAAAAA==[0m[Pipeline] // script
+[8mha:////4JWGroQD0KaUuUBdsJSCQdS5hUhgoML/jWCZ9OauJ+MQAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYRDCgqEqGitNLzAJMbYse6MfSGpeBFf4w8EIlGxxWpnm3m+YJEiHCga4TR2FlNjRfC9mZYYKHYXT4NwdBYNYSKvRa2Hmlp9nLEm1jAny6GQsNTYeEoWDcNKOnVXpVdoyhPH6dtLyG17gwdkcjKzivyFMcL62reJ8Of5K4AxBIaiqnaf3mzfzOy+AsAAAAA=[0m[Pipeline] }
+[8mha:////4LOTKFJqKACumH+Aeps/2kcKZxnnCRIeOMPSBtC+9O6kAAAApR+LCAAAAAAAAP9tjTESwiAURH+SsbC19BAkOnaOlS1D4wkQEEmY/yMQSeWJvJp3MJoZK7fY2bfNe75gEQMcKFjWGuwcRuVY7wc7LZYpdBdPmbV0ZoowkjdMmCxIm+OMgpKBOUUJFYelQeUpOrQJVryVd1l7ibY+pTB9ew6l0zd4QMEnc5IhfWEMsL4OOhL+PH8FMPZ9gmqzbT7d7N5qnq5uwAAAAA==[0m[Pipeline] // stage
+[8mha:////4GLyxolv1XsMIQ24GTdQHpeGKOWlRCl3IBX/psysKRXBAAAApx+LCAAAAAAAAP9tjTEOwjAQBC+JUtBS8ghHhhJR0VppeIFxjHFi3QX7QlLxIr7GHwhEomKrnZVW83xBmSIcKDrRWuw8JuNFHwY3NzFS7C6BRtHSWRjCRMGK2o41Nfa4YE1sYUmWQ6FgZdEESh4dw1q1+q6roNFVJ47ztleQ++YGD8jUbGYd+QtThM11aBLhz/NXAFPPkMsdQyG38nMt37jirOfDAAAA[0m[Pipeline] stage
+[8mha:////4NxSRQz7M0z/UyYaBvd21zcFAFDw01Gpm+zh23YP83/jAAAApx+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkQJrMbJteniE1Raa0vz/9AWYfKJfDXfQYTEyRsud5dcvtcbyhjgRMEwp7GzGFvLej+aJbGJQnfzNDFHV9YSRvKaCT0JUvq8VUFJw6Ysh4LDTmPrKVo0CfbcyYesvERTXVJYtiOH3KoBnpDxhZxkSGuZAxzuo4qEP85fAMx9gqJu6tWb77f8AIb2clTEAAAA[0m[Pipeline] { (Check Registry and Build Docker Image)
+[8mha:////4OLGSJv4QM8916xKXGSq2vrQFpdPuOl8JNLlix94rGzuAAAApx+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkSJOBon1obFJ6il1kLz/9gWy+QT+Wq+gxUSJ2+43F1y+V5vKL2DEznNeoWDQS8NG+2kU2KR3HC1FFlPFyYJPVnFWhVb6lSz1paCglVZDgWHjUJpyRvUAba8Fw9RWYG6OgeXtiOH3HR3eELGEzkIF5YyO9jdps4T/jh/ATCPAYp9XS9++H7LD9P3sOjEAAAA[0m[Pipeline] script
+[8mha:////4Ar37M/V3sg8zCx2Pp5Vc0OagSJzcohG9MvC3Mu0r7rHAAAAqB+LCAAAAAAAAP9tjT0OwjAUg19bdWBl5BCp+NlQJ9aoCycISQhJo/dKktJOnIircQdKKzHhwbItWd/rDWUMUFMwzGlsLUZpWed7MyU2UGivngbm6MIkYSSvWaOHhpQ+LbWhpGFRlkPBYaVReooWTYI1d+IhKi/QVOcUpu3IIbfqDk/I+EROIqS5jAE2t15Fwh/nLwDGLkGx3e1nP3y/5QcEixBuxAAAAA==[0m[Pipeline] {
+[8mha:////4Fjk5Puuz3+kZNUZ+Q4xkL0XOX4rtKJm71qEo0Ir4+DoAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjEFQoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNrtD3Mf+y/j1KiwwAAAAA==[0m[Pipeline] sh
++ curl -s -f http://localhost:5000/v2/
++ echo true
++ exit 0
+[8mha:////4CfwTEbeQaZngtNEP35Srip/IrR/LSzGw1tTb7HAEBLRAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjEKJBqWitNLzA2MbYse6C7eBUvIiv8QeiRKJii9XONvP+wCoGaCgY5jR2FqO0rPeDmRbLFLqbp8wcXZkkjOQ1a3VuSenzgi0lDUuKEioOa43SU7RoEmy4E09Re4GmvqQwfScOpVUPeEHBJ3MSIc0wBtjeBxUJf56/Ahj7BNVuf5j72H8BIIeFm8AAAAA=[0m[Pipeline] echo
+Building Docker image: hmm-model-training-dev:dev-11-f0bcd05
+[8mha:////4LlbvU9wTf/0IsUKLpjh1gcKtP+vZpGHvSRH50oCxXMEAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpQEgMqBNr1IUThCSEpNH/JUlpJ07E1bgDpZWY8GDZlqz3ekMZA9QUDHMaW4tRWtb53kyJDRTaq6eBObowSRjJa9booSGlT0ttKGlYlOVQcFhplJ6iRZNgzZ14iMoLNNU5hWk7csitusMTMj6RkwhpLmOAza1XkfDH+QuAsUtQbHf72Q/fb/kBJRAcnMQAAAA=[0m[Pipeline] timeout
+Timeout set to expire after 1 hr 0 min without activity
+[8mha:////4B1pq4w1yy2RsU9ZTy+kW0k3W03mcMIb7TBNx7mJyLVcAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpYAEJdWKNunCCkISQNPq/JCntxIm4GnegtBITHizbkvVebyhjgJqCYU5jazFKyzrfmymxgUJ79TQwRxcmCSN5zRo9NKT0aakNJQ2LshwKDiuN0lO0aBKsuRMPUXmBpjqnMG1HDrlVd3hCxidyEiHNZQywufUqEv44fwEwdgmK7W4/++H7LT8AcNQaxAAAAA==[0m[Pipeline] {
+[8mha:////4MlJyMSE0M5+vbf0BMMKXjaADa1WrMd0LxiE/f6kVdPOAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjqEAoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNrtD3Mf+y+gjrJLwAAAAA==[0m[Pipeline] sh
++ set -x
++ docker buildx version
++ date +%H:%M:%S
++ echo [16:26:22] Docker buildx version:
+[16:26:22] Docker buildx version:
++ docker buildx version
+github.com/docker/buildx v0.30.1 9e66234aa13328a5e75b75aa5574e1ca6d6d9c01
++ date +%H:%M:%S
++ echo [16:26:22] Setting up buildx builder...
+[16:26:22] Setting up buildx builder...
++ docker buildx inspect builder
++ date +%H:%M:%S
++ echo [16:26:23] Using existing buildx builder...
+[16:26:23] Using existing buildx builder...
++ docker buildx use builder
++ date +%H:%M:%S
++ echo [16:26:23] Verifying buildx builder...
+[16:26:23] Verifying buildx builder...
++ docker buildx inspect --bootstrap
+Name:          builder
+Driver:        docker-container
+Last Activity: 2026-01-18 05:07:20 +0000 UTC
+
+Nodes:
+Name:                  builder0
+Endpoint:              unix:///var/run/docker.sock
+Status:                running
+BuildKit daemon flags: --allow-insecure-entitlement=network.host
+BuildKit version:      v0.26.3
+Platforms:             linux/arm64, linux/amd64, linux/amd64/v2, linux/riscv64, linux/ppc64le, linux/s390x, linux/386, linux/arm/v7, linux/arm/v6
+Labels:
+ org.mobyproject.buildkit.worker.executor:         oci
+ org.mobyproject.buildkit.worker.hostname:         b9fd74ffe4d1
+ org.mobyproject.buildkit.worker.network:          host
+ org.mobyproject.buildkit.worker.oci.process-mode: sandbox
+ org.mobyproject.buildkit.worker.selinux.enabled:  false
+ org.mobyproject.buildkit.worker.snapshotter:      overlayfs
+GC Policy rule#0:
+ All:            false
+ Filters:        type==source.local,type==exec.cachemount,type==source.git.checkout
+ Keep Duration:  48h0m0s
+ Max Used Space: 488.3MiB
+GC Policy rule#1:
+ All:            false
+ Keep Duration:  1440h0m0s
+ Reserved Space: 9.313GiB
+ Max Used Space: 93.13GiB
+ Min Free Space: 170.4GiB
+GC Policy rule#2:
+ All:            false
+ Reserved Space: 9.313GiB
+ Max Used Space: 93.13GiB
+ Min Free Space: 170.4GiB
+GC Policy rule#3:
+ All:            true
+ Reserved Space: 9.313GiB
+ Max Used Space: 93.13GiB
+ Min Free Space: 170.4GiB
++ date +%H:%M:%S
++ echo [16:26:24] Attempting to pull base image from registry...
+[16:26:24] Attempting to pull base image from registry...
++ curl -s -f http://localhost:5000/v2/hmm-model-training-base/manifests/base
++ docker images+ grep --format {{.Repository}}:{{.Tag}} -q ^hmm-model-training-base:base$
+
++ date +%H:%M:%S
++ echo [16:26:25] ✓ Base trading agent image found: hmm-model-training-base:base
+[16:26:25] ✓ Base trading agent image found: hmm-model-training-base:base
++ INFRA_PLATFORM_PATH=../infra-platform
++ [ ! -d ../infra-platform ]
++ [ ! -f ../infra-platform/kubernetes/Dockerfile.model-training ]
++ date +%H:%M:%S
++ echo [16:26:25] ❌ ERROR: Dockerfile not found: ../infra-platform/kubernetes/Dockerfile.model-training
+[16:26:25] ❌ ERROR: Dockerfile not found: ../infra-platform/kubernetes/Dockerfile.model-training
++ echo 
+
++ echo The Dockerfile.model-training should be in the infra-platform repository.
+The Dockerfile.model-training should be in the infra-platform repository.
++ exit 1
+[8mha:////4Fek5v4DXfwObml7typAsIWGPTQJzvHfy3QTvDRf7nngAAAApx+LCAAAAAAAAP9tjTsOwjAQRDeJKGgpOYTDp0FCVLSWG05gbGOcWLvBdkgqTsTVuAOGSFRMMZo3zXu+YBYDHChY1hhsHUblWOd7mxcbKLQXTwNr6MwUYSRvmDCDIG2OEwpKBqYUJVQc5gaVp+jQJljwRt5l7SXa+pRC/vYcSqdv8ICCZ3OSIX1hDLC89joS/jx/BTB2XYJqvV19erN7A12whJnAAAAA[0m[Pipeline] }
+[8mha:////4CZEASzBk7w7299D7lBzYc8ra3MVFAytsKdKhnmP+2anAAAAph+LCAAAAAAAAP9tjTESwiAURH+SsbC19BBkooWFY2XL0HgCBEQS5v8IRFJ5Iq/mHYxmxsotdvZt854vWMQABwqWtQY7h1E51vvBTotlCt3FU2YtnZkijOQNEyYL0uY4o6BkYE5RQsVhaVB5ig5tghVv5V3WXqKtTylM355D6fQNHlDwyZxkSF8YA6yvg46EP89fAYx9n6Bqts2nN7s3eKZMr8AAAAA=[0m[Pipeline] // timeout
+[8mha:////4FfuEUADQqZbC3JfxR/4eoSPAd9KGK7JTRp1OKccg+wmAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjAh2iorXS8AKTGGPHujP2haTiRXyNPxCIRMUWq51t5vmCRYpwoGiE09hZTI0VwfdmWmKg2F08DcLRWTSEibwWtR5qavVxxppYw5wsh0LCUmPjKVk0DCvp1F2VXqEpTxynby8ht+0NHpDJycwq8hfGCOtr3ybCn+evAMYQGIrNtvp0tXsDX+2tB8AAAAA=[0m[Pipeline] }
+[8mha:////4JkGJXBhHdi+MRKjPrjsMOIKD92bV7+Xn8GNpVhgxvCCAAAApR+LCAAAAAAAAP9tjTESwiAURH+SsbC19BBklNKxSsuk8QQIiCTM/xGISeWJvJp3EM2MlVvs7NvmPV+wigGOFCzrDPYOo3Js8KPNi00U+ouniXV0ZoowkjesNVNL2jQLtpQMLClKqASsDSpP0aFNsBGdvMvaS7T1KYX8HQSUTt/gAYXI5iRD+sIcYHsddST8ef4KYB6GBNWO80/v+RtIc74/wAAAAA==[0m[Pipeline] // script
+[8mha:////4IrvdlDNm/W9IQSnqy4W3OhDHUa4swz5HhaYa2BPgbfNAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjAh2iorXS8AKTGGPHujP2haTiRXyNPxCIRMUWq51t5vmCRYpwoGiE09hZTI0VwfdmWmKg2F08DcLRWTSEibwWtR5qavVxxppYw5wsh0LCUmPjKVk0DCvp1F2VXqEpTxynby8ht+0NHpDJycwq8hfGCOtr3ybCn+evAMYQGIrNdvfpqnoDUH0ejcAAAAA=[0m[Pipeline] }
+[8mha:////4IBFRfthE/sIAA8T6fYbT/5rs0zE2c3IkRWkdzVhdnJjAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjgKgQFa3lhhcY2xgn1l2wHZyKF/E1/kAgEhVbrHa2mecLFjHAgYJlrcHOYVSO9X6w02KZQnfxlFlLZ6YII3nDhMmCtDnOKCgZmFOUUHFYGlSeokObYMVbeZe1l2jrUwrTt+dQOn2DBxR8MicZ0hfGAOvroCPhz/NXAGPfJ6ia7e7Tm+YNXidgssAAAAA=[0m[Pipeline] // stage
+[8mha:////4Pw3o3mPO/BVArVPw1xkWPPzvEDHFk3Bul5XQE5WLQXeAAAAqR+LCAAAAAAAAP9tjbEOgjAURR8QBldHP6KEkLgYJ9aGxS+opdZC8x62D2Hyi/w1/0GUxMk73XOTm/N8QR4DHClY0RnsHUbtxOBHuzQxUegvnibR0VlowkjeiMZMDbWmXrEhNrAmSSGTsDGoPUWHlmErO3VXhVdoixOHZTtISF17gwckcjGzCvyFOcDuOraR8Of5K4B5YEjLiiErq/3nmr8BtNneXMMAAAA=[0m[Pipeline] stage
+[8mha:////4Au0/mQsCobkvn9roXkceCyKAjo6iGPcMn79JHmxfPBJAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpEBIMqBNr1IUThCSEpNH/JUlpJ07E1bgDpZWY8GDZlqz3ekMZA9QUDHMaW4tRWtb53kyJDRTaq6eBObowSRjJa9booSGlT0ttKGlYlOVQcFhplJ6iRZNgzZ14iMoLNNU5hWk7csitusMTMj6RkwhpLmOAza1XkfDH+QuAsUtQbHf72Q/fb/kBi1zGC8QAAAA=[0m[Pipeline] { (Make Image Available to Kind Cluster)
+Stage "Make Image Available to Kind Cluster" skipped due to earlier failure(s)
+[8mha:////4JjNwNE9nrFzT5HTPM4r+hJLLfYLDR39PwuLpf5gcNrvAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjRAESSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDYJ6h2+8Pcx/4LOdMwncAAAAA=[0m[Pipeline] getContext
+[8mha:////4MdaGWZ+XXJrDu9Nw67kOO7B6Hrzt2nFwXHHFymXTgucAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjRIEQSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDY9wmq3f449+ELXtm4hcAAAAA=[0m[Pipeline] }
+[8mha:////4EyAjk+Twc1pB/D3N9S26B4YEVJ0laI46Z2LMlY3w+zVAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQDAtEgKlrLDS8wtjFOrLtgOyQVL+Jr/AFDJCq2WO1sM88XzGKAAwXLGoOtw6gc63xv82IDhfbiaWANnZkijOQNE2YQpM1xQkHJwJSihIrD3KDyFB3aBAveyLusvURbn1LI355D6fQNHlDwbE4ypC+MAZbXXkfCn+evAMauS1Ctt6tPb3ZvAqXibcAAAAA=[0m[Pipeline] // stage
+[8mha:////4LdlzfT5D95Kg+p6KZDtiYmBHCZt6H0R45AnshYALjMtAAAAqB+LCAAAAAAAAP9tjTEOwjAQBC+JUtBS8ghHFnSIitZKwwuMY4wT6y7YF5KKF/E1/kAgEhVb7ay0mucLyhThQNGJ1mLnMRkv+jC4uYmRYncJNIqWzsIQJgpW1HasqbHHBWtiC0uyHAoFK4smUPLoGNaq1XddBY2uOnGct72C3Dc3eECmZjPryF+YImyuQ5MIf56/Aph6hlxuGQq5k59r+QaC13yEwwAAAA==[0m[Pipeline] stage
+[8mha:////4DGYFmGTWWcyg3qjkab1+z59XW5bXOzy/TRfh31Bvrb4AAAAqB+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkQJxs04sTYsPkEttRaa/8e2WCafyFfzHayQOHnD5e6Sy/d6Q+kdnMhp1iscDHpp2GgnnRKL5Iarpch6ujBJ6Mkq1qrYUqeatbYUFKzKcig4bBRKS96gDrDlvXiIygrU1Tm4tB055Ka7wxMynshBuLCU2cHuNnWe8Mf5C4B5DFDUh3rx/fdbfgBhHEeXxAAAAA==[0m[Pipeline] { (Create Namespace (if needed))
+Stage "Create Namespace (if needed)" skipped due to earlier failure(s)
+[8mha:////4LcSHDL6KnLb3daEoP3fiSt3rtWv2HMilY63gPDF08F8AAAApR+LCAAAAAAAAP9tjTsOwjAQRDeJKGgpOYQjPh1KRWul4QTGNsaOtRtsB6fiRFyNOxAlEhVTjOZN894fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNod93Mf+i/afwpXwAAAAA==[0m[Pipeline] getContext
+[8mha:////4FieNUy3utxppQikUdNZlisM2gxieQ+02FxqtOQ7erktAAAApR+LCAAAAAAAAP9tjbEOgjAURR8QB1dHP6JEw2acWJsufkEttRaa9/C1CJNf5K/5DxJInLzDzT13Oe8PbCLDmdiJ1mLnMRov+jC4eYmRuLsFGkVLV2EIIwUrlB0VNbZeUVGysCbLoZCwtWgCRY8uwU62+qnLoNGVl8Tzd5KQ++YBL8jkbE6a0wITw/4+NJHw5/krgKnvExSHqlr6+AXP04HRwAAAAA==[0m[Pipeline] }
+[8mha:////4LAmxfs7JgffjOXN7sKQJMe32d5Xuqr7ZqgpAK9B/SmGAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjSFAhqrRWGl5gYmPsWHfGdkgqXsTX+ANWIlGxxWpnm3l/YBMDnCloZhUOBmNvmHejzotNFIabo4lZurKeMJJTrFNTR1K1K3aUFKwpSqg4bBX2jqJBnWDHrXiK2gnU9SWF/J04lEY+4AUFz+YkQlpgDrC/jzIS/jx/BTB7n6BqDselmy/Bif/uwAAAAA==[0m[Pipeline] // stage
+[8mha:////4Pfwr/jN/SVa3Bk5mMSsTJno/OrzLh6xXnOthXBo2ZnMAAAAqR+LCAAAAAAAAP9tjbEOgjAURR8QBldHP6KEaFwMk2vTxS+oUGuheQ/bhzD5Rf6a/yBK4uSd7rnJzXm+II8BKgpWtAY7h7F2oveDnZsYKXQXT6No6SxqwkjeCGVGRY05LqiIDSxJUsgkrAzWnqJDy7CWrb7rwmu0xYnDvB0kpK65wQMSOZtZB/7CFGBzHZpI+PP8FcDUM6TlliErd/vPNX8DOud5mcMAAAA=[0m[Pipeline] stage
+[8mha:////4A9JKXdaIHoOprbGDxHr1GOKd978NF6XshjfD1ciXXzmAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpkBAMqBNr1IUThCSEpNH/JUlpJ07E1bgDpZWY8GDZlqz3ekMZA9QUDHMaW4tRWtb53kyJDRTaq6eBObowSRjJa9booSGlT0ttKGlYlOVQcFhplJ6iRZNgzZ14iMoLNNU5hWk7csitusMTMj6RkwhpLmOAza1XkfDH+QuAsUtQbHf72Q/fb/kBXWQSs8QAAAA=[0m[Pipeline] { (Update Kubernetes Job)
+Stage "Update Kubernetes Job" skipped due to earlier failure(s)
+[8mha:////4JHtDBgWgOOKa06sw/jnHvheaWU5TluYn+oY3YZ4qXyqAAAAph+LCAAAAAAAAP9tjbEKwjAURV9bHFwd/YgUQVCQTq6hi18QkxiThvdqkppOfpG/5j9YWnDyDpd77nLeH1jFAA0Fw5zGzmKUlvV+MNNimUJ385SZoyuThJG8Zq3OLSl9XrClpGFJUULFYa1ReooWTYINd+Ipai/Q1JcUpu/EobTqAS8o+GROIqQZxgDb+6Ai4c/zVwBjn6Da7Q9zH/svdage/MAAAAA=[0m[Pipeline] getContext
+[8mha:////4DK4PV1X7bxt8JygxA/8GzQRhUZWTcQy/ZQ/naTczQ9jAAAAph+LCAAAAAAAAP9tjbEKwjAURV9bHFwd/YgUQRCRTq6hi18QkxiThvdqkppOfpG/5j9YWnDyDpd77nLeH1jFAA0Fw5zGzmKUlvV+MNNimUJ385SZoyuThJG8Zq3OLSl9XrClpGFJUULFYa1ReooWTYINd+Ipai/Q1JcUpu/EobTqAS8o+GROIqQZxgDb+6Ai4c/zVwBj3yeodvvj3IcvgEY8wMAAAAA=[0m[Pipeline] }
+[8mha:////4E0tnhcEmvyVpTbX6ECi0COrmI3S8a2wPYtxi2zSdmCiAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQDEtAgKlrLDS8wtjFOrLtgOyQVL+Jr/AFDJCq2WO1sM88XzGKAAwXLGoOtw6gc63xv82IDhfbiaWANnZkijOQNE2YQpM1xQkHJwJSihIrD3KDyFB3aBAveyLusvURbn1LI355D6fQNHlDwbE4ypC+MAZbXXkfCn+evAMauS1Ctt6tPb3ZvWzMJ7sAAAAA=[0m[Pipeline] // stage
+[8mha:////4BFCi5TS9ndvtkXkv3PNJ6VS3gik1ZEG4R2sI22fBDdxAAAAqB+LCAAAAAAAAP9tjTEOwjAQBC+JUtBS8ghHFqJCVLRWGl5gHGOcWHfBvpBUvIiv8QcCkajYamel1TxfUKYIB4pOtBY7j8l40YfBzU2MFLtLoFG0dBaGMFGworZjTY09LlgTW1iS5VAoWFk0gZJHx7BWrb7rKmh01YnjvO0V5L65wQMyNZtZR/7CFGFzHZpE+PP8FcDUM+Ryy1DInfxcyzc23AsiwwAAAA==[0m[Pipeline] stage
+[8mha:////4PbzFCELYQhG1x9OQqz7tSd20G5l/rs1CsOsIRYMHAMVAAAAqB+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkQJJk7GibVh8QlqqbXQ/D+2xTL5RL6a72CFxMkbLneXXL7XG0rv4EROs17hYNBLw0Y76ZRYJDdcLUXW04VJQk9WsVbFljrVrLWloGBVlkPBYaNQWvIGdYAt78VDVFagrs7Bpe3IITfdHZ6Q8UQOwoWlzA52t6nzhD/OXwDMY4CiPtSL77/f8gNQzqbsxAAAAA==[0m[Pipeline] { (Verify Deployment)
+Stage "Verify Deployment" skipped due to earlier failure(s)
+[8mha:////4PC2GqiTTq1cwp41hmon2a51C13qZxD9XayRbFfvK56sAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjQFQoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGOfoNod93Mf+i+uAbNBwAAAAA==[0m[Pipeline] getContext
+[8mha:////4LUQ4DXDnrwgCURb25woqYv9YzuqI0VQKyuj2+S47ocoAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjEFQoFa2VhhcY2xg71l2wHZyKF/E1/kCUSFRssdrZZt4fWMUADQXDnMbOYpSW9X4w02KZQnfzlJmjK5OEkbxmrc4tKX1esKWkYUlRQsVhrVF6ihZNgg134ilqL9DUlxSm78ShtOoBLyj4ZE4ipBnGANv7oCLhz/NXAGPfJ6h2x8Pc+y8Q4jAEwAAAAA==[0m[Pipeline] }
+[8mha:////4F91U+j23UGyHsOIkNi/PiFB1seU3KuCAbC3PJTBExfzAAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxGGgsqxss3QeIIYYgxkdkOyCJUn8mreQQZmrPzFn/9+894f2KUIZ4pWdAZ7h0k7EfxolyUmiv3d0yQ6uglNmMgb0ZipodZcNmyIDWzJcigk7A1qT8mhZTjITj1V6RXa8spx+U4SctcO8IJMLmZWkVeYIxwfY5sIf56/AphDYCiqul67+gIeuE47wAAAAA==[0m[Pipeline] // stage
+[8mha:////4C+Mvj81uLIFaIIabjfff10MTnzM0B61bflSNsFyus6AAAAAqR+LCAAAAAAAAP9tjbEOgjAURR8QBldHP6KEGF0Mk2vTxS+oUGuheQ/bhzD5Rf6a/yBK4uSd7rnJzXm+II8BKgpWtAY7h7F2oveDnZsYKXQXT6No6SxqwkjeCGVGRY05LqiIDSxJUsgkrAzWnqJDy7CWrb7rwmu0xYnDvB0kpK65wQMSOZtZB/7CFGBzHZpI+PP8FcDUM6TlliErd/vPNX8DjuwOP8MAAAA=[0m[Pipeline] stage
+[8mha:////4FU/I697E1i/R+JJ6iwiPr3ivDHt4ME39xf5CKwPNZ7RAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpGIABdWKNunCCkISQNPq/JCntxIm4GnegtBITHizbkvVebyhjgJqCYU5jazFKyzrfmymxgUJ79TQwRxcmCSN5zRo9NKT0aakNJQ2LshwKDiuN0lO0aBKsuRMPUXmBpjqnMG1HDrlVd3hCxidyEiHNZQywufUqEv44fwEwdgmK7W4/++H7LT9stvPIxAAAAA==[0m[Pipeline] { (Build Wheel)
+Stage "Build Wheel" skipped due to earlier failure(s)
+[8mha:////4BClkRmx3iZ61d1IVza6QvHkhOnW25xGz1yJwg98UKDSAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjCgQSSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDYJ6h2+8Pcx/4LAdan6sAAAAA=[0m[Pipeline] getContext
+[8mha:////4MEtvzacj+ODSR6q6USrBlZmbyy9wXdmq0fWggCq3O/UAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjCoQQSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDY9wmq3f449+ELX3eNFcAAAAA=[0m[Pipeline] }
+[8mha:////4NXvyJlXJzkxCkTIYqpXmSWLjFcm7VL0JlHzl999evrYAAAAph+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxG0kMaxss3QeIIIMSZkdmOyCJUn8mreQZQZK3/x57/fvOcLFinCgaIRTmNnMTVWBN+baYmBYnfxNAhHZ9EQJvJa1HqoqdXHGWtiDXOyHAoJS42Np2TRMKykU3dVeoWmPHGcvr2E3LY3eEAmJzOryF8YI6yvfZsIf56/AhhDYCi21ebTu+oN+QWdecAAAAA=[0m[Pipeline] // stage
+[8mha:////4OKiv4fW/Zxr7eFY4spwyA8jpl2FVL5Vb8GpbLPmHO9tAAAAqR+LCAAAAAAAAP9tjTEOwjAQBC+JUtBS8ghHFhINoqK10vAC4xjjxLoL9oWk4kV8jT8QiETFVjsrreb5gjJFOFB0orXYeUzGiz4Mbm5ipNhdAo2ipbMwhImCFbUda2rsccGa2MKSLIdCwcqiCZQ8Ooa1avVdV0Gjq04c522vIPfNDR6QqdnMOvIXpgib69Akwp/nrwCmniGXW4ZC7uTnWr4Bq8bjE8MAAAA=[0m[Pipeline] stage
+[8mha:////4P0nya70H5X/2VgIDZMKh7OcEwId+MGIFBp1J3ElnhEPAAAAqB+LCAAAAAAAAP9tjbEOgjAYhH8gDK6OPkQJDi7GibVh8QlqqbXQ/D+2xTL5RL6a72CFxMkbLneXXL7XG0rv4EROs17hYNBLw0Y76ZRYJDdcLUXW04VJQk9WsVbFljrVrLWloGBVlkPBYaNQWvIGdYAt78VDVFagrs7Bpe3IITfdHZ6Q8UQOwoWlzA52t6nzhD/OXwDMY4CiPtSL77/f8gMDuIRgxAAAAA==[0m[Pipeline] { (Declarative: Post Actions)
+[8mha:////4MkUxleFWuMiXt3JtsMwnDLPX+8KOLbP5xnZGK6/lGGXAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpAIkFdWKNunCCkISQNPq/JCntxIm4GnegtBITHizbkvVebyhjgJqCYU5jazFKyzrfmymxgUJ79TQwRxcmCSN5zRo9NKT0aakNJQ2LshwKDiuN0lO0aBKsuRMPUXmBpjqnMG1HDrlVd3hCxidyEiHNZQywufUqEv44fwEwdgmK7WE3+/77LT9WuUbcxAAAAA==[0m[Pipeline] script
+[8mha:////4JPruLyKTEgV3OKYCt+ZszUptQYwUrOfd8lHprpaenkEAAAAqB+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpEIgFdWKNunCCkISQNPq/JCntxIm4GnegtBITHizbkvVebyhjgJqCYU5jazFKyzrfmymxgUJ79TQwRxcmCSN5zRo9NKT0aakNJQ2LshwKDiuN0lO0aBKsuRMPUXmBpjqnMG1HDrlVd3hCxidyEiHNZQywufUqEv44fwEwdgmK7WE3+/77LT+BxeZaxAAAAA==[0m[Pipeline] {
+[8mha:////4K9J9Ghlsoe1VAWhSWHfFWoQ2ZvY4M6CFbVhCZz36dCmAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjJKBBqWitNLzA2MbYse6C7eBUvIiv8QeiRKJii9XONvP+wCoGaCgY5jR2FqO0rPeDmRbLFLqbp8wcXZkkjOQ1a3VuSenzgi0lDUuKEioOa43SU7RoEmy4E09Re4GmvqQwfScOpVUPeEHBJ3MSIc0wBtjeBxUJf56/Ahj7BNXuuJ/70H8BMy1N6sAAAAA=[0m[Pipeline] sh
++ + + dockergrep+  images hmm-model-training-dev+ tail -v :base$sort -t-+  --format {{.Repository}}:{{.Tag}}+  -n +11sed s/.*://
+ -k2 -nrxargs -r
+grep -E
+
+
+ -I {} ^dev-[0-9]+- docker rmi
+ hmm-model-training-dev:{}
+[8mha:////4IMplKfYcs5mm0mxPNi0kngReJYzJTEhRzYdFOTxSi/yAAAAph+LCAAAAAAAAP9tjbEOgjAURR8QB1dHP6LExLAYJ9ami19QS62F5j18LcLkF/lr/oMEEifvcHPPXc77A5vIcCZ2orXYeYzGiz4Mbl5iJO5ugUbR0lUYwkjBCmVHRY2tV1SULKzJcigkbC2aQNGjS7CTrX7qMmh05SXx/J0k5L55wAsyOZuT5rTAxLC/D00k/Hn+CmDq+wTFoaqWPn4BLAJu38AAAAA=[0m[Pipeline] }
+[8mha:////4Gh/qOx53oSG1NyigXTWXH/pr38v4KK0yB+dbOPmCMlBAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjhAQFSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDY9wmq3eE49/4LO5x958AAAAA=[0m[Pipeline] // script
+[8mha:////4IuOByYjglN17XYqxXCRYKjPJnNCzBa7FVMgLYui2M0yAAAAph+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjKBASSkVrpeEFxjbGjnUXbAen4kV8jT8QJRIVW6x2tpn3B1YxQEPBMKexsxilZb0fzLRYptDdPGXm6MokYSSvWatzS0qfF2wpaVhSlFBxWGuUnqJFk2DDnXiK2gs09SWF6TtxKK16wAsKPpmTCGmGMcD2PqhI+PP8FcDYJ6h2h/3cx/4L+VqMmcAAAAA=[0m[Pipeline] echo
+✗ Pipeline failed. Check logs for details.
+[8mha:////4DHyx1QS01TGP6pDjpc6KLmD9rbMlpKZTNJ6/XluqYKHAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BCpYEBCqBNr1IUThCSEpNH/JUlpJ07E1bgDpZWY8GDZlqz3ekMZA9QUDHMaW4tRWtb53kyJDRTaq6eBObowSRjJa9booSGlT0ttKGlYlOVQcFhplJ6iRZNgzZ14iMoLNNU5hWk7csitusMTMj6RkwhpLmOAza1XkfDH+QuAsUtQbPe72Q/fb/kBMJrdfcQAAAA=[0m[Pipeline] script
+[8mha:////4HJuxpf7gscop/8IYmrWZSe1gZ/xM+U34/xJbIrV9z8TAAAAqR+LCAAAAAAAAP9tjTEOwjAUQ39bdWBl5BApLCCEmFijLJwgpCGkjf4vSUo6cSKuxh1oqcSEB8u2ZL3XG8rg4UjesEZjazEoyzrXmzGxRL69OkqsoQtThIGcZkInQbU+zVVQ1DAry6HgsNCoHAWLJsKSN/IhKyfRVOfox+3AIbf1HZ6Q8ZEcpY/fMnhY3fo6EP44fwEwdBGKzXY/+W49fcsPQmQ3jcQAAAA=[0m[Pipeline] {
+[8mha:////4F0thCkktN75XhL9c6b2fR+JSXqtuUeiU+ABdW2DbFFTAAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLD7FIZeFY0WbSeIIYYgxkdjEJQuWJvJp3kIEZK3/x57/fvPcHNjHAmYPF1lDnKGqHvR/svHDk0N08j9jyFTVTZG9QmlFyY+oVJScDa7IcCgFbQ9pzdGQT7ESrnqr0imx5SWH+TgJy1zzgBZmYzUmFtMAUYH8fmsj08/wVwNQnKKrjYemq/wK5mNIcwAAAAA==[0m[Pipeline] echo
+Warning: GITHUB_TOKEN not set. Cannot post status to GitHub.
+[8mha:////4MaPLf+QZ7GXbJQIAoR1YENIfACOKfrhwnoKEGXl0SCYAAAApR+LCAAAAAAAAP9tjTESwiAURH+SsbC19BBEbSycVLZMGk+AgAhh/o9AJJUn8mrewUwyY+UWO/u2ee8PrGKAhoJhTmNnMUrLej+YabFMobt5yszRlUnCSF6zVueWlD4v2FLSsKQooeKw1ig9RYsmwYY78RS1F2jqSwrTd+JQWvWAFxR8MicR0gxjgO19UJHw5/krgLHvE1T742Hu3Rf50/35wAAAAA==[0m[Pipeline] }
+[8mha:////4PnbupL2vtgdX8Hi3C1/S4ytzS4sSrIwHH5TWFG1c5ZwAAAApx+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjhARCiIrWcsMLjG2ME+su2A5JxYv4Gn/AEImKLVY728zzBbMY4EDBssZg6zAqxzrf27zYQKG9eBpYQ2emCCN5w4QZBGlznFBQMjClKKHiMDeoPEWHNsGCN/Iuay/R1qcU8rfnUDp9gwcUPJuTDOkLY4DltdeR8Of5K4Cx6xJUq+3605vdG6hRTT/AAAAA[0m[Pipeline] // script
+[8mha:////4CNlBxirFHmo8Qtd9FHYK2QTUMr2dI6rL8SFrropYV7fAAAApx+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjEIICUdFabniBsY1xYt0F2yGpeBFf4w8YIlGxxWpnm3m+YBYDHChY1hhsHUblWOd7mxcbKLQXTwNr6MwUYSRvmDCDIG2OEwpKBqYUJVQc5gaVp+jQJljwRt5l7SXa+pRC/vYcSqdv8ICCZ3OSIX1hDLC89joS/jx/BTB2XYJqtdt8ert+A662OG3AAAAA[0m[Pipeline] }
+[8mha:////4OYAh9/iyGhfTwVvMHIyJfBolffsA5vsuAtDZiyvMWfcAAAAph+LCAAAAAAAAP9tjTESwiAURH+SsbC19BBkUqiFY2XL0HgCBEQS5v8IRFJ5Iq/mHYxmxsotdvZt854vWMQABwqWtQY7h1E51vvBTotlCt3FU2YtnZkijOQNEyYL0uY4o6BkYE5RQsVhaVB5ig5tghVv5V3WXqKtTylM355D6fQNHlDwyZxkSF8YA6yvg46EP89fAYx9n6BqdptPb5s3oOxGUsAAAAA=[0m[Pipeline] // stage
+[8mha:////4KID1X4DwHJnF1uFEj3exaVHdhEHUk3KoTPjFmfjjTLhAAAAph+LCAAAAAAAAP9tjbEOgjAURR8QB1dHP6KEmOhgmFwbFr+glloLzXvYPoTJL/LX/AcbSZy80z1nOa83rGKAmoIVncHeYdRODH606YmJQn/1NImOLkITRvJGNGZqqDWnBRtiA8uyHAoJa4PaU3RoGTayUw9VeoW2PHNI7ighd+0dnpDJVGYV+AtzgO1tbCPhr/M3APMwMBTVYc+QV7sPsgpY1r8AAAA=[0m[Pipeline] }
+[8mha:////4NL+mU409JegYOf82cQN7ehLhkOyZjuAXhJnGqT4QLl1AAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxEGGwrHijZD4wliEmMgs4vJIlSeyKt5BxmZsfJX/73mvd6wSRFOFJ3oLPYek/ZiCKNbnpgo9tdAk+joIjRhomBFa6eWjG1WbIktrMtyKCRsLepAyaNj2MlOPVQZFLryzHFxRwm5N3d4QiaXMqvIX5gj7G+jSYS/zt8AzMPAUFR1zZBXhw+B6QNqvwAAAA==[0m[Pipeline] // withEnv
+[8mha:////4J+TICJfOUndm6efmAFv2QDJUZIpD6FjXF1XyXlTuSVoAAAApR+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYSjVCAhKlorDS8wsTFOrDtjX3AqXsTX+AMRkajYameaeb1hlSIcKVrRGxwcps6J4Ec7P5EpDldPWfR0ER1hIm9Ea3JL2pwWbIkNLCtKqCSsDXaekkPLsJG9eqjaK7T1mePsDhJKp+/whELOZVaRvzBF2N5GnQh/nb8BmEJgqJrdnqFsmg/uClwCvwAAAA==[0m[Pipeline] }
+[8mha:////4IlXzDbGIGKQEoInAHJ+WAKHvdlWQic9/1nl/sPDzc9oAAAApR+LCAAAAAAAAP9tjTESgjAQRRcYC1tLDxGkchyHyjZD4wkiiTGQ2cVkESpP5NW8gxmZsfJX/73mvd6wigFqClZ0BnuHsXVi8KNNT0wU+qunSXR0ES1hJG9EY6aGtDkt2BAbWJblUEhYG2w9RYeWYSM79VClV2jLM4fkjhJyp+/whEymMqvAX5gDbG+jjoS/zt8AzMPAUFT7A0Ne7T7d6Qe+vwAAAA==[0m[Pipeline] // withEnv
+[8mha:////4CQTU/SwjiiKIHbB1kgQflVqJb+z6swQK64a7lZYpZqjAAAApR+LCAAAAAAAAP9tjTEOwjAQBM+JKGgpeYQDEgUSoqK10vAC4xjjxLoL9gWn4kV8jT8QEYmKrXammdcbFinCkaKTrcXOYzJe9mFw05OZYncNlGVLF2kIEwUra5trauxpxprYwjxRQKlgadEESh4dw0q1+qGroNFVZ46TOygofHOHJwg1lVlH/sIYYX0bmkT46/wNwNj3DOV2v2EQuw+MypKkvgAAAA==[0m[Pipeline] }
+[8mha:////4OFNlFV8pH88TpXJrv92qrL4F50FM/1Wqz8skGgjcMl3AAAApR+LCAAAAAAAAP9tjTEOwjAQBM+JKGgpeYSjiAYJUdFaaXiBiY1xYt0F+4JT8SK+xh+IiETFVjvTzOsNqxThSNHJzmLvMbVeDmF085OZYn8NlGVHF9kSJgpWNjY3ZOxpwYbYwjJRQKlgbbENlDw6ho3q9ENXQaOrzhxnd1BQeHOHJwg1l1lH/sIUYXsbTSL8df4GYBoGhrLe1wxi9wGfdpYHvgAAAA==[0m[Pipeline] // node
+[8mha:////4BmKxPU11c4ygKoh5dfQgmowoKdFV7s3Dzb5nX1b/1kPAAAApB+LCAAAAAAAAP9tjTEOwjAQBC+JKGgpeYQjUiEhKlorDS8wsTFOrDtjX3AqXsTX+AMRkajYameaeb1hlSIcKVrRGxwcps6J4Ec7P5EpDldPWfR0ER1hIm9Ea3JL2pwWbIkNLCtKqCSsDXaekkPLsJG9eqjaK7T1mePsDhJKp+/whELOZVaRvzBF2N5GnQh/nb8BmEJgqHb7hqFoPtk8MTe+AAAA[0m[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+
+GitHub has been notified of this commit’s build result
+
+Finished: FAILURE

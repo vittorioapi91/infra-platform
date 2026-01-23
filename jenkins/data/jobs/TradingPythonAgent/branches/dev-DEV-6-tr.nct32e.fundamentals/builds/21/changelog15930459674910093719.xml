@@ -1,0 +1,38 @@
+commit bb661495adf219ef0bb88ab93597cd75907d4654
+tree 99337766f1e0213d93f1d7643769d0f6f7856229
+parent bc800d4e5c24e5a5ff3ba0dc54f9971945162925
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:57:11 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:57:11 +0000
+
+    [DEV-6] Fix:  should be interpolated by Groovy, not escaped
+
+
+:100644 100644 769105c25ee182fd56ef0c24426396740f0b212b 324ccd6c017e96a52d3599ded3ab7460d30077dd M	Jenkinsfile
+commit bc800d4e5c24e5a5ff3ba0dc54f9971945162925
+tree 049377c2a2363e18af051cb8f05bf5e8d189ff24
+parent 15ec7bc8ca33255ac729737ed0be3911e6174fdd
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:57:03 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:57:03 +0000
+
+    [DEV-6] Fix Groovy syntax error: escape shell variables correctly
+    
+    - Escape shell variables as $VAR (not ${VAR}) so Groovy doesn't interpolate
+    - Keep Groovy variables like  unescaped for interpolation
+    - Fixes 'illegal string body character after dollar sign' error
+
+
+:100644 100644 9f252c27345e695547ed8a960a188567809a56fe 769105c25ee182fd56ef0c24426396740f0b212b M	Jenkinsfile
+commit 15ec7bc8ca33255ac729737ed0be3911e6174fdd
+tree 6b30e4cbf87973c0b4a9877806631b53ffacacd0
+parent 8c32edaf818a383a1a134bb2cfc5896aca63c781
+author vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:53:58 +0000
+committer vittorio.apicella <vittorio@infinitecode.org> 2026-01-18 21:53:58 +0000
+
+    [DEV-6] Add better error checking for install-wheel.sh script path
+    
+    - Check if install-wheel.sh exists before trying to execute it
+    - Provide diagnostic information if script not found (current dir, path, directory listing)
+    - This will help diagnose infra-platform path resolution issues
+
+
+:100644 100644 a62b3bdb907a960848f191531b6cc85217c6a29b 9f252c27345e695547ed8a960a188567809a56fe M	Jenkinsfile

@@ -146,6 +146,8 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 airflow.local.dev.info airflow.local.test.info airflow.local.prod.info
 127.0.0.1 grafana.local.info
 127.0.0.1 prometheus.local.info
+127.0.0.1 redisinsight.local.info
+127.0.0.1 nats.local.info
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
@@ -174,6 +176,14 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
 - `http://airflow.local.prod.info` → Airflow Prod
 - `http://grafana.local.info` → Grafana
 - `http://prometheus.local.info` → Prometheus
+- `http://redisinsight.local.info` → RedisInsight (Redis web GUI)
+- `http://nats.local.info` → NATS Server web GUI (monitoring endpoint with HTML views)
+  - `/varz` - Server information and statistics
+  - `/connz` - Active connections
+  - `/subsz` - Subscriptions
+  - `/routez` - Cluster routing (if clustered)
+  - `/jsz` - JetStream statistics
+  - `/healthz` - Health check
 - `http://mlflow.local.info` → MLflow
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
 - `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)

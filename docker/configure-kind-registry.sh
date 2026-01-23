@@ -3,7 +3,9 @@
 # Configure kind cluster to use local Docker registry
 #
 # This script configures a kind cluster to pull images from the local
-# Docker registry running on localhost:5000.
+# Docker registry. The registry is accessible via:
+#   - docker-registry:5000 (from within kind cluster, recommended)
+#   - localhost:5001 (from host, for Jenkins to push images)
 #
 # Usage:
 #   ./configure-kind-registry.sh [cluster-name]
@@ -36,8 +38,12 @@ log_error() {
 
 # Cluster configuration
 CLUSTER_NAME="${1:-trading-cluster}"
-REGISTRY_HOST="localhost:5000"
-REGISTRY_URL="http://${REGISTRY_HOST}"
+# Use container name for kind network access (works from within cluster)
+# Also support localhost for host access
+REGISTRY_HOST_KIND="docker-registry:5000"
+REGISTRY_URL_KIND="http://${REGISTRY_HOST_KIND}"
+REGISTRY_HOST_HOST="localhost:5000"
+REGISTRY_URL_HOST="http://${REGISTRY_HOST_HOST}"
 
 # Check if kind is installed
 if ! command -v kind &> /dev/null; then
@@ -52,7 +58,7 @@ if ! kind get clusters | grep -q "^${CLUSTER_NAME}\$"; then
     exit 1
 fi
 
-log_info "Configuring kind cluster '${CLUSTER_NAME}' to use local registry at ${REGISTRY_URL}"
+log_info "Configuring kind cluster '${CLUSTER_NAME}' to use local registry at ${REGISTRY_URL_KIND} (from within cluster)"
 
 # Get the kind network name
 KIND_NETWORK="kind"
@@ -73,13 +79,18 @@ log_info "Configuring containerd in kind cluster to use local registry..."
 NODE_NAME="${CLUSTER_NAME}-control-plane"
 
 # Create containerd config patch
-cat <<EOF | docker exec -i "${NODE_NAME}" bash -c 'cat > /tmp/registry-config.toml'
+# Configure both localhost:5000 (for host access) and docker-registry:5000 (for kind network access)
+docker exec -i "${NODE_NAME}" bash -c "cat > /tmp/registry-config.toml" <<EOF
 [plugins."io.containerd.grpc.v1.cri".registry]
   [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY_HOST}"]
-      endpoint = ["${REGISTRY_URL}"]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+      endpoint = ["${REGISTRY_URL_HOST}"]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker-registry:5000"]
+      endpoint = ["${REGISTRY_URL_KIND}"]
   [plugins."io.containerd.grpc.v1.cri".registry.configs]
-    [plugins."io.containerd.grpc.v1.cri".registry.configs."${REGISTRY_HOST}".tls]
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."localhost:5000".tls]
+      insecure_skip_verify = true
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."docker-registry:5000".tls]
       insecure_skip_verify = true
 EOF
 
@@ -96,4 +107,6 @@ docker exec "${NODE_NAME}" systemctl restart containerd || {
 }
 
 log_info "✓ Kind cluster configured to use local registry"
-log_info "Cluster '${CLUSTER_NAME}' can now pull images from ${REGISTRY_URL}"
+log_info "Cluster '${CLUSTER_NAME}' can now pull images from:"
+log_info "  - ${REGISTRY_URL_KIND} (from within cluster, recommended)"
+log_info "  - ${REGISTRY_URL_HOST} (from host, if registry is accessible)"

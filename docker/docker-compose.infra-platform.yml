@@ -538,6 +538,40 @@ services:
       - monitoring
     restart: unless-stopped
 
+  # RedisInsight – web GUI for Redis (browse keys, run CLI, profile)
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/data
+    networks:
+      - monitoring
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # NATS messaging server
+  nats:
+    image: nats:2.10-alpine
+    container_name: nats
+    ports:
+      - "4222:4222"  # Client connections
+      - "8222:8222"  # HTTP monitoring endpoint
+      - "6222:6222"  # Cluster routing (if needed)
+    command:
+      - "-js"  # Enable JetStream (persistent messaging)
+      - "-m"   # Enable monitoring HTTP endpoint
+      - "8222" # Monitoring port
+      - "-sd"  # Store directory
+      - "/data"
+    volumes:
+      - nats-data:/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
   # Nginx reverse proxy for all services
   # NOTE: No depends_on - nginx can start before backends and handle 502 errors gracefully
   nginx-proxy:
@@ -551,6 +585,8 @@ services:
       - ./nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
       - ./nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
       - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ./nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
+      - ./nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
       - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
       - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
       - ./nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
@@ -621,7 +657,7 @@ services:
     image: registry:2
     container_name: docker-registry
     ports:
-      - "5000:5000"
+      - "5001:5000"  # Use 5001 on host to avoid conflict with macOS Control Center
     environment:
       # Allow deletion of images (useful for cleanup)
       - REGISTRY_STORAGE_DELETE_ENABLED=true
@@ -663,6 +699,8 @@ volumes:
   airflow-db-test:
   airflow-db-prod:
   redis-data:
+  redisinsight-data:
+  nats-data:
   registry-data:
   portainer-data:
 

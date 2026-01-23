@@ -1,25 +1,19 @@
 #!/bin/bash
 #
-# Setup daily Jenkins workspace cleanup at 2 AM
+# Setup daily Docker build cache cleanup at 3 AM
 # Creates a LaunchAgent (macOS) to run cleanup daily
 #
+# Usage:
+#   ./setup-build-cache-cleanup.sh
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Jenkins data directory is in infra-platform/jenkins/data (mounted to container)
-JENKINS_DATA_DIR="${SCRIPT_DIR}/data"
-CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-workspace-cron.sh"
-LOG_DIR="${SCRIPT_DIR}/logs"
-PLIST_NAME="com.tradingagent.jenkins-cleanup"
+CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-build-cache.sh"
+PLIST_NAME="com.tradingagent.docker-build-cache-cleanup"
 PLIST_FILE="${HOME}/Library/LaunchAgents/${PLIST_NAME}.plist"
 
-# Create logs directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
-
-echo "Setting up Jenkins workspace cleanup schedule (daily at 2 AM)..."
-echo "Jenkins data directory: ${JENKINS_DATA_DIR}"
-echo "Cleanup script: ${CLEANUP_SCRIPT}"
+echo "Setting up Docker build cache cleanup schedule (daily at 3 AM)..."
 
 # Create plist content
 cat > "${PLIST_FILE}" << PLIST_EOF
@@ -33,25 +27,21 @@ cat > "${PLIST_FILE}" << PLIST_EOF
     <array>
         <string>/bin/bash</string>
         <string>${CLEANUP_SCRIPT}</string>
+        <string>--older-than-days=7</string>
     </array>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>JENKINS_DATA_DIR</key>
-        <string>${JENKINS_DATA_DIR}</string>
-    </dict>
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>2</integer>
+        <integer>3</integer>
         <key>Minute</key>
         <integer>0</integer>
     </dict>
     <key>RunAtLoad</key>
     <false/>
     <key>StandardOutPath</key>
-    <string>${LOG_DIR}/cleanup-cron.stdout.log</string>
+    <string>${SCRIPT_DIR}/build-cache-cleanup.stdout.log</string>
     <key>StandardErrorPath</key>
-    <string>${LOG_DIR}/cleanup-cron.stderr.log</string>
+    <string>${SCRIPT_DIR}/build-cache-cleanup.stderr.log</string>
 </dict>
 </plist>
 PLIST_EOF
@@ -69,18 +59,17 @@ echo "Loading LaunchAgent..."
 launchctl load "${PLIST_FILE}"
 
 echo ""
-echo "✓ Jenkins workspace cleanup scheduled successfully!"
+echo "✓ Docker build cache cleanup scheduled successfully!"
 echo ""
-echo "Schedule: Daily at 2:00 AM"
-echo "Jenkins data directory: ${JENKINS_DATA_DIR}"
-echo "Config: Keep workspaces from last 1 day (everything older than yesterday is deleted)"
-echo "Logs: ${LOG_DIR}/cleanup-cron.*.log"
+echo "Schedule: Daily at 3:00 AM"
+echo "Config: Remove cache older than 7 days"
+echo "Logs: ${SCRIPT_DIR}/build-cache-cleanup.*.log"
 echo ""
 echo "To check status:"
 echo "  launchctl list | grep ${PLIST_NAME}"
 echo ""
-echo "To unload (stop):"
+echo "To unload (stop scheduled cleanup):"
 echo "  launchctl unload ${PLIST_FILE}"
 echo ""
-echo "To reload after changes:"
-echo "  launchctl unload ${PLIST_FILE} && launchctl load ${PLIST_FILE}"
+echo "To run manually:"
+echo "  ${CLEANUP_SCRIPT}"

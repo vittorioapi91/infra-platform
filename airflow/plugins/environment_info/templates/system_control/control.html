@@ -1,0 +1,30 @@
+{% extends "airflow/main.html" %}
+
+{% block head_css %}
+{{ super() }}
+<style>
+  .control-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    margin: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="control-panel">
+  <h2>System Control</h2>
+  
+  <div>
+    <h3>Container Information</h3>
+    <ul>
+      <li><strong>Container Name:</strong> {{ container_name }}</li>
+      <li><strong>Running in Docker:</strong> {{ 'Yes' if in_docker else 'No' }}</li>
+    </ul>
+  </div>
+  
+</div>
+{% endblock %}

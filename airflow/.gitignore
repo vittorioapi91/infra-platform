@@ -17,3 +17,10 @@ __pycache__/
 .env
 .venv
 
+# Environment-specific directories (not versioned, except dags/)
+dev/*
+!dev/dags/
+test/*
+!test/dags/
+prod/*
+!prod/dags/

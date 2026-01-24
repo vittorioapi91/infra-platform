@@ -1,0 +1,13 @@
+# storage-postgresql: keep folder structure, ignore Postgres data inside
+storage-postgresql/pma/dev/*
+!storage-postgresql/pma/dev/.gitkeep
+storage-postgresql/pma/test/*
+!storage-postgresql/pma/test/.gitkeep
+storage-postgresql/pma/prod/*
+!storage-postgresql/pma/prod/.gitkeep
+storage-postgresql/ta/dev/*
+!storage-postgresql/ta/dev/.gitkeep
+storage-postgresql/ta/test/*
+!storage-postgresql/ta/test/.gitkeep
+storage-postgresql/ta/prod/*
+!storage-postgresql/ta/prod/.gitkeep

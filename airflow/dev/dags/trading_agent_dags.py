@@ -17,8 +17,7 @@ try:
     from dotenv import load_dotenv
     workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
     airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
-    # Map staging to staging (no change needed for .env file name)
-    env_file_name = 'staging' if airflow_env == 'staging' else airflow_env
+    env_file_name = airflow_env
     env_file = os.path.join(workspace_root, f'.env.{env_file_name}')
     if os.path.exists(env_file):
         load_dotenv(env_file, override=True)
@@ -36,17 +35,10 @@ except Exception as e:
     logging.getLogger(__name__).warning(f"Failed to load .env file: {e}")
 
 # Add workspace root to Python path to enable imports from installed package
-# Package is installed at: /opt/airflow/workspace/trading_agent-workspace/trading_agent
-# Dependencies are at: /opt/airflow/workspace/trading_agent-workspace/
+# Dev: package at workspace/trading_agent-workspace/trading_agent; test/prod: package_root/trading_agent
 workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
 if workspace_root and workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
-
-# Set PYTHONPATH environment variable so tasks can find trading_agent module
-# This is needed for subprocess calls like: python -m trading_agent.fundamentals.edgar.edgar-filings
-# Tasks inherit this environment variable when they execute
-existing_pythonpath = os.environ.get('PYTHONPATH', '')
-os.environ['PYTHONPATH'] = workspace_root + (f":{existing_pythonpath}" if existing_pythonpath else "")
 
 # Add source code path so DAGs can import from fundamentals, macro, etc.
 # (TradingPythonAgent source is mounted at /workspace/trading-agent)
@@ -86,14 +78,12 @@ airflow_root = "/opt/airflow"
 if airflow_root and airflow_root not in sys.path:
     sys.path.insert(0, airflow_root)
 
-# Set up storage path for DAG file writes
-# Storage is mounted at /workspace/storage/{env}/ and maps to TradingPythonAgent/storage/{env}/
-# DAGs should write to this location instead of source code directories
+# Set up storage path for DAG file writes (TA)
+# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
 import os
 airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
-# Map staging to test for storage directory naming
-storage_env = 'test' if airflow_env == 'staging' else airflow_env
-storage_root = f"/workspace/storage/{storage_env}"
+storage_env = airflow_env
+storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
 if os.path.exists(storage_root):
     # Set environment variable so DAGs can access storage path
     os.environ['TRADING_AGENT_STORAGE'] = storage_root

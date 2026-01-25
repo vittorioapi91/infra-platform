@@ -70,11 +70,18 @@ if not PACKAGE_INSTALLED:
 # Method 3: Check installed package metadata directly from dist-info in package_root
 # Packages installed with --target don't register in importlib.metadata, but have dist-info
 if not PACKAGE_INSTALLED:
+    _airflow_root = os.path.join(os.path.dirname(__file__), "..", "..")  # airflow/
+    _repo_root = os.path.join(_airflow_root, "..")  # infra-platform/
+    _storage_airflow = os.path.join(_repo_root, "storage-infra", "airflow")
     package_root_dirs = [
-        "/opt/airflow/package_root/trading_agent",  # Docker mount point
-        os.path.join(os.path.dirname(__file__), "..", "..", "dev", "trading_agent"),  # Local fallback
-        os.path.join(os.path.dirname(__file__), "..", "..", "test", "trading_agent"),
-        os.path.join(os.path.dirname(__file__), "..", "..", "prod", "trading_agent"),
+        "/opt/airflow/package_root/trading_agent",  # Docker (test/prod)
+        "/opt/airflow/workspace/trading_agent-workspace/trading_agent",  # Docker (dev)
+        os.path.join(_storage_airflow, "dev", "workspace", "trading_agent-workspace", "trading_agent"),
+        os.path.join(_storage_airflow, "test", "package_root", "trading_agent"),
+        os.path.join(_storage_airflow, "prod", "package_root", "trading_agent"),
+        os.path.join(_airflow_root, "dev", "trading_agent"),  # legacy
+        os.path.join(_airflow_root, "test", "trading_agent"),
+        os.path.join(_airflow_root, "prod", "trading_agent"),
     ]
     
     for package_root in package_root_dirs:

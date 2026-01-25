@@ -89,7 +89,7 @@ Once services are running, they are available at:
 - **MLflow**: http://localhost:55000
 - **Prometheus**: http://localhost:9090
 - **Kubernetes Dashboard**: https://localhost:8001
-- **PostgreSQL**: localhost:55432
+- **PostgreSQL**: via nginx 54321–54326 (six servers; see gateway/README)
 - **Redis**: localhost:6379
 
 ## 📋 Services

@@ -9,7 +9,7 @@
 # with DAGs at trading_agent/src/.airflow-dags/
 #
 # Usage:
-#   ./install-dags.sh [dev|test|staging|prod] [package_name]
+#   ./install-dags.sh [dev|test|prod] [package_name]
 #
 
 set -euo pipefail
@@ -39,29 +39,27 @@ log_debug() {
 ENV="${1:-dev}"
 PACKAGE_NAME="${2:-trading_agent}"
 
-# Map staging to test for directory naming
 INSTALL_DIR_ENV="${ENV}"
-if [ "${ENV}" = "staging" ]; then
-    INSTALL_DIR_ENV="test"
-fi
 
 # Destination directory for import scripts
 # If running in Docker/container, use /opt/airflow/dags (mounted from airflow/{env}/dags)
-# Otherwise, use environment-specific path: airflow/{env}/dags
+# Otherwise, use airflow/{env}/dags (versioned) and storage-infra for workspace
 if [ -d "/opt/airflow/dags" ]; then
     DEST_DIR="/opt/airflow/dags"
-    # When in Docker, the package is at /opt/airflow/workspace/{package_name}-workspace/{package_name}
     WORKSPACE_ROOT="/opt/airflow/workspace"
 else
     DEST_DIR="${PROJECT_ROOT}/${INSTALL_DIR_ENV}/dags"
-    WORKSPACE_ROOT="${PROJECT_ROOT}/${INSTALL_DIR_ENV}/workspace"
+    WORKSPACE_ROOT="${PROJECT_ROOT}/../storage-infra/airflow/${INSTALL_DIR_ENV}/workspace"
+    [ "${INSTALL_DIR_ENV}" != "dev" ] && WORKSPACE_ROOT="${PROJECT_ROOT}/../storage-infra/airflow/${INSTALL_DIR_ENV}/package_root"
 fi
 
-# Source directory: DAGs are in the installed package at workspace/{package_name}-workspace/{package_name}/.airflow-dags
-# Check both root level and src subdirectory
-SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/.airflow-dags"
-if [ ! -d "${SOURCE_DIR}" ]; then
-    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/src/.airflow-dags"
+# Source directory: dev uses workspace/{package}-workspace/{package}/; test/prod use package_root/{package}/
+if [ "${INSTALL_DIR_ENV}" = "dev" ]; then
+    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/.airflow-dags"
+    [ ! -d "${SOURCE_DIR}" ] && SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/src/.airflow-dags"
+else
+    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}/.airflow-dags"
+    [ ! -d "${SOURCE_DIR}" ] && SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}/src/.airflow-dags"
 fi
 
 log_info "Locating DAGs in installed ${PACKAGE_NAME} package..."

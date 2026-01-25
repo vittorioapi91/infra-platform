@@ -30,7 +30,7 @@ The project has two separate pipelines:
 1. In the job configuration, go to **"Branch Sources"**
 2. Click **"Add source"** → Select **"Git"**
 3. Configure:
-   - **Project Repository**: `https://github.com/vittorioapi91/TradingPythonAgent.git`
+   - **Project Repository**: `https://github.com/vittorioapi91/infra-platform.git`
    - **Credentials**: Add your GitHub credentials if needed
    - **Behaviors**:
      - Click **"Add"** → **"Filter by name (with wildcards)"**
@@ -78,6 +78,12 @@ For more precise control, configure GitHub webhooks:
 3. You should see branches: `main`, `staging`, and any `dev/*` branches
 4. Each branch will use `Jenkinsfile.infra-platform` for its pipeline
 
+### 8. Triggering multibranch scans (all pipelines)
+
+- **UI**: Open each multibranch job → **"Scan Multibranch Pipeline Now"** (or "Re-index branches").
+- **API**: `export JENKINS_USER=... JENKINS_API_TOKEN=...` then run `./jenkins/trigger-multibranch-scans.sh`. Triggers infra-platform, TradingPythonAgent, and PredictionMarketsAgent.
+- **On restart**: An `init.groovy.d` script in `storage-infra/jenkins/data/` runs these scans when Jenkins starts. Restart with `docker compose -f docker/docker-compose.infra-platform.yml restart jenkins`.
+
 ## Verification
 
 After setup, you should see:
@@ -87,10 +93,12 @@ After setup, you should see:
 
 ## Troubleshooting
 
-### Pipeline doesn't appear
-- Check that `Jenkinsfile.infra-platform` exists in the repository
-- Verify branch source configuration
-- Check Jenkins logs: **Manage Jenkins** → **System Log**
+### Pipeline doesn't appear / "This folder is empty"
+- **Branch source**: Must point to `vittorioapi91/infra-platform` (not TradingPythonAgent).
+- **Script path**: Must be `Jenkinsfile.infra-platform` (repo root), not `.ops/Jenkinsfile.infra-platform`.
+- Click **"Scan Multibranch Pipeline Now"** (or "Re-index branches") to discover branches.
+- Check **"Scan Multibranch Pipeline Log"** for errors (e.g. credentials, API rate limit).
+- Verify `Jenkinsfile.infra-platform` exists at repo root; check Jenkins logs: **Manage Jenkins** → **System Log**
 
 ### Pipeline runs on all changes, not just `.ops/`
 - Path filters in multibranch pipelines may not work as expected
@@ -113,4 +121,5 @@ As mentioned in the project plan, `.ops/` will eventually be moved to a separate
 
 - `Jenkinsfile.infra-platform`: Infrastructure pipeline definition
 - `Jenkinsfile`: Application pipeline definition
-- `.ops/.docker/docker-compose.infra-platform.yml`: Infrastructure services
+- `docker/docker-compose.infra-platform.yml`: Infrastructure services
+- `jenkins/trigger-multibranch-scans.sh`: Trigger scans for infra-platform, TradingPythonAgent, PredictionMarketsAgent via API

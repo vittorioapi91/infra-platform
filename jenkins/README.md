@@ -44,6 +44,10 @@ The current Jenkins setup includes:
 - **User authentication** configured
 - **Periodic branch scanning** (every 5 minutes)
 
+### TradingPythonAgent branch convention (TPA)
+
+Dev branches use **`dev/TPA-<id>/<name>`** (e.g. `dev/TPA-38/trading_agent-fundamentals`). The multibranch job is configured with a **Filter by name** include `main staging dev/TPA-*/*` so only `main`, `staging`, and TPA-style dev branches are built. Old `dev/DEV-*` branches are ignored. Run **Scan Repository Now** on the TradingPythonAgent job to pick up new TPA branches.
+
 ## Manual Setup
 
 This guide explains how to set up Jenkins to automatically build and deploy the HMM model training Docker image to your Kubernetes cluster on every commit.

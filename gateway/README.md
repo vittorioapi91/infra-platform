@@ -41,8 +41,33 @@ Stream routing is **by port only** (hostname is ignored by Nginx). Each port pro
 
 | Connection | Host | Port | Database | User |
 |------------|------|------|----------|------|
-| dev.predictionMarketsAgent | `postgres.dev.predictionmarketsagent.local.info` | **54321** | **polymarket** | postgres |
+| dev.predictionMarketsAgent | `postgres.dev.predictionmarketsagent.local.info` | **54321** | **polymarket** | dev.predictionMarketsAgent |
+| test.predictionMarketsAgent | `postgres.test.predictionmarketsagent.local.info` | **54322** | **test.PredictionMarketsAgent** | test.predictionMarketsAgent |
+| prod.predictionMarketsAgent | `postgres.prod.predictionmarketsagent.local.info` | **54323** | **prod.PredictionMarketsAgent** | prod.predictionMarketsAgent |
 | dev.tradingAgent | `postgres.dev.tradingagent.local.info` | **54324** | **postgres** | dev.tradingAgent |
+| test.tradingAgent | `postgres.test.tradingagent.local.info` | **54325** | **postgres** | test.tradingAgent |
+| prod.tradingAgent | `postgres.prod.tradingagent.local.info` | **54326** | **postgres** | prod.tradingAgent |
+
+Password for all: `2014`. Create PMA test/prod databases if missing:
+`docker exec -it postgres-pma-prod psql -U prod.predictionMarketsAgent -d postgres -c 'CREATE DATABASE "prod.PredictionMarketsAgent" OWNER "prod.predictionMarketsAgent";'`
+(same for `postgres-pma-test` and `test.PredictionMarketsAgent`).
+
+## Troubleshooting
+
+### "Server closed the connection unexpectedly" or connection fails via nginx
+
+Nginx **caches upstream IPs** at startup. When Postgres containers are restarted or recreated (e.g. after storage changes), they get new IPs and nginx keeps using stale ones.
+
+**Fix:** Restart nginx so it re-resolves Postgres hostnames:
+```bash
+cd docker && docker compose -f docker-compose.infra-platform.yml restart nginx-proxy
+```
+
+### DataGrip / IntelliJ / other IDEs
+
+- **Always set Database explicitly.** TA connections use database **`postgres`**. If Database is empty, the client often defaults to a DB named like the user (e.g. `prod.tradingAgent`), which doesn’t exist → "database X does not exist" or Test Connection fails.
+- Use the **Database** from the matrix above (e.g. **prod.PredictionMarketsAgent** for prod PMA; **postgres** for all TA). Create PMA test/prod DBs first if missing (see above). PMA uses user **{env}.predictionMarketsAgent** (e.g. `dev.predictionMarketsAgent`), TA uses **{env}.tradingAgent**.
+- If you see SSL or handshake errors, set **SSL mode** to `disable` in the connection options (e.g. Advanced → VM options or URL `?sslmode=disable`).
 
 ## Usage
 

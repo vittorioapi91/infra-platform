@@ -1,8 +1,11 @@
 # Base Jenkins image with all tools and dependencies pre-installed
 # This is a persistent base image that incremental builds will use
 # Tag: jenkins-custom:base
+#
+# Pin to 2.541.1+ so JUnit 1380+, github-branch-source 1934+, Blue Ocean, etc. can load.
+# Previously :lts gave 2.528.3, which caused "Jenkins 2.533+ required" plugin failures.
 
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:2.541.1
 
 USER root
 

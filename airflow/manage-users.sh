@@ -38,7 +38,7 @@ get_containers() {
         dev)
             echo "airflow-dev"
             ;;
-        test|staging)
+        test)
             echo "airflow-test"
             ;;
         prod)
@@ -48,7 +48,7 @@ get_containers() {
             echo "airflow-dev airflow-test airflow-prod"
             ;;
         *)
-            log_error "Invalid environment: $env. Use: dev, test, staging, prod, or all"
+            log_error "Invalid environment: $env. Use: dev, test, prod, or all"
             exit 1
             ;;
     esac

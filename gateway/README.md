@@ -21,6 +21,28 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-kubernetes-dashboard.conf` - Routes `kubernetes-dashboard.local.info` to Kubernetes Dashboard
 - `nginx-kubeflow.conf` - Routes `kubeflow.local.info` to Kubeflow Pipelines UI
 - `nginx-portainer.conf` - Routes `portainer.local.info` to Portainer
+- `nginx-pma-dashboard.conf` - PMA (PredictionMarketsAgent) dashboard; routes `predictionmarketsagent.local.info` to host.docker.internal:7567
+- `nginx-postgres.stream.conf` - PostgreSQL TCP proxy (stream); included from `nginx.conf` **stream** block. **Six separate Postgres servers** – one per logical server. Each port proxies to its own container.
+
+Use these hostnames + ports in your DB clients and `.env` files:
+
+| Hostname | Port | Server | Use for |
+|----------|------|--------|---------|
+| `postgres.dev.predictionmarketsagent.local.info` | 54321 | postgres-pma-dev | PredictionMarketsAgent dev |
+| `postgres.test.predictionmarketsagent.local.info` | 54322 | postgres-pma-test | PredictionMarketsAgent test |
+| `postgres.prod.predictionmarketsagent.local.info` | 54323 | postgres-pma-prod | PredictionMarketsAgent prod |
+| `postgres.dev.tradingagent.local.info` | 54324 | postgres-ta-dev | TradingAgent dev |
+| `postgres.test.tradingagent.local.info` | 54325 | postgres-ta-test | TradingAgent test |
+| `postgres.prod.tradingagent.local.info` | 54326 | postgres-ta-prod | TradingAgent prod |
+
+Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container.
+
+**DB client / IDE connection check** – use this matrix:
+
+| Connection | Host | Port | Database | User |
+|------------|------|------|----------|------|
+| dev.predictionMarketsAgent | `postgres.dev.predictionmarketsagent.local.info` | **54321** | **polymarket** | postgres |
+| dev.tradingAgent | `postgres.dev.tradingagent.local.info` | **54324** | **postgres** | dev.tradingAgent |
 
 ## Usage
 
@@ -48,6 +70,11 @@ To use these domain names, add entries to `/etc/hosts`:
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
 127.0.0.1 portainer.local.info
+127.0.0.1 predictionmarketsagent.local.info
+
+# PostgreSQL (one hostname per logical server; port in connection string)
+127.0.0.1 postgres.dev.predictionmarketsagent.local.info postgres.test.predictionmarketsagent.local.info postgres.prod.predictionmarketsagent.local.info
+127.0.0.1 postgres.dev.tradingagent.local.info postgres.test.tradingagent.local.info postgres.prod.tradingagent.local.info
 ```
 
 See `docker/README.md` for complete setup instructions.

@@ -23,9 +23,9 @@ set -euo pipefail
 DRY_RUN=false
 KEEP_DAYS=1  # Keep only workspaces from yesterday or today (older than yesterday will be deleted)
 KEEP_WORKSPACES=3  # Keep last 3 workspace versions per job
-# Default to infra-platform/jenkins/data (can be overridden via JENKINS_DATA_DIR env var)
+# Default to storage-infra/jenkins/data (can be overridden via JENKINS_DATA_DIR env var)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JENKINS_DATA_DIR="${JENKINS_DATA_DIR:-${SCRIPT_DIR}/data}"
+JENKINS_DATA_DIR="${JENKINS_DATA_DIR:-${SCRIPT_DIR}/../storage-infra/jenkins/data}"
 WORKSPACE_DIR="${JENKINS_DATA_DIR}/workspace"
 
 # Parse arguments

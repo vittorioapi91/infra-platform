@@ -26,6 +26,9 @@ storage-other-data/pma/test/*
 storage-other-data/pma/prod/*
 !storage-other-data/pma/prod/.gitkeep
 
+# jenkins: runtime data (plugins, war, builds, workspaces); use storage-infra/jenkins/data
+jenkins/data/
+
 # storage-infra: keep <service>/data structure, ignore contents inside data/
 storage-infra/prometheus/data/*
 !storage-infra/prometheus/data/.gitkeep

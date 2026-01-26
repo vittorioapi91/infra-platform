@@ -19,6 +19,15 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
+# Set up storage path for DAG file writes (TA)
+# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
+airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
+storage_env = airflow_env
+storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
+if os.path.exists(storage_root):
+    # Set environment variable so DAGs can access storage path
+    os.environ['TRADING_AGENT_STORAGE'] = storage_root
+
 # Default arguments
 default_args = {
     'owner': 'admin',

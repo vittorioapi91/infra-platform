@@ -73,7 +73,7 @@ docker-compose -f docker-compose.yml down
   - Direct: http://localhost:9090
   - Via alias: http://prometheus.local.info (requires `/etc/hosts` entry and nginx proxy)
 - **Config**: `../prometheus/prometheus.yml`
-- **Data**: Stored in Docker volume `prometheus-data`
+- **Data**: Bind-mounted from `storage-infra/prometheus/data`
 
 ### MLflow
 - **Port**: 5000 (exposed as 55000)
@@ -81,7 +81,7 @@ docker-compose -f docker-compose.yml down
   - Direct: http://localhost:55000
   - Via alias: http://mlflow.local.info (requires `/etc/hosts` entry and nginx proxy)
 - **Backend**: SQLite (default) or PostgreSQL (configurable)
-- **Data**: Stored in Docker volume `mlflow-data`
+- **Data**: Bind-mounted from `storage-infra/mlflow/data`
 
 ### Airflow
 - **Port**: 8080 (dev: 8082, test: 8083, prod: 8084)

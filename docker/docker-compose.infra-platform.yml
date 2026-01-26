@@ -6,7 +6,7 @@ services:
       - "9090:9090"
     volumes:
       - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
+      - ../storage-infra/prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -30,7 +30,7 @@ services:
       - GF_SERVER_ROOT_URL=http://localhost:3000
       - GF_INSTALL_PLUGINS=
     volumes:
-      - grafana-data:/var/lib/grafana
+      - ../storage-infra/grafana/data:/var/lib/grafana
       - ../grafana/provisioning:/etc/grafana/provisioning
       - ../grafana/dashboards:/var/lib/grafana/dashboards
     networks:
@@ -49,7 +49,7 @@ services:
       - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow.db
       - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
     volumes:
-      - mlflow-data:/mlflow
+      - ../storage-infra/mlflow/data:/mlflow
     command: mlflow server --host 0.0.0.0 --port 5000
     networks:
       - monitoring
@@ -83,7 +83,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.tradingAgent:${POSTGRES_PASSWORD:-tradingAgent}@postgres:5432/postgres
+      # Connect directly to postgres-ta-dev (same as test/prod); nginx proxy still used for host access
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/postgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/1
@@ -101,22 +102,21 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=dev
       - GIT_BRANCH=${GIT_BRANCH:-dev}
-      # PostgreSQL connection (use container name, not localhost)
-      - POSTGRES_HOST=postgres
+      # PostgreSQL (direct to postgres-ta-dev)
+      - POSTGRES_HOST=postgres-ta-dev
       - POSTGRES_PORT=5432
       - POSTGRES_USER=dev.tradingAgent
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/dev/logs:/opt/airflow/logs
+      - ../storage-infra/airflow/dev/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
-      # Mount wheels-dev directory (contains dev environment wheels) - writable so install-trading_agent-wheel.sh can copy
-      - ../airflow/dev/wheels:/opt/airflow/wheels
-      # Mount dev environment workspace directory (writable so pip can install to airflow/dev/workspace/{package-name}-workspace/)
-      - ../airflow/dev/workspace:/opt/airflow/workspace
-      # Mount dev environment DAGs directory (writable so create-dag-imports.sh can create import scripts here)
+      # Wheels and workspace in storage-infra (not versioned)
+      - ../storage-infra/airflow/dev/wheels:/opt/airflow/wheels
+      - ../storage-infra/airflow/dev/workspace:/opt/airflow/workspace
+      # DAGs stay versioned in airflow
       - ../airflow/dev/dags:/opt/airflow/dags
       # Mount install-trading_agent-wheel.sh script for automatic wheel installation
       - ../airflow/install-trading_agent-wheel.sh:/opt/airflow/install-trading_agent-wheel.sh:ro
@@ -125,16 +125,15 @@ services:
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Mount storage directory for environment-specific data files (writable)
-      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
-      - ../../TradingPythonAgent/storage/dev:/workspace/storage/dev
-      # Mount .env file for environment configuration (read-only)
-      - ../../TradingPythonAgent/.env.dev:/workspace/trading-agent/.env.dev:ro
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      - ../storage-other-data:/workspace/storage-other-data
+      # Mount infra-platform root to access .env.tradingAgent.{env} files (read-only)
+      - ..:/workspace/infra-platform:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - airflow-db-dev:/opt/airflow
+      - ../storage-infra/airflow/dev/db:/opt/airflow
     command: >
       bash -c "
         # Run install-trading_agent-wheel.sh automatically to copy wheels from TradingPythonAgent/dist/ to /opt/airflow/wheels/
@@ -153,45 +152,49 @@ services:
         WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent-*.whl" 2>/dev/null | sort -V | tail -n 1)
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Found wheel: \$$(basename \$${WHEEL_FILE})\"
-          # Extract package name and version from wheel file
-          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
-          WHEEL_VERSION=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Version:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else '');f.close()\" 2>/dev/null || echo \"\")
+          # Extract package name from wheel file
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if '.dist-info/METADATA' in n];metadata=f.read(m[0]).decode('utf-8') if m else '';r=re.search(r'^Name:\\s*(.+)$',metadata,re.MULTILINE) if metadata else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
           
-          # Workspace directory: /opt/airflow/workspace/{package_name}-workspace (mounted from airflow/{env}/workspace/{package_name}-workspace)
+          # Workspace directory: /opt/airflow/workspace/{package_name}-workspace (mounted from storage-infra/airflow/dev/workspace)
           WORKSPACE_DIR=\"/opt/airflow/workspace/\$${PACKAGE_NAME}-workspace\"
-          # Installation directory: workspace/{package_name}-workspace/{package_name}
-          INSTALL_DIR=\"\$${WORKSPACE_DIR}/\$${PACKAGE_NAME}\"
+          # Installation directory: workspace/{package_name}-workspace (wheel already contains package structure)
+          INSTALL_DIR=\"\$${WORKSPACE_DIR}\"
           
-          # Check if package is already installed and compare versions
-          INSTALLED_VERSION=\"\"
-          if [ -d \"\$${INSTALL_DIR}\" ]; then
-            # Check for dist-info directory
-            DIST_INFO=\$$(find \"\$${INSTALL_DIR}\" -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
-            if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
-              INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:\\s*//' | head -1 || echo \"\")
-            fi
-          fi
+          # Determine environment file name for checking
+          ENV_FOR_ENV_FILE=\$${ENV}
           
-          # Compare versions - only install if wheel version is newer or no installation exists
+          # Check if package is already installed or installation is in progress
+          # Since wheel doesn't change, we only need to install once
+          INSTALL_LOCK=\"\$${WORKSPACE_DIR}/.wheel_install.lock\"
+          ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
           NEEDS_INSTALL=false
-          if [ -z \"\$${INSTALLED_VERSION}\" ]; then
-            echo \"Package not installed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
-            NEEDS_INSTALL=true
-          elif [ -z \"\$${WHEEL_VERSION}\" ]; then
-            echo \"Warning: Could not extract version from wheel. Will install to be safe.\"
-            NEEDS_INSTALL=true
-          else
-            # Use Python to compare versions (handles semantic versioning correctly)
-            VERSION_COMPARE=\$$(python3 -c \"from packaging import version; installed='${INSTALLED_VERSION}'; wheel='${WHEEL_VERSION}'; result='newer' if version.parse(wheel) > version.parse(installed) else 'same' if version.parse(wheel) == version.parse(installed) else 'older'; print(result)\" 2>/dev/null || echo \"unknown\")
-            if [ \"\$${VERSION_COMPARE}\" = \"newer\" ]; then
-              echo \"Wheel version \$${WHEEL_VERSION} is newer than installed \$${INSTALLED_VERSION}. Will upgrade.\"
+          
+          # Check for lock file (installation in progress)
+          if [ -f \"\$${INSTALL_LOCK}\" ]; then
+            LOCK_AGE=\$$(find \"\$${INSTALL_LOCK}\" -mmin +30 2>/dev/null && echo \"old\" || echo \"recent\")
+            if [ \"\$${LOCK_AGE}\" = \"old\" ]; then
+              # Lock file is old (stale), remove it and proceed
+              rm -f \"\$${INSTALL_LOCK}\"
+              echo \"Stale lock file removed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
               NEEDS_INSTALL=true
-            elif [ \"\$${VERSION_COMPARE}\" = \"same\" ]; then
-              echo \"Wheel version \$${WHEEL_VERSION} matches installed \$${INSTALLED_VERSION}. Skipping installation.\"
+            else
+              echo \"Installation in progress (lock file exists). Skipping installation.\"
+              NEEDS_INSTALL=false
+            fi
+          # Check for .env file (installation completed)
+          elif [ -f \"\$${ENV_FILE_DEST}\" ]; then
+            echo \"Workspace .env file exists. Skipping installation (wheel hasn't changed).\"
+            NEEDS_INSTALL=false
+          # Check for dist-info (package installed)
+          else
+            DIST_INFO=\$$(find \"\$${WORKSPACE_DIR}\" -maxdepth 1 -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
+            if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
+              INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:[[:space:]]*//' | head -1 || echo \"\")
+              echo \"Package already installed (version \$${INSTALLED_VERSION}). Skipping installation.\"
               NEEDS_INSTALL=false
             else
-              echo \"Wheel version \$${WHEEL_VERSION} is older than installed \$${INSTALLED_VERSION}. Skipping installation.\"
-              NEEDS_INSTALL=false
+              echo \"Package not installed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
+              NEEDS_INSTALL=true
             fi
           fi
           
@@ -199,13 +202,16 @@ services:
             echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
             echo \"Workspace directory: \$${WORKSPACE_DIR}\"
             echo \"Package installation directory: \$${INSTALL_DIR}\"
-            # Clean up existing workspace directory for fresh install
-            if [ -d \"\$${WORKSPACE_DIR}\" ]; then
-              echo \"Cleaning up existing workspace directory for fresh install...\"
-              rm -rf \"\$${WORKSPACE_DIR}\"
-            fi
-            # Create workspace directory
+            # Create workspace directory if it doesn't exist
             mkdir -p \"\$${WORKSPACE_DIR}\"
+            # Create lock file to indicate installation is in progress
+            touch \"\$${INSTALL_LOCK}\"
+            # Only clean up if workspace is truly empty (not if it has files from previous install)
+            if [ \"\$$(ls -A \$${WORKSPACE_DIR} 2>/dev/null | wc -l)\" -le 2 ]; then
+              echo \"Workspace is empty. Proceeding with installation.\"
+            else
+              echo \"Workspace has files. Keeping existing installation and updating.\"
+            fi
             # Step 1: Install dependencies first to workspace root
             echo \"Step 1: Installing dependencies to workspace...\"
             # Extract dependencies from wheel metadata and write to temp file (handles long lists better)
@@ -223,21 +229,24 @@ services:
               echo \"No dependencies found in wheel metadata\"
             fi
             rm -f /tmp/dependencies.txt
-            # Step 2: Install wheel package to workspace/{package_name} subdirectory (without dependencies)
+            # Step 2: Install wheel package to workspace root (wheel already contains package structure)
             echo \"Step 2: Installing wheel package to \$${INSTALL_DIR}...\"
             mkdir -p \"\$${INSTALL_DIR}\"
             timeout 300 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" --no-deps \$${WHEEL_FILE} 2>&1 || {
               echo \"Warning: Failed to install wheel \$$(basename \$${WHEEL_FILE}) to \$${INSTALL_DIR}, continuing anyway\"
             }
             echo \"✓ Wheel installation completed for: \$$(basename \$${WHEEL_FILE})\"
-            # Copy .env file to workspace root so config.py can find it
-            # Map staging to test for .env file naming
-            ENV_FOR_ENV_FILE=\$${ENV}
-            if [ \"\$${ENV}\" = \"staging\" ]; then
-              ENV_FOR_ENV_FILE=\"staging\"
-            fi
-            ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+            # Remove lock file and copy .env file to workspace root so config.py can find it
+            rm -f \"\$${INSTALL_LOCK}\"
+            # .env files are now in infra-platform root as .env.tradingAgent.{env}
+            # ENV_FOR_ENV_FILE already set above
+            # Primary: Try infra-platform root (new location)
+            ENV_FILE_SOURCE=\"/workspace/infra-platform/.env.tradingAgent.\$${ENV_FOR_ENV_FILE}\"
             ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
+            if [ ! -f \"\$${ENV_FILE_SOURCE}\" ]; then
+              # Fallback: Try TradingPythonAgent location (legacy)
+              ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+            fi
             if [ -f \"\$${ENV_FILE_SOURCE}\" ]; then
               echo \"Copying .env file to workspace root...\"
               cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
@@ -253,12 +262,15 @@ services:
             }
             else
               # Even if wheel isn't installed, ensure .env file is copied to workspace root
+              # .env files are now in infra-platform root as .env.tradingAgent.{env}
               ENV_FOR_ENV_FILE=\$${ENV}
-              if [ \"\$${ENV}\" = \"staging\" ]; then
-                ENV_FOR_ENV_FILE=\"staging\"
-              fi
-              ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+              # Primary: Try infra-platform root (new location)
+              ENV_FILE_SOURCE=\"/workspace/infra-platform/.env.tradingAgent.\$${ENV_FOR_ENV_FILE}\"
               ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
+              if [ ! -f \"\$${ENV_FILE_SOURCE}\" ]; then
+                # Fallback: Try TradingPythonAgent location (legacy)
+                ENV_FILE_SOURCE=\"/workspace/trading-agent/.env.\$${ENV_FOR_ENV_FILE}\"
+              fi
               if [ -f \"\$${ENV_FILE_SOURCE}\" ] && [ ! -f \"\$${ENV_FILE_DEST}\" ]; then
                 echo \"Copying .env file to workspace root...\"
                 cp \"\$${ENV_FILE_SOURCE}\" \"\$${ENV_FILE_DEST}\"
@@ -278,6 +290,13 @@ services:
             echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
+        # Install PostgreSQL client tools (pg_dump, pg_restore, psql) for backup DAGs
+        if ! command -v pg_dump > /dev/null 2>&1; then
+          echo \"Installing PostgreSQL client tools...\"
+          apt-get update -qq > /dev/null 2>&1 && apt-get install -y -qq postgresql-client > /dev/null 2>&1 || {
+            echo \"Warning: Failed to install PostgreSQL client tools. Backup DAGs may not work.\"
+          }
+        fi
         # Install critical project dependencies needed for DAGs (run in background, don't block)
         # Also install docker package for container reboot functionality
         python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
@@ -296,7 +315,7 @@ services:
       - monitoring
     restart: unless-stopped
 
-  # Airflow TEST/STAGING (for staging branch)
+  # Airflow TEST (for test branch)
   airflow-test:
     image: apache/airflow:2.9.3
     container_name: airflow-test
@@ -309,7 +328,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.tradingAgent:${POSTGRES_PASSWORD:-tradingAgent}@postgres:5432/postgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/postgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/2
@@ -321,54 +340,52 @@ services:
       - AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
       - AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT=180
       # Display environment badge in Airflow UI title
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=Airflow (STAGING)
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=Airflow (TEST)
       # Make custom operators available inside the container
       - PYTHONPATH=/opt/airflow/operators
       # Set environment for config.py and wheel selection
-      - AIRFLOW_ENV=staging
-      - GIT_BRANCH=${GIT_BRANCH:-staging}
-      # PostgreSQL connection (use container name, not localhost)
-      - POSTGRES_HOST=postgres
+      - AIRFLOW_ENV=test
+      - GIT_BRANCH=${GIT_BRANCH:-test}
+      # PostgreSQL (postgres-ta-test)
+      - POSTGRES_HOST=postgres-ta-test
       - POSTGRES_PORT=5432
       - POSTGRES_USER=test.tradingAgent
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/test/logs:/opt/airflow/logs
+      - ../storage-infra/airflow/test/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
-      # Mount wheels-test directory (contains test/staging environment wheels)
-      - ../airflow/test/wheels:/opt/airflow/wheels:ro
-      # Mount test environment root directory (writable so pip can install wheels to airflow/test/{package_name}/)
-      - ../airflow/test:/opt/airflow/package_root
-      # Mount test environment DAGs directory (writable so install-dags.sh can extract DAGs here)
+      # Wheels and package_root in storage-infra (not versioned)
+      - ../storage-infra/airflow/test/wheels:/opt/airflow/wheels:ro
+      - ../storage-infra/airflow/test/package_root:/opt/airflow/package_root
+      # DAGs stay versioned in airflow
       - ../airflow/test/dags:/opt/airflow/dags
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Mount storage directory for environment-specific data files (writable)
-      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
-      - ../../TradingPythonAgent/storage/test:/workspace/storage/test
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      - ../storage-other-data:/workspace/storage-other-data
       # Mount .env file for environment configuration (read-only)
-      - ../../TradingPythonAgent/.env.staging:/workspace/trading-agent/.env.staging:ro
+      - ../../TradingPythonAgent/.env.test:/workspace/trading-agent/.env.test:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - airflow-db-test:/opt/airflow
+      - ../storage-infra/airflow/test/db:/opt/airflow
     command: >
       bash -c "
-        # Install environment-specific wheel (staging)
-        ENV=staging
-        # Note: setuptools converts hyphens to underscores, so trading_agent-staging becomes trading_agent_staging
+        # Install environment-specific wheel (test)
+        ENV=test
+        # Note: setuptools converts hyphens to underscores, so trading_agent-test becomes trading_agent_test
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
         WHEEL_FILE=\$$(find /opt/airflow/wheels -name "trading_agent_\$${ENV}-*.whl" -o -name "trading-agent-\$${ENV}-*.whl" 2>/dev/null | sort -V | tail -n 1)
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
           PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
-          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from airflow/{env}/{package_name})
+          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from storage-infra/airflow/test/package_root)
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
@@ -417,7 +434,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.tradingAgent:${POSTGRES_PASSWORD:-tradingAgent}@postgres:5432/postgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/postgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/3
@@ -435,36 +452,34 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=prod
       - GIT_BRANCH=${GIT_BRANCH:-main}
-      # PostgreSQL connection (use container name, not localhost)
-      - POSTGRES_HOST=postgres
+      # PostgreSQL (postgres-ta-prod)
+      - POSTGRES_HOST=postgres-ta-prod
       - POSTGRES_PORT=5432
       - POSTGRES_USER=prod.tradingAgent
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
       - POSTGRES_DB=postgres
     volumes:
-      - ../airflow/prod/logs:/opt/airflow/logs
+      - ../storage-infra/airflow/prod/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
-      # Mount wheels-prod directory (contains production environment wheels)
-      - ../airflow/prod/wheels:/opt/airflow/wheels:ro
-      # Mount prod environment root directory (writable so pip can install wheels to airflow/prod/{package_name}/)
-      - ../airflow/prod:/opt/airflow/package_root
-      # Mount prod environment DAGs directory (writable so install-dags.sh can extract DAGs here)
+      # Wheels and package_root in storage-infra (not versioned)
+      - ../storage-infra/airflow/prod/wheels:/opt/airflow/wheels:ro
+      - ../storage-infra/airflow/prod/package_root:/opt/airflow/package_root
+      # DAGs stay versioned in airflow
       - ../airflow/prod/dags:/opt/airflow/dags
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Mount storage directory for environment-specific data files (writable)
-      # DAGs should write to /workspace/storage/{env}/ instead of source code directories
-      - ../../TradingPythonAgent/storage/prod:/workspace/storage/prod
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      - ../storage-other-data:/workspace/storage-other-data
       # Mount .env file for environment configuration (read-only)
       - ../../TradingPythonAgent/.env.prod:/workspace/trading-agent/.env.prod:ro
       # Mount airflow_local_settings for UI alerts/banner
       - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - airflow-db-prod:/opt/airflow
+      - ../storage-infra/airflow/prod/db:/opt/airflow
     command: >
       bash -c "
         # Install environment-specific wheel (prod)
@@ -476,7 +491,7 @@ services:
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
           PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'trading_agent');f.close()\" 2>/dev/null || echo \"trading_agent\")
-          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from airflow/{env}/{package_name})
+          # Installation directory: /opt/airflow/package_root/{package_name} (mounted from storage-infra/airflow/prod/package_root)
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
           (timeout 30 pip install --quiet --no-cache-dir --target \"\$${INSTALL_DIR}\" \$${WHEEL_FILE} || echo \"Wheel install completed or timed out\") &
@@ -512,18 +527,84 @@ services:
       - monitoring
     restart: unless-stopped
 
-  # PostgreSQL for macro databases (fred, bis, bls, eurostat, imf, etc.)
-  postgres:
+  # Six separate PostgreSQL servers – one per logical server (PMA dev/test/prod, TA dev/test/prod).
+  # Accessible via nginx TCP proxy: postgres.{env}.{agent}.local.info:5432x (see gateway/nginx/nginx-postgres.stream.conf)
+
+  # Postgres data: bind-mounted from <repo>/storage-postgresql/{pma|ta}/{dev|test|prod} (not Docker volumes)
+  postgres-pma-dev:
     image: postgres:15
-    container_name: postgres
-    ports:
-      - "55432:5432"
+    container_name: postgres-pma-dev
     environment:
-      - POSTGRES_USER=tradingAgent
-      # Use host env POSTGRES_PASSWORD if set, otherwise default
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tradingAgent}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ../storage-postgresql/pma/dev:/var/lib/postgresql/data
+      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
+      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-pma-test:
+    image: postgres:15
+    container_name: postgres-pma-test
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../storage-postgresql/pma/test:/var/lib/postgresql/data
+      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
+      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-pma-prod:
+    image: postgres:15
+    container_name: postgres-pma-prod
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../storage-postgresql/pma/prod:/var/lib/postgresql/data
+      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
+      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-ta-dev:
+    image: postgres:15
+    container_name: postgres-ta-dev
+    environment:
+      - POSTGRES_USER=dev.tradingAgent
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../storage-postgresql/ta/dev:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-ta-test:
+    image: postgres:15
+    container_name: postgres-ta-test
+    environment:
+      - POSTGRES_USER=test.tradingAgent
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../storage-postgresql/ta/test:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-ta-prod:
+    image: postgres:15
+    container_name: postgres-ta-prod
+    environment:
+      - POSTGRES_USER=prod.tradingAgent
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../storage-postgresql/ta/prod:/var/lib/postgresql/data
     networks:
       - monitoring
     restart: unless-stopped
@@ -545,7 +626,7 @@ services:
     ports:
       - "5540:5540"
     volumes:
-      - redisinsight-data:/data
+      - ../storage-infra/redisinsight/data:/data
     networks:
       - monitoring
     depends_on:
@@ -567,7 +648,7 @@ services:
       - "-sd"  # Store directory
       - "/data"
     volumes:
-      - nats-data:/data
+      - ../storage-infra/nats/data:/data
     networks:
       - monitoring
     restart: unless-stopped
@@ -585,7 +666,7 @@ services:
       - OPENPROJECT_HTTPS=${OPENPROJECT_HTTPS:-false}
       - DATABASE_URL=postgres://openproject:${OPENPROJECT_DB_PASSWORD:-openproject}@openproject-postgres:5432/openproject
     volumes:
-      - openproject-data:/var/openproject/assets
+      - ../storage-infra/openproject/data:/var/openproject/assets
     networks:
       - monitoring
     depends_on:
@@ -601,7 +682,7 @@ services:
       - POSTGRES_PASSWORD=${OPENPROJECT_DB_PASSWORD:-openproject}
       - POSTGRES_DB=openproject
     volumes:
-      - openproject-postgres-data:/var/lib/postgresql/data
+      - ../storage-infra/openproject-postgres/data:/var/lib/postgresql/data
     networks:
       - monitoring
     restart: unless-stopped
@@ -614,20 +695,37 @@ services:
     ports:
       - "80:80"  # HTTP port for routing all domain names
       - "443:443"  # HTTPS port (if needed)
+      # PostgreSQL TCP proxy – one port per logical server (see gateway/nginx/nginx-postgres.stream.conf)
+      - "54321:54321"  # postgres.dev.predictionmarketsagent.local.info
+      - "54322:54322"  # postgres.test.predictionmarketsagent.local.info
+      - "54323:54323"  # postgres.prod.predictionmarketsagent.local.info
+      - "54324:54324"  # postgres.dev.tradingagent.local.info
+      - "54325:54325"  # postgres.test.tradingagent.local.info
+      - "54326:54326"  # postgres.prod.tradingagent.local.info
     volumes:
-      - ./nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
-      - ./nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
-      - ./nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
-      - ./nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
-      - ./nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
-      - ./nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
-      - ./nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
-      - ./nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
-      - ./nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
-      - ./nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
-      - ./nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
+      - ../gateway/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Custom nginx.conf with stream module
+      - ../gateway/nginx/nginx-postgres.stream.conf:/etc/nginx/stream-postgres.conf:ro
+      - ../gateway/nginx/nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
+      - ../gateway/nginx/nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
+      - ../gateway/nginx/nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
+      - ../gateway/nginx/nginx-prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ../gateway/nginx/nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
+      - ../gateway/nginx/nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
+      - ../gateway/nginx/nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
+      - ../gateway/nginx/nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
+      - ../gateway/nginx/nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
+      - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
+      - ../gateway/nginx/nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
+      - ../gateway/nginx/nginx-pma-dashboard.conf:/etc/nginx/conf.d/pma-dashboard.conf:ro
     networks:
-      - monitoring
+      monitoring:
+        aliases:
+          - postgres.dev.predictionmarketsagent.local.info
+          - postgres.test.predictionmarketsagent.local.info
+          - postgres.prod.predictionmarketsagent.local.info
+          - postgres.dev.tradingagent.local.info
+          - postgres.test.tradingagent.local.info
+          - postgres.prod.tradingagent.local.info
     restart: unless-stopped
 
   # Jenkins CI/CD server (direct access, no nginx proxy for performance)
@@ -650,7 +748,7 @@ services:
       - JIRA_USER=${OPENPROJECT_USER:-admin}
       - JIRA_API_TOKEN=${OPENPROJECT_API_KEY:-}
     volumes:
-      - ../jenkins/data:/var/jenkins_home  # Mount extracted Jenkins data
+      - ../storage-infra/jenkins/data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock  # Docker socket for docker build
       - ${HOME}/.kube:/root/.kube  # Kubernetes config for kubectl access
       - ../../TradingPythonAgent:/workspace/trading-agent:ro  # Mount TradingPythonAgent for wheel access
@@ -702,8 +800,7 @@ services:
       # Storage backend: filesystem (local storage)
       - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/var/lib/registry
     volumes:
-      # Persistent storage for registry images
-      - registry-data:/var/lib/registry
+      - ../storage-infra/registry/data:/var/lib/registry
     networks:
       - monitoring
     restart: unless-stopped
@@ -722,27 +819,11 @@ services:
       - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer-data:/data
+      - ../storage-infra/portainer/data:/data
     networks:
       - monitoring
     restart: unless-stopped
     command: -H unix:///var/run/docker.sock
-
-volumes:
-  prometheus-data:
-  grafana-data:
-  mlflow-data:
-  postgres-data:
-  airflow-db-dev:
-  airflow-db-test:
-  airflow-db-prod:
-  redis-data:
-  redisinsight-data:
-  nats-data:
-  openproject-data:
-  openproject-postgres-data:
-  registry-data:
-  portainer-data:
 
 networks:
   monitoring:

@@ -16,7 +16,7 @@ This will start:
 - **Prometheus** on http://localhost:9090
 - **MLflow** on http://localhost:55000
 - **Airflow** on http://localhost:8080
-- **PostgreSQL** on localhost:55432 (container `postgres`)
+- **PostgreSQL** (six servers) via Nginx TCP proxy on ports 54321–54326 (see `gateway/README.md`)
 - **Feast** CLI container (long-running, for feature management)
 
 ### 2. Access Services
@@ -44,7 +44,7 @@ Dashboards are located in the `Macro Cycle HMM` folder.
 Grafana is configured with:
 - **Provisioned datasource**: Prometheus (http://prometheus:9090)
 - **Auto-imported dashboards**: From `grafana_dashboards/` directory
-- **Persistent storage**: Data stored in Docker volume `grafana-data`
+- **Persistent storage**: Data bind-mounted from `<repo>/storage-infra/grafana/data` (see `storage-infra/README.md`)
 
 **Customization:**
 - Edit `grafana/provisioning/datasources/prometheus.yml` for datasource config
@@ -61,7 +61,7 @@ Prometheus is configured to scrape:
 **Configuration:**
 - Main config: `prometheus.yml`
 - Data retention: 30 days
-- Storage: Docker volume `prometheus-data`
+- Storage: Bind-mounted from `<repo>/storage-infra/prometheus/data`
 
 **For Kubernetes:**
 Uncomment the Kubernetes service discovery section in `prometheus.yml` and remove the static config.
@@ -99,32 +99,36 @@ See `airflow/QUICK_START.md` for detailed Airflow setup and authentication.
 
 ### PostgreSQL
 
-PostgreSQL is used for the macro databases (`fred`, `bis`, `bls`, `eurostat`, `imf`, etc.):
+There are **six separate Postgres servers** (one per logical server). Access via Nginx TCP proxy. **Data is stored on the host** in `<repo>/storage-postgresql/` (not Docker volumes):
 
-- **Port**: 55432 on the host (mapped to 5432 in the container)
-- **Container name**: `postgres`
-- **Default user**: `tradingAgent`
-- **Password**: from host `POSTGRES_PASSWORD` (or `tradingAgent` if not set)
-- **Data**: stored in Docker volume `postgres-data`
-
-From the host, connect to the Docker Postgres instance using:
-
-- `host=localhost`
-- `port=55432`
-- `user=tradingAgent`
-- `password=$POSTGRES_PASSWORD`
-
-You still need to create the individual databases inside Postgres (once):
-
-```bash
-docker exec -it postgres psql -U tradingAgent -c "CREATE DATABASE fred;"
-docker exec -it postgres psql -U tradingAgent -c "CREATE DATABASE bis;"
-docker exec -it postgres psql -U tradingAgent -c "CREATE DATABASE bls;"
-docker exec -it postgres psql -U tradingAgent -c "CREATE DATABASE eurostat;"
-docker exec -it postgres psql -U tradingAgent -c "CREATE DATABASE imf;"
+```
+storage-postgresql/
+├── pma/{dev,test,prod}   → postgres-pma-*
+└── ta/{dev,test,prod}    → postgres-ta-*
 ```
 
-After that, the existing ingestion scripts will write into these databases as before.
+| Server | Container | Port | Data path |
+|--------|-----------|------|-----------|
+| PMA dev | postgres-pma-dev | 54321 | `storage-postgresql/pma/dev` |
+| PMA test | postgres-pma-test | 54322 | `storage-postgresql/pma/test` |
+| PMA prod | postgres-pma-prod | 54323 | `storage-postgresql/pma/prod` |
+| TA dev | postgres-ta-dev | 54324 | `storage-postgresql/ta/dev` |
+| TA test | postgres-ta-test | 54325 | `storage-postgresql/ta/test` |
+| TA prod | postgres-ta-prod | 54326 | `storage-postgresql/ta/prod` |
+
+From the host, connect via Nginx using `postgres.{env}.{agent}.local.info` and the port above (see `gateway/README.md`). Add `/etc/hosts` entries so those hostnames resolve to `127.0.0.1`. See `storage-postgresql/README.md` for the layout.
+
+**PMA** servers have a `polymarket` database (created at init). **TA** servers are used for macro databases (`fred`, `bis`, `bls`, `eurostat`, `imf`, etc.). Create those on each TA server you use (once per server):
+
+```bash
+docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE fred;"
+docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE bis;"
+docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE bls;"
+docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE eurostat;"
+docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE imf;"
+```
+
+Repeat for `postgres-ta-test` / `test.tradingAgent` and `postgres-ta-prod` / `prod.tradingAgent` if you use those environments. Password: `POSTGRES_PASSWORD` (default `2014`).
 
 ### Feast
 
@@ -289,19 +293,19 @@ Services communicate on the `monitoring` Docker network:
 
 ## Data Persistence
 
-All data is stored in Docker volumes:
-- `grafana-data`: Grafana dashboards, users, settings
-- `prometheus-data`: Prometheus time-series data
-- `mlflow-data`: MLflow artifacts and database
+**Host bind mounts** (outside Docker images, see `storage-infra/README.md` and `storage-postgresql/README.md`):
+- **`storage-infra/`**: Prometheus, Grafana, MLflow, RedisInsight, NATS, OpenProject, OpenProject Postgres, Registry, Portainer, Jenkins, **Airflow** (db + wheels, workspace/package_root, logs per env in `airflow/{dev,test,prod}/`)
+- **`storage-postgresql/`**: Six Postgres servers (PMA + TA, dev/test/prod)
+- **`storage-other-data/`**: DAG file writes (TA/PMA)
 
-To backup:
+To backup e.g. Grafana (bind-mounted):
 ```bash
-docker run --rm -v docker_grafana-data:/data -v $(pwd):/backup alpine tar czf /backup/grafana-backup.tar.gz /data
+tar czf grafana-backup.tar.gz -C storage-infra grafana
 ```
 
 To restore:
 ```bash
-docker run --rm -v docker_grafana-data:/data -v $(pwd):/backup alpine tar xzf /backup/grafana-backup.tar.gz -C /
+tar xzf grafana-backup.tar.gz -C storage-infra
 ```
 
 ## Production Considerations

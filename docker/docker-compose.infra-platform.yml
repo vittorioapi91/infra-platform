@@ -290,6 +290,13 @@ services:
             echo \"Warning: No wheel found for environment \$${ENV}. Looking for trading_agent-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
+        # Install PostgreSQL client tools (pg_dump, pg_restore, psql) for backup DAGs
+        if ! command -v pg_dump > /dev/null 2>&1; then
+          echo \"Installing PostgreSQL client tools...\"
+          apt-get update -qq > /dev/null 2>&1 && apt-get install -y -qq postgresql-client > /dev/null 2>&1 || {
+            echo \"Warning: Failed to install PostgreSQL client tools. Backup DAGs may not work.\"
+          }
+        fi
         # Install critical project dependencies needed for DAGs (run in background, don't block)
         # Also install docker package for container reboot functionality
         python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &

@@ -12,32 +12,33 @@ import sys
 import os
 
 # Load .env file before importing anything that might use config.py
-# The .env file should be at workspace root (copied during wheel installation)
+# 1) .env.{env} from workspace or /workspace/trading-agent (TradingPythonAgent)
+# 2) .env.tradingAgent.{env} from /workspace/infra-platform (TA DB credentials; overrides 1 for POSTGRES_*)
 try:
     from dotenv import load_dotenv
-    workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
-    airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
-    # Map staging to staging (no change needed for .env file name)
-    env_file_name = 'staging' if airflow_env == 'staging' else airflow_env
-    env_file = os.path.join(workspace_root, f'.env.{env_file_name}')
-    if os.path.exists(env_file):
-        load_dotenv(env_file, override=True)
+    _log = __import__("logging").getLogger(__name__)
+    _airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
+    _workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
+    _env_file = os.path.join(_workspace_root, f'.env.{_airflow_env}')
+    if os.path.exists(_env_file):
+        load_dotenv(_env_file, override=True)
     else:
-        # Fallback: try mounted location
-        mounted_env_file = f"/workspace/trading-agent/.env.{env_file_name}"
-        if os.path.exists(mounted_env_file):
-            load_dotenv(mounted_env_file, override=True)
+        _mounted = f"/workspace/trading-agent/.env.{_airflow_env}"
+        if os.path.exists(_mounted):
+            load_dotenv(_mounted, override=True)
+    # TA credentials: .env.tradingAgent.{env} from infra-platform (mounted at /workspace/infra-platform)
+    _ta_env = f"/workspace/infra-platform/.env.tradingAgent.{_airflow_env}"
+    if os.path.exists(_ta_env):
+        load_dotenv(_ta_env, override=True)
+    # Note: If file not found, credentials are expected from system environment variables
+    # (set by Airflow or container configuration), so no warning is logged
 except ImportError:
-    # python-dotenv not available, continue without loading .env
     pass
 except Exception as e:
-    # If loading fails, continue anyway
-    import logging
-    logging.getLogger(__name__).warning(f"Failed to load .env file: {e}")
+    __import__("logging").getLogger(__name__).warning("Failed to load .env file: %s", e)
 
 # Add workspace root to Python path to enable imports from installed package
-# Package is installed at: /opt/airflow/workspace/trading_agent-workspace/trading_agent
-# Dependencies are at: /opt/airflow/workspace/trading_agent-workspace/
+# Dev: package at workspace/trading_agent-workspace/trading_agent; test/prod: package_root/trading_agent
 workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
 if workspace_root and workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
@@ -80,14 +81,12 @@ airflow_root = "/opt/airflow"
 if airflow_root and airflow_root not in sys.path:
     sys.path.insert(0, airflow_root)
 
-# Set up storage path for DAG file writes
-# Storage is mounted at /workspace/storage/{env}/ and maps to TradingPythonAgent/storage/{env}/
-# DAGs should write to this location instead of source code directories
+# Set up storage path for DAG file writes (TA)
+# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
 import os
 airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
-# Map staging to test for storage directory naming
-storage_env = 'test' if airflow_env == 'staging' else airflow_env
-storage_root = f"/workspace/storage/{storage_env}"
+storage_env = airflow_env
+storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
 if os.path.exists(storage_root):
     # Set environment variable so DAGs can access storage path
     os.environ['TRADING_AGENT_STORAGE'] = storage_root

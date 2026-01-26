@@ -4,7 +4,7 @@
 # This script helps sync built wheels to the Airflow wheels directory
 #
 # Usage:
-#   ./install-wheel.sh [dev|staging|prod]
+#   ./install-wheel.sh [dev|test|prod]
 #
 # If no environment is specified, automatically detects from git branch
 #
@@ -77,9 +77,9 @@ get_env_from_branch() {
     local branch="$1"
     local branch_lower=$(to_lower "$branch")
     
-    # Check for staging branch
+    # Check for staging branch (maps to test env)
     if [[ "$branch_lower" == "staging" ]]; then
-        echo "staging"
+        echo "test"
         return 0
     fi
     
@@ -105,7 +105,7 @@ if [ $# -gt 0 ]; then
     ENV=$(to_lower "${ENV}")  # Convert to lowercase (bash 3 compatible)
     
     # Validate environment
-    if [[ ! "$ENV" =~ ^(dev|staging|prod)$ ]]; then
+    if [[ ! "$ENV" =~ ^(dev|test|prod)$ ]]; then
         log_warn "Invalid environment: $ENV. Auto-detecting from branch..."
         ENV=""
     fi
@@ -126,15 +126,11 @@ if [ -z "$ENV" ]; then
 fi
 
 # Create environment-specific wheels directory if it doesn't exist
-# Map staging to test for directory naming consistency
 WHEELS_ENV="${ENV}"
-if [ "${ENV}" = "staging" ]; then
-    WHEELS_ENV="test"
-fi
 
 # Determine wheels directory based on where we're running
-# If running in Docker container, /opt/airflow/wheels is the mount point (maps to airflow/{env}/wheels)
-# If running manually, use airflow/{env}/wheels relative to script
+# If running in Docker container, /opt/airflow/wheels is the mount point (storage-infra/airflow/{env}/wheels)
+# If running manually, use storage-infra/airflow/{env}/wheels
 if [ -d "/opt/airflow/wheels" ] && [ -w "/opt/airflow/wheels" ]; then
     # Running in Docker container - use mounted wheels directory
     WHEELS_DIR="/opt/airflow/wheels"
@@ -142,8 +138,8 @@ elif [ -n "${AIRFLOW_WHEELS_DIR:-}" ] && [ -d "${AIRFLOW_WHEELS_DIR}" ]; then
     # Use explicit environment variable if set
     WHEELS_DIR="${AIRFLOW_WHEELS_DIR}"
 else
-    # Running manually - use environment-specific directory: airflow/{env}/wheels
-    WHEELS_DIR="${SCRIPT_DIR}/${WHEELS_ENV}/wheels"
+    # Running manually - use storage-infra (not versioned)
+    WHEELS_DIR="${SCRIPT_DIR}/../storage-infra/airflow/${WHEELS_ENV}/wheels"
 fi
 
 mkdir -p "${WHEELS_DIR}"

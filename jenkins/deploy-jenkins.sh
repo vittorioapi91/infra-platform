@@ -477,8 +477,8 @@ verify_jenkins_data() {
           <apiUri>https://api.github.com</apiUri>
           <credentialsId>39a94d87-8a43-468b-9138-14b4f86d7b93</credentialsId>
           <repoOwner>vittorioapi91</repoOwner>
-          <repository>TradingPythonAgent</repository>
-          <repositoryUrl>https://github.com/vittorioapi91/TradingPythonAgent.git</repositoryUrl>
+          <repository>infra-platform</repository>
+          <repositoryUrl>https://github.com/vittorioapi91/infra-platform.git</repositoryUrl>
           <traits>
             <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
               <strategyId>1</strategyId>
@@ -501,7 +501,7 @@ verify_jenkins_data() {
   </sources>
   <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
     <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
-    <scriptPath>.ops/Jenkinsfile.infra-platform</scriptPath>
+    <scriptPath>Jenkinsfile.infra-platform</scriptPath>
   </factory>
 </org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
 INFRAPLATFORM_CONFIG_EOF

@@ -6,7 +6,7 @@
 # and creates import scripts in airflow/{env}/dags/ that import the DAGs from the installed package.
 #
 # Usage:
-#   ./create-dag-imports.sh [dev|test|staging|prod] [package_name]
+#   ./create-dag-imports.sh [dev|test|prod] [package_name]
 #
 
 set -euo pipefail
@@ -40,27 +40,29 @@ log_error() {
 ENV="${1:-dev}"
 PACKAGE_NAME="${2:-trading_agent}"
 
-# Map staging to test for directory naming
 INSTALL_DIR_ENV="${ENV}"
-if [ "${ENV}" = "staging" ]; then
-    INSTALL_DIR_ENV="test"
-fi
 
 # Determine paths
 # If running in Docker/container, use /opt/airflow paths
-# Otherwise, use local paths
+# Otherwise, use local paths (dags versioned in airflow; workspace in storage-infra)
 if [ -d "/opt/airflow/dags" ]; then
-    # Inside Docker container
     WORKSPACE_ROOT="/opt/airflow/workspace"
     DAGS_DIR="/opt/airflow/dags"
 else
-    # Local filesystem
-    WORKSPACE_ROOT="${SCRIPT_DIR}/${INSTALL_DIR_ENV}/workspace"
     DAGS_DIR="${SCRIPT_DIR}/${INSTALL_DIR_ENV}/dags"
+    if [ "${INSTALL_DIR_ENV}" = "dev" ]; then
+        WORKSPACE_ROOT="${SCRIPT_DIR}/../storage-infra/airflow/${INSTALL_DIR_ENV}/workspace"
+    else
+        WORKSPACE_ROOT="${SCRIPT_DIR}/../storage-infra/airflow/${INSTALL_DIR_ENV}/package_root"
+    fi
 fi
 
-# Source directory: DAGs are in airflow/{env}/workspace/{package_name}-workspace/{package_name}/_airflow_dags_
-SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
+# Source directory: dev uses workspace/{package}-workspace/{package}/_airflow_dags_; test/prod use package_root/{package}/_airflow_dags_
+if [ "${INSTALL_DIR_ENV}" = "dev" ]; then
+    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
+else
+    SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}/_airflow_dags_"
+fi
 
 # Check for fallback location: mounted source code
 # Try mounted source code location: /workspace/trading-agent/src/_airflow_dags_ (inside container)
@@ -96,7 +98,7 @@ elif [ ! -d "${SOURCE_DIR}" ] || [ "${WHEEL_DAG_COUNT}" -eq 0 ]; then
     else
         log_error "Could not find _airflow_dags_ directory"
         log_error "Checked locations:"
-        log_error "  1. ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_ (${WHEEL_DAG_COUNT} DAGs)"
+        log_error "  1. ${SOURCE_DIR} (${WHEEL_DAG_COUNT} DAGs)"
         log_error "  2. /workspace/trading-agent/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
         log_error "  3. ${SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
         log_error ""
@@ -141,6 +143,10 @@ IMPORT_SCRIPT="${DAGS_DIR}/${PACKAGE_NAME}_dags.py"
 
 log_info "Creating import script: $(basename "${IMPORT_SCRIPT}")"
 
+# workspace_root for generated Python: dev uses .../trading_agent-workspace; test/prod use package_root
+WORKSPACE_ROOT_FOR_PYTHON="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace"
+[ "${INSTALL_DIR_ENV}" != "dev" ] && WORKSPACE_ROOT_FOR_PYTHON="${WORKSPACE_ROOT}"
+
 # Start building the import script
 cat > "${IMPORT_SCRIPT}" <<EOF
 #!/usr/bin/env python3
@@ -160,10 +166,9 @@ import os
 # The .env file should be at workspace root (copied during wheel installation)
 try:
     from dotenv import load_dotenv
-    workspace_root = "${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace"
+    workspace_root = "${WORKSPACE_ROOT_FOR_PYTHON}"
     airflow_env = os.getenv('AIRFLOW_ENV', '${ENV}')
-    # Map staging to staging (no change needed for .env file name)
-    env_file_name = 'staging' if airflow_env == 'staging' else airflow_env
+    env_file_name = airflow_env
     env_file = os.path.join(workspace_root, f'.env.{env_file_name}')
     if os.path.exists(env_file):
         load_dotenv(env_file, override=True)
@@ -181,9 +186,8 @@ except Exception as e:
     logging.getLogger(__name__).warning(f"Failed to load .env file: {e}")
 
 # Add workspace root to Python path to enable imports from installed package
-# Package is installed at: ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}
-# Dependencies are at: ${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/
-workspace_root = "${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace"
+# Dev: package at workspace/trading_agent-workspace/trading_agent; test/prod: package_root/trading_agent
+workspace_root = "${WORKSPACE_ROOT_FOR_PYTHON}"
 if workspace_root and workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
 
@@ -225,14 +229,12 @@ airflow_root = "/opt/airflow"
 if airflow_root and airflow_root not in sys.path:
     sys.path.insert(0, airflow_root)
 
-# Set up storage path for DAG file writes
-# Storage is mounted at /workspace/storage/{env}/ and maps to TradingPythonAgent/storage/{env}/
-# DAGs should write to this location instead of source code directories
+# Set up storage path for DAG file writes (TA)
+# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
 import os
 airflow_env = os.getenv('AIRFLOW_ENV', '${ENV}')
-# Map staging to test for storage directory naming
-storage_env = 'test' if airflow_env == 'staging' else airflow_env
-storage_root = f"/workspace/storage/{storage_env}"
+storage_env = airflow_env
+storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
 if os.path.exists(storage_root):
     # Set environment variable so DAGs can access storage path
     os.environ['TRADING_AGENT_STORAGE'] = storage_root
@@ -255,8 +257,8 @@ if echo "${SOURCE_DIR}" | grep -q "/workspace/trading-agent\|/src/_airflow_dags_
     # For fallback, DAGs are directly in SOURCE_DIR
     DAG_BASE_PATH="${SOURCE_DIR}"
 else
-    # For installed wheel, DAGs are in workspace_root/package_name/_airflow_dags_
-    DAG_BASE_PATH="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace/${PACKAGE_NAME}/_airflow_dags_"
+    # For installed wheel, DAGs are in SOURCE_DIR (workspace or package_root layout)
+    DAG_BASE_PATH="${SOURCE_DIR}"
 fi
 
 # Process each DAG file and add imports

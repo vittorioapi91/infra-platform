@@ -7,8 +7,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Jenkins data directory is in infra-platform/jenkins/data (mounted to container)
-JENKINS_DATA_DIR="${SCRIPT_DIR}/data"
+# Jenkins data directory is in storage-infra/jenkins/data (mounted to container)
+JENKINS_DATA_DIR="${SCRIPT_DIR}/../storage-infra/jenkins/data"
 CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-workspace-cron.sh"
 LOG_DIR="${SCRIPT_DIR}/logs"
 PLIST_NAME="com.tradingagent.jenkins-cleanup"

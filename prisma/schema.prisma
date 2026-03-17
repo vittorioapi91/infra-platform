@@ -1,0 +1,11 @@
+// Prisma schema for managing infra-platform PostgreSQL servers
+// DATABASE_URL is set per-container (prisma-ta-dev, prisma-ta-test, etc.)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

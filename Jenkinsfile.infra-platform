@@ -66,7 +66,8 @@ pipeline {
                         echo "Validating OpenProject work package #${openProjectIssueId}..."
                         
                         // Get OpenProject configuration from environment variables
-                        def openProjectUrl = env.OPENPROJECT_URL ?: 'http://openproject.local.info'
+                        // Default http://openproject:80 works when Jenkins runs in Docker (same network); set OPENPROJECT_URL for host-installed Jenkins (e.g. http://openproject.local.info)
+                        def openProjectUrl = env.OPENPROJECT_URL ?: 'http://openproject:80'
                         def openProjectUser = env.OPENPROJECT_USER ?: 'admin'
                         def openProjectPassword = env.OPENPROJECT_PASSWORD
                         

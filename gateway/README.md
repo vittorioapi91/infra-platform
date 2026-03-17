@@ -17,40 +17,36 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-redisinsight.conf` - Routes `redisinsight.local.info` to RedisInsight
 - `nginx-nats.conf` - Routes `nats.local.info` to NATS monitoring endpoint
 - `nginx-openproject.conf` - Routes `openproject.local.info` to OpenProject
+- `nginx-prisma.conf` - Routes `prisma.postgres.ta.{dev|test|prod}` and `prisma.postgres.pma.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
 - `nginx-mlflow.conf` - Routes `mlflow.local.info` to MLflow
 - `nginx-kubernetes-dashboard.conf` - Routes `kubernetes-dashboard.local.info` to Kubernetes Dashboard
 - `nginx-kubeflow.conf` - Routes `kubeflow.local.info` to Kubeflow Pipelines UI
 - `nginx-portainer.conf` - Routes `portainer.local.info` to Portainer
 - `nginx-pma-dashboard.conf` - PMA (PredictionMarketsAgent) dashboard; routes `predictionmarketsagent.local.info` to host.docker.internal:7567
-- `nginx-postgres.stream.conf` - PostgreSQL TCP proxy (stream); included from `nginx.conf` **stream** block. **Six separate Postgres servers** – one per logical server. Each port proxies to its own container.
+- `nginx-postgres.stream.conf` - PostgreSQL TCP proxy (stream); included from `nginx.conf` **stream** block. **Three TradingAgent Postgres servers** – dev, test, prod. Each port proxies to its own container.
 
 Use these hostnames + ports in your DB clients and `.env` files:
 
 | Hostname | Port | Server | Use for |
 |----------|------|--------|---------|
-| `postgres.dev.predictionmarketsagent.local.info` | 54321 | postgres-pma-dev | PredictionMarketsAgent dev |
-| `postgres.test.predictionmarketsagent.local.info` | 54322 | postgres-pma-test | PredictionMarketsAgent test |
-| `postgres.prod.predictionmarketsagent.local.info` | 54323 | postgres-pma-prod | PredictionMarketsAgent prod |
-| `postgres.dev.tradingagent.local.info` | 54324 | postgres-ta-dev | TradingAgent dev |
-| `postgres.test.tradingagent.local.info` | 54325 | postgres-ta-test | TradingAgent test |
-| `postgres.prod.tradingagent.local.info` | 54326 | postgres-ta-prod | TradingAgent prod |
+| `postgres.dev.local.info` | 54324 | postgres-ta-dev | TradingAgent & PredictionMarketsAgent dev |
+| `postgres.test.local.info` | 54325 | postgres-ta-test | TradingAgent & PredictionMarketsAgent test |
+| `postgres.prod.local.info` | 54326 | postgres-ta-prod | TradingAgent & PredictionMarketsAgent prod |
 
-Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container.
+Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container. All apps use the single **datalake** database; previous DB names are now **schemas** (e.g. `postgres`, `polymarket`, `edgar`).
 
 **DB client / IDE connection check** – use this matrix:
 
-| Connection | Host | Port | Database | User |
-|------------|------|------|----------|------|
-| dev.predictionMarketsAgent | `postgres.dev.predictionmarketsagent.local.info` | **54321** | **polymarket** | dev.predictionMarketsAgent |
-| test.predictionMarketsAgent | `postgres.test.predictionmarketsagent.local.info` | **54322** | **test.PredictionMarketsAgent** | test.predictionMarketsAgent |
-| prod.predictionMarketsAgent | `postgres.prod.predictionmarketsagent.local.info` | **54323** | **prod.PredictionMarketsAgent** | prod.predictionMarketsAgent |
-| dev.tradingAgent | `postgres.dev.tradingagent.local.info` | **54324** | **postgres** | dev.tradingAgent |
-| test.tradingAgent | `postgres.test.tradingagent.local.info` | **54325** | **postgres** | test.tradingAgent |
-| prod.tradingAgent | `postgres.prod.tradingagent.local.info` | **54326** | **postgres** | prod.tradingAgent |
+| Connection | Host | Port | Database | Schema | User |
+|------------|------|------|----------|--------|------|
+| dev (TA) | `postgres.dev.local.info` | **54324** | **datalake** | postgres | dev.user |
+| test (TA) | `postgres.test.local.info` | **54325** | **datalake** | postgres | test.user |
+| prod (TA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
+| dev (PMA) | `postgres.dev.local.info` | **54324** | **datalake** | polymarket | dev.user |
+| test (PMA) | `postgres.test.local.info` | **54325** | **datalake** | test.PredictionMarketsAgent | test.user |
+| prod (PMA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
 
-Password for all: `2014`. Create PMA test/prod databases if missing:
-`docker exec -it postgres-pma-prod psql -U prod.predictionMarketsAgent -d postgres -c 'CREATE DATABASE "prod.PredictionMarketsAgent" OWNER "prod.predictionMarketsAgent";'`
-(same for `postgres-pma-test` and `test.PredictionMarketsAgent`).
+Password for all: `2014`. Set **search_path** to the schema (e.g. `postgres`, `polymarket`) or use qualified names.
 
 ## Troubleshooting
 
@@ -65,8 +61,8 @@ cd docker && docker compose -f docker-compose.infra-platform.yml restart nginx-p
 
 ### DataGrip / IntelliJ / other IDEs
 
-- **Always set Database explicitly.** TA connections use database **`postgres`**. If Database is empty, the client often defaults to a DB named like the user (e.g. `prod.tradingAgent`), which doesn’t exist → "database X does not exist" or Test Connection fails.
-- Use the **Database** from the matrix above (e.g. **prod.PredictionMarketsAgent** for prod PMA; **postgres** for all TA). Create PMA test/prod DBs first if missing (see above). PMA uses user **{env}.predictionMarketsAgent** (e.g. `dev.predictionMarketsAgent`), TA uses **{env}.tradingAgent**.
+- **Always set Database explicitly** to **datalake**. Set the default **schema** (e.g. `postgres` for TA, `polymarket` for PMA dev) in connection options or `search_path`.
+- Use the **User** from the matrix above (**{env}.user**: dev.user, test.user, prod.user).
 - If you see SSL or handshake errors, set **SSL mode** to `disable` in the connection options (e.g. Advanced → VM options or URL `?sslmode=disable`).
 
 ## Usage
@@ -91,15 +87,15 @@ To use these domain names, add entries to `/etc/hosts`:
 127.0.0.1 redisinsight.local.info
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
+127.0.0.1 prisma.postgres.ta.dev prisma.postgres.ta.test prisma.postgres.ta.prod prisma.postgres.pma.dev prisma.postgres.pma.test prisma.postgres.pma.prod
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
 127.0.0.1 portainer.local.info
 127.0.0.1 predictionmarketsagent.local.info
 
-# PostgreSQL (one hostname per logical server; port in connection string)
-127.0.0.1 postgres.dev.predictionmarketsagent.local.info postgres.test.predictionmarketsagent.local.info postgres.prod.predictionmarketsagent.local.info
-127.0.0.1 postgres.dev.tradingagent.local.info postgres.test.tradingagent.local.info postgres.prod.tradingagent.local.info
+# PostgreSQL (TradingAgent dev/test/prod; port in connection string)
+127.0.0.1 postgres.dev.local.info postgres.test.local.info postgres.prod.local.info
 ```
 
 See `docker/README.md` for complete setup instructions.

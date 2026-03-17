@@ -15,7 +15,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+INFRA_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -61,7 +61,7 @@ fi
 log_info "Checking if local registry is running at ${REGISTRY_URL}..."
 if ! curl -s -f "${REGISTRY_URL}/v2/" > /dev/null 2>&1; then
     log_error "Registry is not accessible at ${REGISTRY_URL}"
-    log_info "Start the registry with: docker-compose -f .ops/.docker/docker-compose.registry.yml up -d"
+    log_info "Start the registry with: docker compose -f docker/docker-compose.registry.yml up -d (from infra-platform root)"
     exit 1
 fi
 log_info "✓ Registry is running"
@@ -82,14 +82,14 @@ fi
 # Build base image if it doesn't exist or rebuild was requested
 if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^${BASE_IMAGE_FULL}\$"; then
     log_info "Building base image: ${BASE_IMAGE_FULL}"
-    log_info "Dockerfile: .ops/.kubernetes/Dockerfile.model-training.base"
+    log_info "Dockerfile: kubernetes/Dockerfile.model-training.base (context: docker/)"
     
-    cd "${PROJECT_ROOT}"
+    cd "${INFRA_ROOT}"
     docker build \
         --platform linux/amd64 \
-        -f .ops/.kubernetes/Dockerfile.model-training.base \
+        -f kubernetes/Dockerfile.model-training.base \
         -t "${BASE_IMAGE_FULL}" \
-        .
+        docker/
     
     log_info "✓ Base image built successfully"
 else

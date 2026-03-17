@@ -24,16 +24,38 @@ log() {
 
 log "=== Starting Trading Agent Services ==="
 
-# Check if Docker is running
+# Check if Docker is running; if not, try to start it (macOS: open Docker Desktop)
 if ! docker info > /dev/null 2>&1; then
-    log "${RED}ERROR: Docker is not running. Please start Docker Desktop.${NC}"
-    exit 1
+    log "${YELLOW}Docker is not running. Attempting to start Docker Desktop...${NC}"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        if open -a Docker 2>/dev/null; then
+            log "${YELLOW}Waiting for Docker to become ready (up to 120s)...${NC}"
+            for i in $(seq 1 120); do
+                if docker info > /dev/null 2>&1; then
+                    log "${GREEN}✓ Docker is running${NC}"
+                    break
+                fi
+                if [ $i -eq 120 ]; then
+                    log "${RED}ERROR: Docker did not start within 120 seconds. Please start Docker Desktop manually.${NC}"
+                    exit 1
+                fi
+                sleep 1
+            done
+        else
+            log "${RED}ERROR: Could not start Docker Desktop. Please start it manually.${NC}"
+            exit 1
+        fi
+    else
+        log "${RED}ERROR: Docker is not running. Please start Docker manually.${NC}"
+        exit 1
+    fi
 fi
 
-# Start Docker Compose services
+# Start Docker Compose services (use infra-platform compose file)
 log "${YELLOW}Starting Docker Compose services...${NC}"
 cd "$DOCKER_COMPOSE_DIR"
-if docker-compose up -d >> "$LOG_FILE" 2>&1; then
+COMPOSE_FILE="docker-compose.infra-platform.yml"
+if docker-compose -f "$COMPOSE_FILE" up -d >> "$LOG_FILE" 2>&1; then
     log "${GREEN}✓ Docker Compose services started${NC}"
 else
     log "${RED}ERROR: Failed to start Docker Compose services${NC}"
@@ -101,7 +123,7 @@ log "  - Grafana: http://localhost:3000"
 log "  - MLflow: http://localhost:55000"
 log "  - Prometheus: http://localhost:9090"
 log "  - Kubernetes Dashboard: https://localhost:8001"
-log "  - PostgreSQL: via nginx 54321–54326 (postgres.{env}.{agent}.local.info)"
+log "  - PostgreSQL: via nginx 54324–54326 (postgres.{dev|test|prod}.local.info)"
 log "  - Redis: localhost:6379"
 log "  - RedisInsight: http://localhost:5540 (Redis web GUI)"
 log "  - NATS: localhost:4222 (client), localhost:8222 (monitoring)"

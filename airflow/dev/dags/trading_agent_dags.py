@@ -12,30 +12,27 @@ import sys
 import os
 
 # Load .env file before importing anything that might use config.py
-# 1) .env.{env} from workspace or /workspace/trading-agent (TradingPythonAgent)
-# 2) .env.tradingAgent.{env} from /workspace/infra-platform (TA DB credentials; overrides 1 for POSTGRES_*)
+# The .env file should be at workspace root (copied during wheel installation)
 try:
     from dotenv import load_dotenv
-    _log = __import__("logging").getLogger(__name__)
-    _airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
-    _workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
-    _env_file = os.path.join(_workspace_root, f'.env.{_airflow_env}')
-    if os.path.exists(_env_file):
-        load_dotenv(_env_file, override=True)
+    workspace_root = "/opt/airflow/workspace/trading_agent-workspace"
+    airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
+    env_file_name = airflow_env
+    env_file = os.path.join(workspace_root, f'.env.{env_file_name}')
+    if os.path.exists(env_file):
+        load_dotenv(env_file, override=True)
     else:
-        _mounted = f"/workspace/trading-agent/.env.{_airflow_env}"
-        if os.path.exists(_mounted):
-            load_dotenv(_mounted, override=True)
-    # TA credentials: .env.tradingAgent.{env} from infra-platform (mounted at /workspace/infra-platform)
-    _ta_env = f"/workspace/infra-platform/.env.tradingAgent.{_airflow_env}"
-    if os.path.exists(_ta_env):
-        load_dotenv(_ta_env, override=True)
-    # Note: If file not found, credentials are expected from system environment variables
-    # (set by Airflow or container configuration), so no warning is logged
+        # Fallback: try mounted location
+        mounted_env_file = f"/workspace/trading-agent/.env.{env_file_name}"
+        if os.path.exists(mounted_env_file):
+            load_dotenv(mounted_env_file, override=True)
 except ImportError:
+    # python-dotenv not available, continue without loading .env
     pass
 except Exception as e:
-    __import__("logging").getLogger(__name__).warning("Failed to load .env file: %s", e)
+    # If loading fails, continue anyway
+    import logging
+    logging.getLogger(__name__).warning(f"Failed to load .env file: {e}")
 
 # Add workspace root to Python path to enable imports from installed package
 # Dev: package at workspace/trading_agent-workspace/trading_agent; test/prod: package_root/trading_agent

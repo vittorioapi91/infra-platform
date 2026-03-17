@@ -99,26 +99,23 @@ See `airflow/QUICK_START.md` for detailed Airflow setup and authentication.
 
 ### PostgreSQL
 
-There are **six separate Postgres servers** (one per logical server). Access via Nginx TCP proxy. **Data is stored on the host** in `<repo>/storage-postgresql/` (not Docker volumes):
+There are **three Postgres servers** (dev, test, prod). TA and PMA share them: one **datalake** database per server, with schemas (e.g. `postgres`, `polymarket`). Access via Nginx TCP proxy. **Data is stored on the host** in `<repo>/storage-postgresql/` (not Docker volumes):
 
 ```
-storage-postgresql/
-├── pma/{dev,test,prod}   → postgres-pma-*
-└── ta/{dev,test,prod}    → postgres-ta-*
+storage-postgresql/{dev,test,prod}   → postgres-ta-dev, postgres-ta-test, postgres-ta-prod
 ```
+
+(Each of `dev`, `test`, `prod` may be a symlink to data on an SSD or other volume.)
 
 | Server | Container | Port | Data path |
 |--------|-----------|------|-----------|
-| PMA dev | postgres-pma-dev | 54321 | `storage-postgresql/pma/dev` |
-| PMA test | postgres-pma-test | 54322 | `storage-postgresql/pma/test` |
-| PMA prod | postgres-pma-prod | 54323 | `storage-postgresql/pma/prod` |
-| TA dev | postgres-ta-dev | 54324 | `storage-postgresql/ta/dev` |
-| TA test | postgres-ta-test | 54325 | `storage-postgresql/ta/test` |
-| TA prod | postgres-ta-prod | 54326 | `storage-postgresql/ta/prod` |
+| dev | postgres-ta-dev | 54324 | `storage-postgresql/dev` |
+| test | postgres-ta-test | 54325 | `storage-postgresql/test` |
+| prod | postgres-ta-prod | 54326 | `storage-postgresql/prod` |
 
-From the host, connect via Nginx using `postgres.{env}.{agent}.local.info` and the port above (see `gateway/README.md`). Add `/etc/hosts` entries so those hostnames resolve to `127.0.0.1`. See `storage-postgresql/README.md` for the layout.
+From the host, connect via Nginx using `postgres.{dev|test|prod}.local.info` and the port above (see `gateway/README.md`). Add `/etc/hosts` entries so those hostnames resolve to `127.0.0.1`. See `storage-postgresql/README.md` for the layout.
 
-**PMA** servers have a `polymarket` database (created at init). **TA** servers are used for macro databases (`fred`, `bis`, `bls`, `eurostat`, `imf`, etc.). Create those on each TA server you use (once per server):
+**TA** uses schema `postgres`; **PMA** uses schemas `polymarket` (dev), `test.PredictionMarketsAgent` (test), `postgres` (prod). For macro databases (`fred`, `bis`, `bls`, `eurostat`, `imf`, etc.) create them on each TA server you use (once per server):
 
 ```bash
 docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE fred;"

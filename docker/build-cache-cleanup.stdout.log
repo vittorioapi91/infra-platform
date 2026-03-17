@@ -53,3 +53,553 @@ Pruning dangling build cache older than 7 days (168h)...
 /Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
 Note: 'until' filter not available in this Docker version, pruning all dangling cache...
 /Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found
+Docker Build Cache Cleanup
+==========================
+Dry run: false
+Remove cache older than: 7 days
+
+Build cache size before cleanup: Unknown
+
+Pruning dangling build cache older than 7 days (168h)...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 66: docker: command not found
+Note: 'until' filter not available in this Docker version, pruning all dangling cache...
+/Users/Snake91/CursorProjects/infra-platform/docker/cleanup-build-cache.sh: line 68: docker: command not found

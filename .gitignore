@@ -1,16 +1,16 @@
-# storage-postgresql: keep folder structure, ignore Postgres data inside
-storage-postgresql/pma/dev/*
-!storage-postgresql/pma/dev/.gitkeep
-storage-postgresql/pma/test/*
-!storage-postgresql/pma/test/.gitkeep
-storage-postgresql/pma/prod/*
-!storage-postgresql/pma/prod/.gitkeep
-storage-postgresql/ta/dev/*
-!storage-postgresql/ta/dev/.gitkeep
-storage-postgresql/ta/test/*
-!storage-postgresql/ta/test/.gitkeep
-storage-postgresql/ta/prod/*
-!storage-postgresql/ta/prod/.gitkeep
+# env and runtime
+.env*
+.DS_Store
+*.log
+prisma/node_modules/
+
+# storage-postgresql: keep folder structure, ignore Postgres data inside (dev|test|prod may be symlinks to SSD)
+storage-postgresql/dev/*
+!storage-postgresql/dev/.gitkeep
+storage-postgresql/test/*
+!storage-postgresql/test/.gitkeep
+storage-postgresql/prod/*
+!storage-postgresql/prod/.gitkeep
 
 # storage-other-data: keep folder structure, ignore DAG output files inside
 storage-other-data/ta/dev/*

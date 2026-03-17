@@ -83,8 +83,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      # Connect directly to postgres-ta-dev (same as test/prod); nginx proxy still used for host access
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/postgres
+      # Connect directly to postgres-ta-dev; database datalake, schema postgres (nginx proxy used for host access)
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/1
@@ -102,12 +102,13 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=dev
       - GIT_BRANCH=${GIT_BRANCH:-dev}
-      # PostgreSQL (direct to postgres-ta-dev)
+      # PostgreSQL (direct to postgres-ta-dev; database datalake, default schema postgres)
       - POSTGRES_HOST=postgres-ta-dev
       - POSTGRES_PORT=5432
-      - POSTGRES_USER=dev.tradingAgent
+      - POSTGRES_USER=dev.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=datalake
+      - POSTGRES_SCHEMA=postgres
     volumes:
       - ../storage-infra/airflow/dev/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
@@ -328,7 +329,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/postgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/2
@@ -346,12 +347,13 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=test
       - GIT_BRANCH=${GIT_BRANCH:-test}
-      # PostgreSQL (postgres-ta-test)
+      # PostgreSQL (postgres-ta-test; database datalake, default schema postgres)
       - POSTGRES_HOST=postgres-ta-test
       - POSTGRES_PORT=5432
-      - POSTGRES_USER=test.tradingAgent
+      - POSTGRES_USER=test.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=datalake
+      - POSTGRES_SCHEMA=postgres
     volumes:
       - ../storage-infra/airflow/test/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
@@ -434,7 +436,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.tradingAgent:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/postgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/3
@@ -452,12 +454,13 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=prod
       - GIT_BRANCH=${GIT_BRANCH:-main}
-      # PostgreSQL (postgres-ta-prod)
+      # PostgreSQL (postgres-ta-prod; database datalake, default schema postgres)
       - POSTGRES_HOST=postgres-ta-prod
       - POSTGRES_PORT=5432
-      - POSTGRES_USER=prod.tradingAgent
+      - POSTGRES_USER=prod.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=datalake
+      - POSTGRES_SCHEMA=postgres
     volumes:
       - ../storage-infra/airflow/prod/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
@@ -530,49 +533,7 @@ services:
   # Six separate PostgreSQL servers – one per logical server (PMA dev/test/prod, TA dev/test/prod).
   # Accessible via nginx TCP proxy: postgres.{env}.{agent}.local.info:5432x (see gateway/nginx/nginx-postgres.stream.conf)
 
-  # Postgres data: bind-mounted from <repo>/storage-postgresql/{pma|ta}/{dev|test|prod} (not Docker volumes)
-  postgres-pma-dev:
-    image: postgres:15
-    container_name: postgres-pma-dev
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-    volumes:
-      - ../storage-postgresql/pma/dev:/var/lib/postgresql/data
-      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
-      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
-    networks:
-      - monitoring
-    restart: unless-stopped
-
-  postgres-pma-test:
-    image: postgres:15
-    container_name: postgres-pma-test
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-    volumes:
-      - ../storage-postgresql/pma/test:/var/lib/postgresql/data
-      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
-      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
-    networks:
-      - monitoring
-    restart: unless-stopped
-
-  postgres-pma-prod:
-    image: postgres:15
-    container_name: postgres-pma-prod
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
-    volumes:
-      - ../storage-postgresql/pma/prod:/var/lib/postgresql/data
-      - ./init-pg-postgres-user.sql:/docker-entrypoint-initdb.d/02-postgres-user.sql:ro
-      - ./init-pma-polymarket.sql:/docker-entrypoint-initdb.d/03-pma-polymarket.sql:ro
-    networks:
-      - monitoring
-    restart: unless-stopped
-
+  # Postgres data: bind-mounted from <repo>/storage-postgresql/{dev|test|prod} (each may be a symlink to SSD). TA and PMA share these 3 instances.
   postgres-ta-dev:
     image: postgres:15
     container_name: postgres-ta-dev
@@ -580,7 +541,7 @@ services:
       - POSTGRES_USER=dev.tradingAgent
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
-      - ../storage-postgresql/ta/dev:/var/lib/postgresql/data
+      - ../storage-postgresql/dev:/var/lib/postgresql/data
     networks:
       - monitoring
     restart: unless-stopped
@@ -592,7 +553,7 @@ services:
       - POSTGRES_USER=test.tradingAgent
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
-      - ../storage-postgresql/ta/test:/var/lib/postgresql/data
+      - ../storage-postgresql/test:/var/lib/postgresql/data
     networks:
       - monitoring
     restart: unless-stopped
@@ -604,9 +565,115 @@ services:
       - POSTGRES_USER=prod.tradingAgent
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
-      - ../storage-postgresql/ta/prod:/var/lib/postgresql/data
+      - ../storage-postgresql/prod:/var/lib/postgresql/data
     networks:
       - monitoring
+    restart: unless-stopped
+
+  # Prisma – manage PostgreSQL servers (node:20-slim for Prisma CLI compatibility; Alpine has "Invalid argument" issues)
+  prisma-ta-dev:
+    image: node:20-slim
+    container_name: prisma-ta-dev
+    ports:
+      - "5555:5555"  # Prisma Studio – also reachable via http://localhost:5555
+    working_dir: /workspace/prisma
+    environment:
+      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpostgres
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-dev
+    restart: unless-stopped
+
+  prisma-ta-test:
+    image: node:20-slim
+    container_name: prisma-ta-test
+    ports:
+      - "5556:5555"  # Prisma Studio – http://localhost:5556
+    working_dir: /workspace/prisma
+    environment:
+      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dpostgres
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-test
+    restart: unless-stopped
+
+  prisma-ta-prod:
+    image: node:20-slim
+    container_name: prisma-ta-prod
+    ports:
+      - "5557:5555"  # Prisma Studio – http://localhost:5557
+    working_dir: /workspace/prisma
+    environment:
+      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-prod
+    restart: unless-stopped
+
+  prisma-pma-dev:
+    image: node:20-slim
+    container_name: prisma-pma-dev
+    ports:
+      - "5558:5555"  # Prisma Studio – http://localhost:5558
+    working_dir: /workspace/prisma
+    environment:
+      # Same server as TA (postgres-ta-dev); database datalake, schema polymarket
+      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpolymarket
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-dev
+    restart: unless-stopped
+
+  prisma-pma-test:
+    image: node:20-slim
+    container_name: prisma-pma-test
+    ports:
+      - "5559:5555"  # Prisma Studio – http://localhost:5559
+    working_dir: /workspace/prisma
+    environment:
+      # Same server as TA (postgres-ta-test); database datalake, schema test.PredictionMarketsAgent
+      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dtest.PredictionMarketsAgent
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-test
+    restart: unless-stopped
+
+  prisma-pma-prod:
+    image: node:20-slim
+    container_name: prisma-pma-prod
+    ports:
+      - "5560:5555"  # Prisma Studio – http://localhost:5560
+    working_dir: /workspace/prisma
+    environment:
+      # Same server as TA (postgres-ta-prod); database datalake, schema postgres
+      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
+    volumes:
+      - ../prisma:/workspace/prisma
+    command: sh -c "npm install && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-ta-prod
     restart: unless-stopped
 
   # Redis for Airflow rate limiting backend
@@ -666,6 +733,7 @@ services:
       - OPENPROJECT_HTTPS=${OPENPROJECT_HTTPS:-false}
       - DATABASE_URL=postgres://openproject:${OPENPROJECT_DB_PASSWORD:-openproject}@openproject-postgres:5432/openproject
     volumes:
+      # File uploads / attachments only; project list and work packages are in openproject-postgres
       - ../storage-infra/openproject/data:/var/openproject/assets
     networks:
       - monitoring
@@ -673,7 +741,7 @@ services:
       - openproject-postgres
     restart: unless-stopped
 
-  # PostgreSQL database for OpenProject
+  # PostgreSQL database for OpenProject (projects, work packages, users live here—not in file folders)
   openproject-postgres:
     image: postgres:15
     container_name: openproject-postgres
@@ -682,6 +750,7 @@ services:
       - POSTGRES_PASSWORD=${OPENPROJECT_DB_PASSWORD:-openproject}
       - POSTGRES_DB=openproject
     volumes:
+      # Keep this directory backed up; if empty/recreated, Postgres initializes a fresh DB and you lose projects
       - ../storage-infra/openproject-postgres/data:/var/lib/postgresql/data
     networks:
       - monitoring
@@ -696,12 +765,9 @@ services:
       - "80:80"  # HTTP port for routing all domain names
       - "443:443"  # HTTPS port (if needed)
       # PostgreSQL TCP proxy – one port per logical server (see gateway/nginx/nginx-postgres.stream.conf)
-      - "54321:54321"  # postgres.dev.predictionmarketsagent.local.info
-      - "54322:54322"  # postgres.test.predictionmarketsagent.local.info
-      - "54323:54323"  # postgres.prod.predictionmarketsagent.local.info
-      - "54324:54324"  # postgres.dev.tradingagent.local.info
-      - "54325:54325"  # postgres.test.tradingagent.local.info
-      - "54326:54326"  # postgres.prod.tradingagent.local.info
+      - "54324:54324"  # postgres.dev.local.info (TradingAgent dev)
+      - "54325:54325"  # postgres.test.local.info (TradingAgent test)
+      - "54326:54326"  # postgres.prod.local.info (TradingAgent prod)
     volumes:
       - ../gateway/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Custom nginx.conf with stream module
       - ../gateway/nginx/nginx-postgres.stream.conf:/etc/nginx/stream-postgres.conf:ro
@@ -712,6 +778,7 @@ services:
       - ../gateway/nginx/nginx-redisinsight.conf:/etc/nginx/conf.d/redisinsight.conf:ro
       - ../gateway/nginx/nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
       - ../gateway/nginx/nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
+      - ../gateway/nginx/nginx-prisma.conf:/etc/nginx/conf.d/prisma.conf:ro
       - ../gateway/nginx/nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
       - ../gateway/nginx/nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
       - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
@@ -720,12 +787,9 @@ services:
     networks:
       monitoring:
         aliases:
-          - postgres.dev.predictionmarketsagent.local.info
-          - postgres.test.predictionmarketsagent.local.info
-          - postgres.prod.predictionmarketsagent.local.info
-          - postgres.dev.tradingagent.local.info
-          - postgres.test.tradingagent.local.info
-          - postgres.prod.tradingagent.local.info
+          - postgres.dev.local.info
+          - postgres.test.local.info
+          - postgres.prod.local.info
     restart: unless-stopped
 
   # Jenkins CI/CD server (direct access, no nginx proxy for performance)

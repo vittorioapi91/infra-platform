@@ -10,9 +10,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="${SCRIPT_DIR}/../.."
+# Infra-platform repo root (script lives in docker/)
+INFRA_ROOT="${SCRIPT_DIR}/.."
 
-cd "${PROJECT_ROOT}" || exit 1
+cd "${INFRA_ROOT}" || exit 1
 
 BUILD_JENKINS=true
 BUILD_TRADING_AGENT=true
@@ -53,9 +54,9 @@ if [ "${BUILD_JENKINS}" = "true" ]; then
     
     if docker build \
         --platform linux/amd64 \
-        -f .ops/.docker/Dockerfile.jenkins.base \
+        -f docker/Dockerfile.jenkins.base \
         -t jenkins-custom:base \
-        .ops/.docker/; then
+        docker/; then
         echo ""
         echo "✓ Jenkins base image built successfully: jenkins-custom:base"
         docker images jenkins-custom:base --format "  Size: {{.Size}}"
@@ -72,11 +73,12 @@ if [ "${BUILD_TRADING_AGENT}" = "true" ]; then
     echo "Building trading agent base image: hmm-model-training-base:base..."
     echo "This may take 5-15 minutes (installs Python dependencies)..."
     
+    # Build context docker/ provides requirements.txt; Dockerfile in kubernetes/
     if docker build \
         --platform linux/amd64 \
-        -f .ops/.kubernetes/Dockerfile.model-training.base \
+        -f kubernetes/Dockerfile.model-training.base \
         -t hmm-model-training-base:base \
-        .; then
+        docker/; then
         echo ""
         echo "✓ Trading agent base image built successfully: hmm-model-training-base:base"
         docker images hmm-model-training-base:base --format "  Size: {{.Size}}"

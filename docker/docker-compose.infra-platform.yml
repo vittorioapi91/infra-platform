@@ -574,9 +574,9 @@ services:
     restart: unless-stopped
 
   # Prisma – manage PostgreSQL servers (node:20-slim for Prisma CLI compatibility; Alpine has "Invalid argument" issues)
-  prisma-ta-dev:
+  prisma-dev:
     image: node:20-slim
-    container_name: prisma-ta-dev
+    container_name: prisma-dev
     ports:
       - "5555:5555"  # Prisma Studio – also reachable via http://localhost:5555
     working_dir: /workspace/prisma
@@ -591,9 +591,9 @@ services:
       - postgres-dev
     restart: unless-stopped
 
-  prisma-ta-test:
+  prisma-test:
     image: node:20-slim
-    container_name: prisma-ta-test
+    container_name: prisma-test
     ports:
       - "5556:5555"  # Prisma Studio – http://localhost:5556
     working_dir: /workspace/prisma
@@ -608,67 +608,13 @@ services:
       - postgres-test
     restart: unless-stopped
 
-  prisma-ta-prod:
+  prisma-prod:
     image: node:20-slim
-    container_name: prisma-ta-prod
+    container_name: prisma-prod
     ports:
       - "5557:5555"  # Prisma Studio – http://localhost:5557
     working_dir: /workspace/prisma
     environment:
-      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
-    volumes:
-      - ../prisma:/workspace/prisma
-    command: sh -c "npm install && tail -f /dev/null"
-    networks:
-      - monitoring
-    depends_on:
-      - postgres-prod
-    restart: unless-stopped
-
-  prisma-pma-dev:
-    image: node:20-slim
-    container_name: prisma-pma-dev
-    ports:
-      - "5558:5555"  # Prisma Studio – http://localhost:5558
-    working_dir: /workspace/prisma
-    environment:
-      # Same server as TA (postgres-dev); database datalake, schema polymarket
-      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpolymarket
-    volumes:
-      - ../prisma:/workspace/prisma
-    command: sh -c "npm install && tail -f /dev/null"
-    networks:
-      - monitoring
-    depends_on:
-      - postgres-dev
-    restart: unless-stopped
-
-  prisma-pma-test:
-    image: node:20-slim
-    container_name: prisma-pma-test
-    ports:
-      - "5559:5555"  # Prisma Studio – http://localhost:5559
-    working_dir: /workspace/prisma
-    environment:
-      # Same server as TA (postgres-test); database datalake, schema polymarket (PMA)
-      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-test:5432/datalake?options=-c%20search_path%3Dpolymarket
-    volumes:
-      - ../prisma:/workspace/prisma
-    command: sh -c "npm install && tail -f /dev/null"
-    networks:
-      - monitoring
-    depends_on:
-      - postgres-test
-    restart: unless-stopped
-
-  prisma-pma-prod:
-    image: node:20-slim
-    container_name: prisma-pma-prod
-    ports:
-      - "5560:5555"  # Prisma Studio – http://localhost:5560
-    working_dir: /workspace/prisma
-    environment:
-      # Same server as TA (postgres-prod); database datalake, schema postgres
       - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
     volumes:
       - ../prisma:/workspace/prisma

@@ -7,17 +7,17 @@ PASSWORD="${POSTGRES_PASSWORD:-2014}"
 case "$CONTAINER" in
   dev)
     URL="postgresql://dev.user:${PASSWORD}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpostgres"
-    PRISMA_CONTAINER="prisma-ta-dev"
+    PRISMA_CONTAINER="prisma-dev"
     HOST_PORT=5555
     ;;
   test)
     URL="postgresql://test.user:${PASSWORD}@postgres-test:5432/datalake?options=-c%20search_path%3Dpostgres"
-    PRISMA_CONTAINER="prisma-ta-test"
+    PRISMA_CONTAINER="prisma-test"
     HOST_PORT=5556
     ;;
   prod)
     URL="postgresql://prod.user:${PASSWORD}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres"
-    PRISMA_CONTAINER="prisma-ta-prod"
+    PRISMA_CONTAINER="prisma-prod"
     HOST_PORT=5557
     ;;
   *)

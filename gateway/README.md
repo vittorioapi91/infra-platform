@@ -17,7 +17,7 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-redisinsight.conf` - Routes `redisinsight.local.info` to RedisInsight
 - `nginx-nats.conf` - Routes `nats.local.info` to NATS monitoring endpoint
 - `nginx-openproject.conf` - Routes `openproject.local.info` to OpenProject
-- `nginx-prisma.conf` - Routes `prisma.postgres.ta.{dev|test|prod}` and `prisma.postgres.pma.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
+- `nginx-prisma.conf` - Routes `prisma.postgres.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
 - `nginx-mlflow.conf` - Routes `mlflow.local.info` to MLflow
 - `nginx-kubernetes-dashboard.conf` - Routes `kubernetes-dashboard.local.info` to Kubernetes Dashboard
 - `nginx-kubeflow.conf` - Routes `kubeflow.local.info` to Kubeflow Pipelines UI
@@ -87,7 +87,7 @@ To use these domain names, add entries to `/etc/hosts`:
 127.0.0.1 redisinsight.local.info
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
-127.0.0.1 prisma.postgres.ta.dev prisma.postgres.ta.test prisma.postgres.ta.prod prisma.postgres.pma.dev prisma.postgres.pma.test prisma.postgres.pma.prod
+127.0.0.1 prisma.postgres.dev prisma.postgres.test prisma.postgres.prod
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info

@@ -55,7 +55,7 @@ fi
 log "${YELLOW}Starting Docker Compose services...${NC}"
 cd "$DOCKER_COMPOSE_DIR"
 COMPOSE_FILE="docker-compose.infra-platform.yml"
-if docker-compose -f "$COMPOSE_FILE" up -d >> "$LOG_FILE" 2>&1; then
+if docker compose -f "$COMPOSE_FILE" up -d >> "$LOG_FILE" 2>&1; then
     log "${GREEN}✓ Docker Compose services started${NC}"
 else
     log "${RED}ERROR: Failed to start Docker Compose services${NC}"
@@ -96,8 +96,8 @@ fi
 # Wait a bit for dashboard to be ready, then generate and copy token
 log "${YELLOW}Generating Kubernetes Dashboard token...${NC}"
 sleep 3
-if kubectl get serviceaccount dashboard-admin -n kubernetes-dashboard --context "$KUBECTL_CONTEXT" > /dev/null 2>&1; then
-    DASHBOARD_TOKEN=$(kubectl create token dashboard-admin -n kubernetes-dashboard --context "$KUBECTL_CONTEXT" --duration=8760h 2>/dev/null)
+if kubectl get serviceaccount admin-user -n kubernetes-dashboard --context "$KUBECTL_CONTEXT" > /dev/null 2>&1; then
+    DASHBOARD_TOKEN=$(kubectl create token admin-user -n kubernetes-dashboard --context "$KUBECTL_CONTEXT" --duration=8760h 2>/dev/null)
     if [ -n "$DASHBOARD_TOKEN" ]; then
         if echo "$DASHBOARD_TOKEN" | pbcopy 2>/dev/null; then
             log "${GREEN}✓ Kubernetes Dashboard token generated and copied to clipboard${NC}"
@@ -105,13 +105,13 @@ if kubectl get serviceaccount dashboard-admin -n kubernetes-dashboard --context 
         else
             log "${YELLOW}Warning: Token generated but could not copy to clipboard (pbcopy failed)${NC}"
             log "${YELLOW}  You can get the token manually with:${NC}"
-            log "${YELLOW}  kubectl create token dashboard-admin -n kubernetes-dashboard --context $KUBECTL_CONTEXT${NC}"
+            log "${YELLOW}  kubectl create token admin-user -n kubernetes-dashboard --context $KUBECTL_CONTEXT${NC}"
         fi
     else
         log "${YELLOW}Warning: Could not generate dashboard token${NC}"
     fi
 else
-    log "${YELLOW}Warning: dashboard-admin service account not found. Token generation skipped.${NC}"
+    log "${YELLOW}Warning: admin-user service account not found. Token generation skipped.${NC}"
 fi
 
 # Summary

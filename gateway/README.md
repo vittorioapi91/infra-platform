@@ -29,9 +29,9 @@ Use these hostnames + ports in your DB clients and `.env` files:
 
 | Hostname | Port | Server | Use for |
 |----------|------|--------|---------|
-| `postgres.dev.local.info` | 54324 | postgres-ta-dev | TradingAgent & PredictionMarketsAgent dev |
-| `postgres.test.local.info` | 54325 | postgres-ta-test | TradingAgent & PredictionMarketsAgent test |
-| `postgres.prod.local.info` | 54326 | postgres-ta-prod | TradingAgent & PredictionMarketsAgent prod |
+| `postgres.dev.local.info` | 54324 | postgres-dev | TradingAgent & PredictionMarketsAgent dev |
+| `postgres.test.local.info` | 54325 | postgres-test | TradingAgent & PredictionMarketsAgent test |
+| `postgres.prod.local.info` | 54326 | postgres-prod | TradingAgent & PredictionMarketsAgent prod |
 
 Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container. All apps use the single **datalake** database; previous DB names are now **schemas** (e.g. `postgres`, `polymarket`, `edgar`).
 
@@ -43,7 +43,7 @@ Stream routing is **by port only** (hostname is ignored by Nginx). Each port pro
 | test (TA) | `postgres.test.local.info` | **54325** | **datalake** | postgres | test.user |
 | prod (TA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
 | dev (PMA) | `postgres.dev.local.info` | **54324** | **datalake** | polymarket | dev.user |
-| test (PMA) | `postgres.test.local.info` | **54325** | **datalake** | test.PredictionMarketsAgent | test.user |
+| test (PMA) | `postgres.test.local.info` | **54325** | **datalake** | polymarket | test.user |
 | prod (PMA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
 
 Password for all: `2014`. Set **search_path** to the schema (e.g. `postgres`, `polymarket`) or use qualified names.

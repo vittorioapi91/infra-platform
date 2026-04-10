@@ -4,24 +4,45 @@
 #
 # Pin to 2.541.1+ so JUnit 1380+, github-branch-source 1934+, Blue Ocean, etc. can load.
 # Previously :lts gave 2.528.3, which caused "Jenkins 2.533+ required" plugin failures.
+#
+# Jenkins 2.541.1 ships Debian trixie (Python 3.13), but many data/ML packages
+# (Airflow, Feast, etc.) do not support 3.13 yet.  We copy a standalone Python
+# 3.12 from the official image to keep full compatibility.
 
+# ---------- stage: grab Python 3.12 binaries ----------
+FROM --platform=linux/amd64 python:3.12-slim-bookworm AS python-src
+
+# ---------- stage: final Jenkins image ----------
 FROM jenkins/jenkins:2.541.1
 
 USER root
 
-# Install system dependencies (curl for downloads, Python, build tools for Python packages)
+# Install system build tools (gcc/g++ needed by some Python C extensions)
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
         curl \
-        python3 \
-        python3-pip \
-        python3-venv \
         gcc \
         g++ \
+        libffi-dev \
+        libpq-dev \
         postgresql-client \
         && apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    ln -s /usr/bin/python3 /usr/bin/python
+    rm -rf /var/lib/apt/lists/*
+
+# Copy Python 3.12 from the builder stage
+COPY --from=python-src /usr/local/bin/python3.12  /usr/local/bin/python3.12
+COPY --from=python-src /usr/local/bin/pip3.12      /usr/local/bin/pip3.12
+COPY --from=python-src /usr/local/lib/python3.12   /usr/local/lib/python3.12
+COPY --from=python-src /usr/local/lib/libpython3.12.so* /usr/local/lib/
+COPY --from=python-src /usr/local/include/python3.12 /usr/local/include/python3.12
+
+# Wire up symlinks so python3 / pip3 / python all point to 3.12
+RUN ldconfig && \
+    ln -sf /usr/local/bin/python3.12 /usr/local/bin/python3 && \
+    ln -sf /usr/local/bin/python3.12 /usr/local/bin/python  && \
+    ln -sf /usr/local/bin/pip3.12    /usr/local/bin/pip3    && \
+    ln -sf /usr/local/bin/pip3.12    /usr/local/bin/pip     && \
+    python3 --version && pip3 --version
 
 # Install Docker CLI (compatible with Docker Desktop)
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.4.1.tgz -o /tmp/docker.tgz && \
@@ -45,12 +66,10 @@ RUN curl -fsSL https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl -o /usr
 RUN curl -fsSL https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64 -o /usr/local/bin/kind && \
     chmod +x /usr/local/bin/kind
 
-# Copy requirements and install Python dependencies
-# Use pip cache for faster rebuilds (persistent across builds)
-# Note: Using --break-system-packages is safe in Docker containers
+# Install Python dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --break-system-packages --cache-dir=/root/.cache/pip -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
     rm /tmp/requirements.txt
 
 # Verify installations (including buildx)
@@ -61,6 +80,6 @@ RUN docker --version && \
     kind version && \
     python3 --version && \
     pip3 --version && \
-    echo "✓ Base image: All tools verified, including docker buildx"
+    echo "OK Base image: All tools verified, including docker buildx"
 
 USER jenkins

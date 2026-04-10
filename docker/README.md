@@ -5,7 +5,7 @@ This folder contains Docker Compose configurations for infrastructure and applic
 ## Files
 
 - **`docker-compose.infra-platform.yml`**: Infrastructure services Docker Compose configuration
-  - Defines all infrastructure services: Grafana, Prometheus, MLflow, Airflow (dev/test/prod), PostgreSQL, Redis, Jenkins
+  - Defines all infrastructure services: Grafana, Prometheus, MLflow, Airflow (dev/test/prod), PostgreSQL, Redis, Jenkins, Alert Manager
   - Configures networking and volumes
   - Sets up service dependencies
   - **Use this for infrastructure deployment**
@@ -83,6 +83,14 @@ docker-compose -f docker-compose.yml down
 - **Backend**: SQLite (default) or PostgreSQL (configurable)
 - **Data**: Bind-mounted from `storage-infra/mlflow/data`
 
+### Alert Manager
+- **Port**: 8090
+- **URL**:
+  - Direct: http://localhost:8090
+  - Via alias: http://alertmanager.local.info (requires `/etc/hosts` entry and nginx proxy)
+- **Purpose**: API service for project events/alerts with Telegram and Pushover channels
+- **Docs**: `../alertmanager/README.md`
+
 ### Airflow
 - **Port**: 8080 (dev: 8082, test: 8083, prod: 8084)
 - **URL**: 
@@ -153,6 +161,7 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
 127.0.0.1 portainer.local.info
+127.0.0.1 alertmanager.local.info
 EOF'
 ```
 
@@ -192,6 +201,7 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
 - `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
 - `http://portainer.local.info` → Portainer Docker Management UI
+- `http://alertmanager.local.info` → Alert Manager API
 
 ## Custom Configuration
 

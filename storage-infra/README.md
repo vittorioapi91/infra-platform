@@ -1,6 +1,6 @@
 # Infra service data (bind-mounted, outside Docker images)
 
-Lives **on the host** at `<repo>/storage-infra`. All data here is bind-mounted into containers; nothing is stored in Docker images. Most components use a `data/` subdir (e.g. `jenkins/data`); Airflow uses `airflow/{dev,test,prod}/` directly (db, wheels, workspace/package_root, logs).
+Lives **on the host** at `<repo>/storage-infra`. In this repo, `storage-infra` is a **symlink** to `/Volumes/storage-volume/storage-vms` (SSD). All data here is bind-mounted into containers; nothing is stored in Docker images. Most components use a `data/` subdir (e.g. `jenkins/data`); Airflow uses `airflow/{dev,test,prod}/` directly (db, wheels, workspace/package_root, logs).
 
 | Directory | Service | Container path |
 |-----------|---------|----------------|

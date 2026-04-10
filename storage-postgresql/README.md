@@ -6,9 +6,9 @@
 
 ```
 storage-postgresql/
-├── dev/      → postgres-ta-dev (port 54324)
-├── test/     → postgres-ta-test (port 54325)
-└── prod/     → postgres-ta-prod (port 54326)
+├── dev/      → postgres-dev (port 54324)
+├── test/     → postgres-test (port 54325)
+└── prod/     → postgres-prod (port 54326)
 ```
 
 Each of `dev`, `test`, `prod` may be a **symlink** to data on another volume (e.g. SSD at `/Volumes/storage-volume/storage-psql/dev` etc.). Compose uses `../storage-postgresql/{dev|test|prod}` in `docker/docker-compose.infra-platform.yml`. Do not remove these directories (or break the symlinks) while Postgres containers are running.

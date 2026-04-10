@@ -230,11 +230,12 @@ if airflow_root and airflow_root not in sys.path:
     sys.path.insert(0, airflow_root)
 
 # Set up storage path for DAG file writes (TA)
-# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
+# Prefer TRADING_AGENT_STORAGE from .env; fallback to ta/{env}/ for compatibility
 import os
 airflow_env = os.getenv('AIRFLOW_ENV', '${ENV}')
 storage_env = airflow_env
-storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
+default_storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
+storage_root = os.getenv('TRADING_AGENT_STORAGE', default_storage_root)
 if os.path.exists(storage_root):
     # Set environment variable so DAGs can access storage path
     os.environ['TRADING_AGENT_STORAGE'] = storage_root

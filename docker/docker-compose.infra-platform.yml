@@ -83,8 +83,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      # Connect directly to postgres-ta-dev; database datalake, schema postgres (nginx proxy used for host access)
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpostgres
+      # Connect directly to postgres-dev; database datalake, schema postgres (nginx proxy used for host access)
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/1
@@ -102,8 +102,8 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=dev
       - GIT_BRANCH=${GIT_BRANCH:-dev}
-      # PostgreSQL (direct to postgres-ta-dev; database datalake, default schema postgres)
-      - POSTGRES_HOST=postgres-ta-dev
+      # PostgreSQL (direct to postgres-dev; database datalake, default schema postgres)
+      - POSTGRES_HOST=postgres-dev
       - POSTGRES_PORT=5432
       - POSTGRES_USER=dev.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
@@ -126,12 +126,10 @@ services:
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
       # Mount infra-platform root to access .env.tradingAgent.{env} files (read-only)
       - ..:/workspace/infra-platform:ro
-      # Mount airflow_local_settings for UI alerts/banner
-      - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../storage-infra/airflow/dev/db:/opt/airflow
@@ -329,7 +327,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dpostgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.user:${POSTGRES_PASSWORD:-2014}@postgres-test:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/2
@@ -347,8 +345,8 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=test
       - GIT_BRANCH=${GIT_BRANCH:-test}
-      # PostgreSQL (postgres-ta-test; database datalake, default schema postgres)
-      - POSTGRES_HOST=postgres-ta-test
+      # PostgreSQL (postgres-test; database datalake, default schema postgres)
+      - POSTGRES_HOST=postgres-test
       - POSTGRES_PORT=5432
       - POSTGRES_USER=test.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
@@ -367,12 +365,10 @@ services:
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
       # Mount .env file for environment configuration (read-only)
       - ../../TradingPythonAgent/.env.test:/workspace/trading-agent/.env.test:ro
-      # Mount airflow_local_settings for UI alerts/banner
-      - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../storage-infra/airflow/test/db:/opt/airflow
@@ -436,7 +432,7 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
       - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/3
@@ -454,8 +450,8 @@ services:
       # Set environment for config.py and wheel selection
       - AIRFLOW_ENV=prod
       - GIT_BRANCH=${GIT_BRANCH:-main}
-      # PostgreSQL (postgres-ta-prod; database datalake, default schema postgres)
-      - POSTGRES_HOST=postgres-ta-prod
+      # PostgreSQL (postgres-prod; database datalake, default schema postgres)
+      - POSTGRES_HOST=postgres-prod
       - POSTGRES_PORT=5432
       - POSTGRES_USER=prod.user
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
@@ -474,12 +470,10 @@ services:
       # Mount TradingPythonAgent to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, src/macro/, src/markets/, etc.)
       - ../../TradingPythonAgent:/workspace/trading-agent
-      # Bind-mount storage-other-data from host (<repo>/storage-other-data); not in any image. DAGs write to /workspace/storage-other-data/ta/{env}
+      # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
       # Mount .env file for environment configuration (read-only)
       - ../../TradingPythonAgent/.env.prod:/workspace/trading-agent/.env.prod:ro
-      # Mount airflow_local_settings for UI alerts/banner
-      - ../airflow/airflow_local_settings.py:/opt/airflow/airflow_local_settings.py:ro
       # Mount Docker socket to enable container restart from within
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../storage-infra/airflow/prod/db:/opt/airflow
@@ -534,38 +528,47 @@ services:
   # Accessible via nginx TCP proxy: postgres.{env}.{agent}.local.info:5432x (see gateway/nginx/nginx-postgres.stream.conf)
 
   # Postgres data: bind-mounted from <repo>/storage-postgresql/{dev|test|prod} (each may be a symlink to SSD). TA and PMA share these 3 instances.
-  postgres-ta-dev:
+  postgres-dev:
     image: postgres:15
-    container_name: postgres-ta-dev
+    container_name: postgres-dev
     environment:
-      - POSTGRES_USER=dev.tradingAgent
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    ports:
+      - "54321:5432"
     volumes:
       - ../storage-postgresql/dev:/var/lib/postgresql/data
+      - ./init-pg-datalake-dev.sql:/docker-entrypoint-initdb.d/01-datalake-dev.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
 
-  postgres-ta-test:
+  postgres-test:
     image: postgres:15
-    container_name: postgres-ta-test
+    container_name: postgres-test
     environment:
-      - POSTGRES_USER=test.tradingAgent
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    ports:
+      - "54322:5432"
     volumes:
       - ../storage-postgresql/test:/var/lib/postgresql/data
+      - ./init-pg-datalake-test.sql:/docker-entrypoint-initdb.d/01-datalake-test.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
 
-  postgres-ta-prod:
+  postgres-prod:
     image: postgres:15
-    container_name: postgres-ta-prod
+    container_name: postgres-prod
     environment:
-      - POSTGRES_USER=prod.tradingAgent
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    ports:
+      - "54323:5432"
     volumes:
       - ../storage-postgresql/prod:/var/lib/postgresql/data
+      - ./init-pg-datalake-prod.sql:/docker-entrypoint-initdb.d/01-datalake-prod.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
@@ -578,14 +581,14 @@ services:
       - "5555:5555"  # Prisma Studio – also reachable via http://localhost:5555
     working_dir: /workspace/prisma
     environment:
-      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpostgres
+      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpostgres
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-dev
+      - postgres-dev
     restart: unless-stopped
 
   prisma-ta-test:
@@ -595,14 +598,14 @@ services:
       - "5556:5555"  # Prisma Studio – http://localhost:5556
     working_dir: /workspace/prisma
     environment:
-      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dpostgres
+      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-test:5432/datalake?options=-c%20search_path%3Dpostgres
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-test
+      - postgres-test
     restart: unless-stopped
 
   prisma-ta-prod:
@@ -612,14 +615,14 @@ services:
       - "5557:5555"  # Prisma Studio – http://localhost:5557
     working_dir: /workspace/prisma
     environment:
-      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
+      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-prod
+      - postgres-prod
     restart: unless-stopped
 
   prisma-pma-dev:
@@ -629,15 +632,15 @@ services:
       - "5558:5555"  # Prisma Studio – http://localhost:5558
     working_dir: /workspace/prisma
     environment:
-      # Same server as TA (postgres-ta-dev); database datalake, schema polymarket
-      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-dev:5432/datalake?options=-c%20search_path%3Dpolymarket
+      # Same server as TA (postgres-dev); database datalake, schema polymarket
+      - DATABASE_URL=postgresql://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpolymarket
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-dev
+      - postgres-dev
     restart: unless-stopped
 
   prisma-pma-test:
@@ -647,15 +650,15 @@ services:
       - "5559:5555"  # Prisma Studio – http://localhost:5559
     working_dir: /workspace/prisma
     environment:
-      # Same server as TA (postgres-ta-test); database datalake, schema test.PredictionMarketsAgent
-      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-test:5432/datalake?options=-c%20search_path%3Dtest.PredictionMarketsAgent
+      # Same server as TA (postgres-test); database datalake, schema polymarket (PMA)
+      - DATABASE_URL=postgresql://test.user:${POSTGRES_PASSWORD:-2014}@postgres-test:5432/datalake?options=-c%20search_path%3Dpolymarket
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-test
+      - postgres-test
     restart: unless-stopped
 
   prisma-pma-prod:
@@ -665,15 +668,15 @@ services:
       - "5560:5555"  # Prisma Studio – http://localhost:5560
     working_dir: /workspace/prisma
     environment:
-      # Same server as TA (postgres-ta-prod); database datalake, schema postgres
-      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-ta-prod:5432/datalake?options=-c%20search_path%3Dpostgres
+      # Same server as TA (postgres-prod); database datalake, schema postgres
+      - DATABASE_URL=postgresql://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
     volumes:
       - ../prisma:/workspace/prisma
     command: sh -c "npm install && tail -f /dev/null"
     networks:
       - monitoring
     depends_on:
-      - postgres-ta-prod
+      - postgres-prod
     restart: unless-stopped
 
   # Redis for Airflow rate limiting backend
@@ -716,6 +719,28 @@ services:
       - "/data"
     volumes:
       - ../storage-infra/nats/data:/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # Alert manager API for project event notifications (Telegram + Pushover)
+  alertmanager:
+    build:
+      context: ../alertmanager
+      dockerfile: Dockerfile
+    container_name: alertmanager
+    ports:
+      - "8090:8090"
+    environment:
+      # Comma-separated API keys expected in X-API-Key or Authorization: Bearer <key>
+      - ALERTMANAGER_API_KEYS=${ALERTMANAGER_API_KEYS:-change-me}
+      # Telegram configuration
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_DEFAULT_CHAT_ID=${TELEGRAM_DEFAULT_CHAT_ID:-}
+      # Pushover configuration
+      - PUSHOVER_APP_TOKEN=${PUSHOVER_APP_TOKEN:-}
+      - PUSHOVER_DEFAULT_USER_KEY=${PUSHOVER_DEFAULT_USER_KEY:-}
+      - ALERTMANAGER_LOG_LEVEL=${ALERTMANAGER_LOG_LEVEL:-INFO}
     networks:
       - monitoring
     restart: unless-stopped
@@ -784,6 +809,7 @@ services:
       - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
       - ../gateway/nginx/nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
       - ../gateway/nginx/nginx-pma-dashboard.conf:/etc/nginx/conf.d/pma-dashboard.conf:ro
+      - ../gateway/nginx/nginx-alertmanager.conf:/etc/nginx/conf.d/alertmanager.conf:ro
     networks:
       monitoring:
         aliases:

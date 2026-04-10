@@ -21,10 +21,11 @@ import shutil
 logger = logging.getLogger(__name__)
 
 # Set up storage path for DAG file writes (TA)
-# storage-other-data is mounted at /workspace/storage-other-data; TA uses ta/{env}/
+# Prefer TRADING_AGENT_STORAGE from .env; fallback to ta/{env}/ for compatibility
 airflow_env = os.getenv('AIRFLOW_ENV', 'dev')
 storage_env = airflow_env
-storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
+default_storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
+storage_root = os.getenv('TRADING_AGENT_STORAGE', default_storage_root)
 if os.path.exists(storage_root):
     # Set environment variable so DAGs can access storage path
     os.environ['TRADING_AGENT_STORAGE'] = storage_root
@@ -50,17 +51,17 @@ if airflow_env == 'prod':
     DB_NAME = 'datalake'
     DB_CONFIG = {
         'prod': {
-            'host': 'postgres-ta-prod',
+            'host': 'postgres-prod',
             'user': 'prod.user',
             'port': '5432',
         },
         'test': {
-            'host': 'postgres-ta-test',
+            'host': 'postgres-test',
             'user': 'test.user',
             'port': '5432',
         },
         'dev': {
-            'host': 'postgres-ta-dev',
+            'host': 'postgres-dev',
             'user': 'dev.user',
             'port': '5432',
         },

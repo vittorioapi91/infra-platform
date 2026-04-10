@@ -102,30 +102,20 @@ See `airflow/QUICK_START.md` for detailed Airflow setup and authentication.
 There are **three Postgres servers** (dev, test, prod). TA and PMA share them: one **datalake** database per server, with schemas (e.g. `postgres`, `polymarket`). Access via Nginx TCP proxy. **Data is stored on the host** in `<repo>/storage-postgresql/` (not Docker volumes):
 
 ```
-storage-postgresql/{dev,test,prod}   → postgres-ta-dev, postgres-ta-test, postgres-ta-prod
+storage-postgresql/{dev,test,prod}   → postgres-dev, postgres-test, postgres-prod
 ```
 
 (Each of `dev`, `test`, `prod` may be a symlink to data on an SSD or other volume.)
 
 | Server | Container | Port | Data path |
 |--------|-----------|------|-----------|
-| dev | postgres-ta-dev | 54324 | `storage-postgresql/dev` |
-| test | postgres-ta-test | 54325 | `storage-postgresql/test` |
-| prod | postgres-ta-prod | 54326 | `storage-postgresql/prod` |
+| dev | postgres-dev | 54324 | `storage-postgresql/dev` |
+| test | postgres-test | 54325 | `storage-postgresql/test` |
+| prod | postgres-prod | 54326 | `storage-postgresql/prod` |
 
 From the host, connect via Nginx using `postgres.{dev|test|prod}.local.info` and the port above (see `gateway/README.md`). Add `/etc/hosts` entries so those hostnames resolve to `127.0.0.1`. See `storage-postgresql/README.md` for the layout.
 
-**TA** uses schema `postgres`; **PMA** uses schemas `polymarket` (dev), `test.PredictionMarketsAgent` (test), `postgres` (prod). For macro databases (`fred`, `bis`, `bls`, `eurostat`, `imf`, etc.) create them on each TA server you use (once per server):
-
-```bash
-docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE fred;"
-docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE bis;"
-docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE bls;"
-docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE eurostat;"
-docker exec -it postgres-ta-dev psql -U dev.tradingAgent -d postgres -c "CREATE DATABASE imf;"
-```
-
-Repeat for `postgres-ta-test` / `test.tradingAgent` and `postgres-ta-prod` / `prod.tradingAgent` if you use those environments. Password: `POSTGRES_PASSWORD` (default `2014`).
+**TA** uses schema `postgres`; **PMA** uses schema `polymarket` (dev, test) or `postgres` (prod). Init scripts (`init-pg-datalake-{dev|test|prod}.sql`) create the `datalake` database, users `dev.user` / `test.user` / `prod.user`, and schemas (postgres, polymarket, edgar, nasdaqtrader, ishares, fred, bls, bis, eurostat, imf, yfinance). Connect as `dev.user` (password `POSTGRES_PASSWORD`, default `2014`) to database `datalake` on each server. For ad-hoc admin use `postgres` (same password).
 
 ### Feast
 

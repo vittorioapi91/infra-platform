@@ -17,7 +17,7 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-redisinsight.conf` - Routes `redisinsight.local.info` to RedisInsight
 - `nginx-nats.conf` - Routes `nats.local.info` to NATS monitoring endpoint
 - `nginx-openproject.conf` - Routes `openproject.local.info` to OpenProject
-- `nginx-prisma.conf` - Routes `prisma.postgres.ta.{dev|test|prod}` and `prisma.postgres.pma.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
+- `nginx-prisma.conf` - Routes `prisma.postgres.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
 - `nginx-mlflow.conf` - Routes `mlflow.local.info` to MLflow
 - `nginx-kubernetes-dashboard.conf` - Routes `kubernetes-dashboard.local.info` to Kubernetes Dashboard
 - `nginx-kubeflow.conf` - Routes `kubeflow.local.info` to Kubeflow Pipelines UI
@@ -29,9 +29,9 @@ Use these hostnames + ports in your DB clients and `.env` files:
 
 | Hostname | Port | Server | Use for |
 |----------|------|--------|---------|
-| `postgres.dev.local.info` | 54324 | postgres-ta-dev | TradingAgent & PredictionMarketsAgent dev |
-| `postgres.test.local.info` | 54325 | postgres-ta-test | TradingAgent & PredictionMarketsAgent test |
-| `postgres.prod.local.info` | 54326 | postgres-ta-prod | TradingAgent & PredictionMarketsAgent prod |
+| `postgres.dev.local.info` | 54324 | postgres-dev | TradingAgent & PredictionMarketsAgent dev |
+| `postgres.test.local.info` | 54325 | postgres-test | TradingAgent & PredictionMarketsAgent test |
+| `postgres.prod.local.info` | 54326 | postgres-prod | TradingAgent & PredictionMarketsAgent prod |
 
 Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container. All apps use the single **datalake** database; previous DB names are now **schemas** (e.g. `postgres`, `polymarket`, `edgar`).
 
@@ -43,7 +43,7 @@ Stream routing is **by port only** (hostname is ignored by Nginx). Each port pro
 | test (TA) | `postgres.test.local.info` | **54325** | **datalake** | postgres | test.user |
 | prod (TA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
 | dev (PMA) | `postgres.dev.local.info` | **54324** | **datalake** | polymarket | dev.user |
-| test (PMA) | `postgres.test.local.info` | **54325** | **datalake** | test.PredictionMarketsAgent | test.user |
+| test (PMA) | `postgres.test.local.info` | **54325** | **datalake** | polymarket | test.user |
 | prod (PMA) | `postgres.prod.local.info` | **54326** | **datalake** | postgres | prod.user |
 
 Password for all: `2014`. Set **search_path** to the schema (e.g. `postgres`, `polymarket`) or use qualified names.
@@ -87,7 +87,7 @@ To use these domain names, add entries to `/etc/hosts`:
 127.0.0.1 redisinsight.local.info
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
-127.0.0.1 prisma.postgres.ta.dev prisma.postgres.ta.test prisma.postgres.ta.prod prisma.postgres.pma.dev prisma.postgres.pma.test prisma.postgres.pma.prod
+127.0.0.1 prisma.postgres.dev prisma.postgres.test prisma.postgres.prod
 127.0.0.1 mlflow.local.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info

@@ -88,6 +88,7 @@ Once services are running, they are available at:
 - **Grafana**: http://localhost:3000 (admin/admin)
 - **MLflow**: http://localhost:55000
 - **Prometheus**: http://localhost:9090
+- **Alert Manager**: http://localhost:8090
 - **Kubernetes Dashboard**: https://localhost:8001
 - **PostgreSQL**: via nginx 54321–54326 (six servers; see gateway/README)
 - **Redis**: localhost:6379
@@ -105,6 +106,7 @@ The infrastructure stack includes:
 - **MLflow**: ML experiment tracking and model registry
 - **PostgreSQL**: Database for application data
 - **Redis**: Caching and message broker
+- **Alert Manager**: Project event notifications API (Telegram + Pushover)
 
 ### Kubernetes Services
 

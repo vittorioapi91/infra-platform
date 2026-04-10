@@ -1,20 +1,27 @@
 # Other storage (DAG file writes, etc.)
 
-Lives **on the host** at `<repo>/storage-other-data`, outside any Docker image. Bind-mounted into Airflow containers at `/workspace/storage-other-data`.
+Canonical TA storage root is `/Volumes/storage-volume/storage/{env}` (configured via `TRADING_AGENT_STORAGE` in `.env.tradingAgent.{env}`).
+The legacy bind mount at `/workspace/storage-other-data` is still present for compatibility.
 
-Layout:
+Legacy layout (compatibility only):
 
 ```
 storage-other-data/
 ├── ta/           # TradingAgent
 │   ├── dev/
+│   │   └── fundamentals/
+│   │       └── edgar/
 │   ├── test/
+│   │   └── fundamentals/
+│   │       └── edgar/
 │   └── prod/
+│       └── fundamentals/
+│           └── edgar/
 └── pma/          # PredictionMarketsAgent (no DAGs yet)
     ├── dev/
     ├── test/
     └── prod/
 ```
 
-TA DAGs use `/workspace/storage-other-data/ta/{env}` (see `trading_agent_dags`).  
-Folder structure is committed; contents are gitignored (see root `.gitignore`).
+TA DAGs should read/write using `TRADING_AGENT_STORAGE` instead of hardcoding `/workspace/storage-other-data` paths.
+Folder structure here is committed; contents are gitignored (see root `.gitignore`).

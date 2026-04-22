@@ -4,6 +4,7 @@
 *.log
 *.pyc
 __pycache__/
+.githooks/
 prisma/node_modules/
 
 # storage-postgresql: keep folder structure, ignore Postgres data inside (dev|test|prod may be symlinks to SSD)

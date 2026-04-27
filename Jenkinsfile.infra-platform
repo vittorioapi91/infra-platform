@@ -280,6 +280,80 @@ pipeline {
                 }
             }
         }
+
+        stage('Install TradingAgent Wheel') {
+            steps {
+                script {
+                    echo "Installing TradingAgent wheel in CI validation environment..."
+                    sh """
+                        set -eu
+
+                        WHEEL_DIR="/workspace/trading-agent/dist"
+                        if [ ! -d "\${WHEEL_DIR}" ]; then
+                            echo "❌ TradingAgent wheel directory not found: \${WHEEL_DIR}"
+                            exit 1
+                        fi
+
+                        WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) | sort -V | tail -n 1)
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            echo "❌ No TradingAgent wheel found in \${WHEEL_DIR}"
+                            exit 1
+                        fi
+
+                        echo "Using wheel: \$(basename "\${WHEEL_FILE}")"
+
+                        python3 -m venv /tmp/tradingagent_wheel_venv
+                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet --upgrade pip
+                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet "\${WHEEL_FILE}"
+
+                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)$', meta, re.MULTILINE); print(r.group(1).strip() if r else 'trading_agent')" "\${WHEEL_FILE}")
+                        MODULE_NAME=\$(echo "\${PACKAGE_NAME}" | tr '-' '_')
+                        /tmp/tradingagent_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
+
+                        echo "✓ TradingAgent wheel installed and import verified (\${PACKAGE_NAME})"
+                    """
+                }
+            }
+        }
+
+        stage('Validate Airflow DAG Import Health') {
+            steps {
+                script {
+                    echo "Validating Airflow DAG import health in dev/test/prod..."
+                    sh """
+                        set -eu
+
+                        for svc in airflow-dev airflow-test airflow-prod; do
+                            echo "Checking DAG import health for \${svc}..."
+                            docker exec "\${svc}" airflow dags list > /tmp/\${svc}-dags-list.txt
+                            IMPORT_ERRORS=\$(docker exec "\${svc}" airflow dags list-import-errors -o json 2>/dev/null || echo "")
+
+                            if [ -z "\${IMPORT_ERRORS}" ]; then
+                                echo "⚠️  Could not get JSON import error output for \${svc}; using table fallback"
+                                TABLE_ERRORS=\$(docker exec "\${svc}" airflow dags list-import-errors 2>/dev/null || true)
+                                if echo "\${TABLE_ERRORS}" | grep -q "No data found"; then
+                                    echo "✓ \${svc}: no DAG import errors (table output)"
+                                else
+                                    echo "❌ \${svc}: unexpected import error output"
+                                    echo "\${TABLE_ERRORS}"
+                                    exit 1
+                                fi
+                            else
+                                if python3 -c "import json,sys; data=json.loads(sys.argv[1]); raise SystemExit(0 if isinstance(data, list) and len(data)==0 else 1)" "\${IMPORT_ERRORS}"; then
+                                    echo "✓ \${svc}: no DAG import errors"
+                                else
+                                    echo "❌ \${svc}: DAG import errors detected"
+                                    echo "\${IMPORT_ERRORS}"
+                                    exit 1
+                                fi
+                            fi
+                        done
+
+                        echo "✓ Airflow DAG import health validated for dev/test/prod"
+                    """
+                }
+            }
+        }
         
         stage('Smoke Test Routing and Utilities') {
             steps {

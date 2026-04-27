@@ -214,9 +214,12 @@ pipeline {
                             }
                         fi
 
-                        # Validate the base image can be resolved for linux/amd64. If not, rebuild it.
-                        docker buildx imagetools inspect jenkins-custom:base 2>/dev/null | grep -q 'linux/amd64' || {
-                            echo "Base image exists but is missing linux/amd64. Rebuilding jenkins-custom:base..."
+                        # Validate local base image architecture.
+                        # Using `imagetools inspect` on local-only images can trigger registry lookups and false failures,
+                        # which caused unnecessary base rebuilds and very slow pipeline runs.
+                        base_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
+                        if [ "\${base_arch}" != "amd64" ]; then
+                            echo "Base image exists but architecture is '\${base_arch}' (expected amd64). Rebuilding jenkins-custom:base..."
                             docker buildx build \
                                 --platform linux/amd64 \
                                 -f docker/Dockerfile.jenkins.base \
@@ -226,7 +229,7 @@ pipeline {
                                 echo "❌ Error: Could not rebuild base Jenkins image for linux/amd64"
                                 exit 1
                             }
-                        }
+                        fi
 
                         echo "✓ Base Jenkins image is ready for linux/amd64"
 
@@ -262,6 +265,85 @@ pipeline {
                             docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
                             echo "✓ Infra-platform services configuration is valid"
                         fi
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Test Routing and Utilities') {
+            steps {
+                script {
+                    echo "Running smoke tests for nginx routing, databases, and utilities..."
+                    sh """
+                        set -eu
+
+                        COMPOSE_FILE="docker/docker-compose.infra-platform.yml"
+
+                        if [ ! -f "\${COMPOSE_FILE}" ]; then
+                            echo "⚠️  docker-compose.infra-platform.yml not found. Skipping smoke tests."
+                            exit 0
+                        fi
+
+                        # Verify critical services are up before endpoint checks.
+                        for svc in nginx-proxy postgres-dev postgres-test postgres-prod redis nats registry jenkins; do
+                            if ! docker compose -f "\${COMPOSE_FILE}" ps --services --status running | grep -qx "\${svc}"; then
+                                echo "❌ Required service not running: \${svc}"
+                                exit 1
+                            fi
+                        done
+                        echo "✓ Required infra services are running"
+
+                        # Helper: route must not return 5xx/timeout via nginx host-based routing.
+                        check_route() {
+                            host_header="\$1"
+                            path="\$2"
+                            label="\$3"
+                            code=\$(curl -sS -o /dev/null -m 15 -w "%{http_code}" -H "Host: \${host_header}" "http://nginx-proxy\${path}" || echo "000")
+                            case "\${code}" in
+                                000|5??)
+                                    echo "❌ \${label} via \${host_header}\${path} failed (HTTP \${code})"
+                                    return 1
+                                    ;;
+                                *)
+                                    echo "✓ \${label} via \${host_header}\${path} responded (HTTP \${code})"
+                                    ;;
+                            esac
+                        }
+
+                        # Nginx routing smoke checks.
+                        check_route "jenkins.local.info" "/login" "Jenkins route"
+                        check_route "grafana.local.info" "/login" "Grafana route"
+                        check_route "prometheus.local.info" "/-/ready" "Prometheus route"
+                        check_route "openproject.local.info" "/" "OpenProject route"
+
+                        # PostgreSQL readiness checks (all envs).
+                        for db in postgres-dev postgres-test postgres-prod; do
+                            docker exec "\${db}" pg_isready -U postgres -d datalake > /dev/null
+                            docker exec "\${db}" psql -U postgres -d datalake -c "SELECT 1;" > /dev/null
+                            echo "✓ \${db} is ready and accepts queries"
+                        done
+
+                        # Utility service checks.
+                        if [ "\$(docker exec redis redis-cli ping 2>/dev/null | tr -d '\\r')" != "PONG" ]; then
+                            echo "❌ Redis ping failed"
+                            exit 1
+                        fi
+                        echo "✓ Redis is healthy"
+
+                        curl -sS -m 10 "http://nats:8222/varz" > /dev/null || {
+                            echo "❌ NATS monitoring endpoint check failed"
+                            exit 1
+                        }
+                        echo "✓ NATS monitoring endpoint is reachable"
+
+                        registry_code=\$(curl -sS -o /dev/null -m 10 -w "%{http_code}" "http://registry:5000/v2/" || echo "000")
+                        if [ "\${registry_code}" != "200" ]; then
+                            echo "❌ Docker registry check failed (HTTP \${registry_code})"
+                            exit 1
+                        fi
+                        echo "✓ Docker registry API is reachable"
+
+                        echo "✓ Smoke tests passed"
                     """
                 }
             }

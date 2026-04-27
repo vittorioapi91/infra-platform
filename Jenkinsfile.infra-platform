@@ -205,12 +205,12 @@ pipeline {
                                 -t jenkins-custom:base \
                                 --load \
                                 docker/
-                            build_rc=$?
+                            build_rc=\$?
 
                             # On some Docker Desktop/buildx combinations, the image may be loaded
                             # even if buildx returns a non-zero status. Validate final image arch directly.
-                            rebuilt_arch=$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
-                            if [ "${rebuilt_arch}" = "arm64" ]; then
+                            rebuilt_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
+                            if [ "\${rebuilt_arch}" = "arm64" ]; then
                                 echo "✓ Base Jenkins image is available as arm64"
                                 return 0
                             fi

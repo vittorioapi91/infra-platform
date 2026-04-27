@@ -280,23 +280,136 @@ pipeline {
                 }
             }
         }
-        
-        stage('Validate Infra-Platform Services') {
+
+        stage('Build TradingAgent Wheel') {
             steps {
                 script {
-                    echo "Validating infra-platform services can start..."
+                    echo "Building TradingAgent wheel artifact..."
                     sh """
-                        # Test that docker-compose files are valid and services can be checked
-                        if [ -f "docker/docker-compose.infra-platform.yml" ]; then
-                            echo "Checking infra-platform services..."
-                            docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
-                            echo "✓ Infra-platform services configuration is valid"
+                        set -eu
+
+                        TRADING_AGENT_SRC="/workspace/trading-agent"
+                        TRADING_AGENT_BUILD_ROOT="/tmp/trading-agent-build-src"
+                        if [ ! -d "\${TRADING_AGENT_SRC}" ]; then
+                            echo "❌ TradingAgent repository not found at \${TRADING_AGENT_SRC}"
+                            exit 1
                         fi
+
+                        # TradingAgent is mounted read-only in Jenkins; build from a writable temp copy.
+                        rm -rf "\${TRADING_AGENT_BUILD_ROOT}"
+                        mkdir -p "\${TRADING_AGENT_BUILD_ROOT}"
+                        cp -a "\${TRADING_AGENT_SRC}/." "\${TRADING_AGENT_BUILD_ROOT}/"
+
+                        cd "\${TRADING_AGENT_BUILD_ROOT}"
+                        python3 -m pip install --quiet --upgrade pip setuptools wheel
+
+                        # Build staging wheel explicitly (setup.py routes output to dist/{env}/)
+                        ENV=staging python3 setup.py bdist_wheel
+
+                        # Validate wheel artifact exists. Some setuptools/wheel combos still emit into dist/.
+                        STAGING_WHEEL=\$(find dist/staging -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${STAGING_WHEEL}" ]; then
+                            ROOT_WHEEL=\$(find dist -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                            if [ -n "\${ROOT_WHEEL}" ]; then
+                                mkdir -p dist/staging
+                                cp -f "\${ROOT_WHEEL}" dist/staging/
+                                STAGING_WHEEL="dist/staging/\$(basename "\${ROOT_WHEEL}")"
+                                echo "ℹ️  Wheel emitted to dist/. Copied to dist/staging for pipeline consistency."
+                            fi
+                        fi
+                        if [ -z "\${STAGING_WHEEL}" ]; then
+                            echo "❌ Wheel build completed but no staging wheel found in dist/staging"
+                            exit 1
+                        fi
+
+                        echo "✓ Built TradingAgent wheel: \$(basename "\${STAGING_WHEEL}")"
                     """
                 }
             }
         }
 
+        stage('Install TradingAgent Wheel') {
+            steps {
+                script {
+                    echo "Installing TradingAgent wheel in CI validation environment..."
+                    sh """
+                        set -eu
+
+                        WHEEL_DIR="/workspace/trading-agent/dist"
+                        TMP_WHEEL_DIR="/tmp/trading-agent-build-src/dist"
+                        if [ ! -d "\${WHEEL_DIR}" ]; then
+                            echo "❌ TradingAgent wheel directory not found: \${WHEEL_DIR}"
+                            exit 1
+                        fi
+
+                        # Prefer wheel produced in writable temp build root, then fallback to mounted dist paths.
+                        WHEEL_FILE=\$(find "\${TMP_WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        fi
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        fi
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            echo "❌ No TradingAgent wheel found in \${WHEEL_DIR}"
+                            exit 1
+                        fi
+
+                        echo "Using wheel: \$(basename "\${WHEEL_FILE}")"
+
+                        python3 -m venv /tmp/tradingagent_wheel_venv
+                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet --upgrade pip
+                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet "\${WHEEL_FILE}"
+
+                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)', meta, re.MULTILINE); print(r.group(1).strip() if r else 'trading_agent')" "\${WHEEL_FILE}")
+                        MODULE_NAME=\$(echo "\${PACKAGE_NAME}" | tr '-' '_')
+                        /tmp/tradingagent_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
+
+                        echo "✓ TradingAgent wheel installed and import verified (\${PACKAGE_NAME})"
+                    """
+                }
+            }
+        }
+
+        stage('Validate Airflow DAG Import Health') {
+            steps {
+                script {
+                    echo "Validating Airflow DAG import health in dev/test/prod..."
+                    sh """
+                        set -eu
+
+                        for svc in airflow-dev airflow-test airflow-prod; do
+                            echo "Checking DAG import health for \${svc}..."
+                            docker exec "\${svc}" airflow dags list > /tmp/\${svc}-dags-list.txt
+                            IMPORT_ERRORS=\$(docker exec "\${svc}" airflow dags list-import-errors -o json 2>/dev/null || echo "")
+
+                            if [ -z "\${IMPORT_ERRORS}" ]; then
+                                echo "⚠️  Could not get JSON import error output for \${svc}; using table fallback"
+                                TABLE_ERRORS=\$(docker exec "\${svc}" airflow dags list-import-errors 2>/dev/null || true)
+                                if echo "\${TABLE_ERRORS}" | grep -q "No data found"; then
+                                    echo "✓ \${svc}: no DAG import errors (table output)"
+                                else
+                                    echo "❌ \${svc}: unexpected import error output"
+                                    echo "\${TABLE_ERRORS}"
+                                    exit 1
+                                fi
+                            else
+                                if python3 -c "import json,sys; data=json.loads(sys.argv[1]); raise SystemExit(0 if isinstance(data, list) and len(data)==0 else 1)" "\${IMPORT_ERRORS}"; then
+                                    echo "✓ \${svc}: no DAG import errors"
+                                else
+                                    echo "❌ \${svc}: DAG import errors detected"
+                                    echo "\${IMPORT_ERRORS}"
+                                    exit 1
+                                fi
+                            fi
+                        done
+
+                        echo "✓ Airflow DAG import health validated for dev/test/prod"
+                    """
+                }
+            }
+        }
+        
         stage('Smoke Test Routing and Utilities') {
             steps {
                 script {
@@ -310,6 +423,30 @@ pipeline {
                             echo "⚠️  docker-compose.infra-platform.yml not found. Skipping smoke tests."
                             exit 0
                         fi
+
+                        echo "Smoke test scope:"
+                        echo "- Service availability:"
+                        echo "  nginx-proxy, jenkins, grafana, prometheus, openproject,"
+                        echo "  airflow-dev/test/prod, mlflow, redisinsight, portainer, alertmanager,"
+                        echo "  postgres-dev/test/prod, redis, nats, registry"
+                        echo "- Nginx route responses (non-timeout, non-5xx):"
+                        echo "  jenkins.local.info/login"
+                        echo "  airflow.local.dev.info/login"
+                        echo "  airflow.local.test.info/login"
+                        echo "  airflow.local.prod.info/login"
+                        echo "  grafana.local.info/login"
+                        echo "  prometheus.local.info/-/ready"
+                        echo "  openproject.local.info/"
+                        echo "  mlflow.local.info/"
+                        echo "  redisinsight.local.info/"
+                        echo "  portainer.local.info/"
+                        echo "  nats.local.info/"
+                        echo "  alertmanager.local.info/"
+                        echo "- Database readiness and query checks:"
+                        echo "  postgres-dev/test/prod: pg_isready + SELECT 1"
+                        echo "- Utility checks:"
+                        echo "  redis PING/PONG, nats /varz, registry /v2/"
+                        echo ""
 
                         # Verify critical services are up before endpoint checks.
                         for svc in nginx-proxy jenkins grafana prometheus openproject airflow-dev airflow-test airflow-prod mlflow redisinsight portainer alertmanager postgres-dev postgres-test postgres-prod redis nats registry; do

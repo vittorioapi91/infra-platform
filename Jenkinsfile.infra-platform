@@ -199,10 +199,10 @@ pipeline {
                         docker buildx create --use --name builder 2>/dev/null || docker buildx use builder
                         
                         # Ensure base image exists for the same target platform used by the incremental build.
-                        # Auto-rebuilding base in CI can be slow on Apple Silicon.
-                        # By default we fail fast with instructions; set AUTO_REBUILD_BASE=true to opt in.
+                        # Auto-rebuild to arm64 by default so migration from old amd64 images self-heals.
+                        # Set AUTO_REBUILD_BASE=false only if you want a strict fail-fast behavior.
                         if ! docker image inspect jenkins-custom:base >/dev/null 2>&1; then
-                            if [ "\${AUTO_REBUILD_BASE:-false}" = "true" ]; then
+                            if [ "\${AUTO_REBUILD_BASE:-true}" = "true" ]; then
                                 echo "Base Jenkins image not found locally. AUTO_REBUILD_BASE=true, building jenkins-custom:base..."
                                 docker buildx build \
                                     --platform linux/arm64 \
@@ -227,7 +227,7 @@ pipeline {
                         # which caused unnecessary base rebuilds and very slow pipeline runs.
                         base_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
                         if [ "\${base_arch}" != "arm64" ]; then
-                            if [ "\${AUTO_REBUILD_BASE:-false}" = "true" ]; then
+                            if [ "\${AUTO_REBUILD_BASE:-true}" = "true" ]; then
                                 echo "Base image architecture is '\${base_arch}' (expected arm64). AUTO_REBUILD_BASE=true, rebuilding..."
                                 docker buildx build \
                                     --platform linux/arm64 \

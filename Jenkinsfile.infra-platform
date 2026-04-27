@@ -312,7 +312,7 @@ pipeline {
                         fi
 
                         # Verify critical services are up before endpoint checks.
-                        for svc in nginx-proxy postgres-dev postgres-test postgres-prod redis nats registry jenkins; do
+                        for svc in nginx-proxy jenkins grafana prometheus openproject airflow-dev airflow-test airflow-prod mlflow redisinsight portainer alertmanager postgres-dev postgres-test postgres-prod redis nats registry; do
                             if ! docker compose -f "\${COMPOSE_FILE}" ps --services --status running | grep -qx "\${svc}"; then
                                 echo "❌ Required service not running: \${svc}"
                                 exit 1
@@ -339,9 +339,17 @@ pipeline {
 
                         # Nginx routing smoke checks.
                         check_route "jenkins.local.info" "/login" "Jenkins route"
+                        check_route "airflow.local.dev.info" "/login" "Airflow DEV route"
+                        check_route "airflow.local.test.info" "/login" "Airflow TEST route"
+                        check_route "airflow.local.prod.info" "/login" "Airflow PROD route"
                         check_route "grafana.local.info" "/login" "Grafana route"
                         check_route "prometheus.local.info" "/-/ready" "Prometheus route"
                         check_route "openproject.local.info" "/" "OpenProject route"
+                        check_route "mlflow.local.info" "/" "MLflow route"
+                        check_route "redisinsight.local.info" "/" "RedisInsight route"
+                        check_route "portainer.local.info" "/" "Portainer route"
+                        check_route "nats.local.info" "/" "NATS UI route"
+                        check_route "alertmanager.local.info" "/" "Alertmanager route"
 
                         # PostgreSQL readiness checks (all envs).
                         for db in postgres-dev postgres-test postgres-prod; do

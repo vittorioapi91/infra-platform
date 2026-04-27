@@ -306,8 +306,17 @@ pipeline {
                         # Build staging wheel explicitly (setup.py routes output to dist/{env}/)
                         ENV=staging python3 setup.py bdist_wheel
 
-                        # Validate wheel artifact exists
+                        # Validate wheel artifact exists. Some setuptools/wheel combos still emit into dist/.
                         STAGING_WHEEL=\$(find dist/staging -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${STAGING_WHEEL}" ]; then
+                            ROOT_WHEEL=\$(find dist -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                            if [ -n "\${ROOT_WHEEL}" ]; then
+                                mkdir -p dist/staging
+                                cp -f "\${ROOT_WHEEL}" dist/staging/
+                                STAGING_WHEEL="dist/staging/\$(basename "\${ROOT_WHEEL}")"
+                                echo "ℹ️  Wheel emitted to dist/. Copied to dist/staging for pipeline consistency."
+                            fi
+                        fi
                         if [ -z "\${STAGING_WHEEL}" ]; then
                             echo "❌ Wheel build completed but no staging wheel found in dist/staging"
                             exit 1

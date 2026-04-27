@@ -198,25 +198,38 @@ pipeline {
                         docker buildx version || docker buildx install
                         docker buildx create --use --name builder 2>/dev/null || docker buildx use builder
                         
-                        # Check if base image exists (base images are built manually, not in pipeline)
-                        if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q '^jenkins-custom:base\$'; then
-                            echo "❌ ERROR: Base Jenkins image 'jenkins-custom:base' not found!"
-                            echo ""
-                            echo "Base images must be built manually before running pipelines."
-                            echo "To build the base image, run:"
-                            echo "  docker build -t jenkins-custom:base -f docker/Dockerfile.jenkins.base docker/"
-                            echo ""
-                            echo "See docker/README_BASE_IMAGES.md for more information."
-                            exit 1
+                        # Ensure base image exists for the same target platform used by the incremental build.
+                        # If a local base is only arm64 (common on Apple Silicon hosts), linux/amd64 builds
+                        # will fail with "no match for platform in manifest". Rebuild base in that case.
+                        if ! docker image inspect jenkins-custom:base >/dev/null 2>&1; then
+                            echo "Base Jenkins image not found locally. Building jenkins-custom:base..."
+                            docker buildx build \
+                                --platform linux/amd64 \
+                                -f docker/Dockerfile.jenkins.base \
+                                -t jenkins-custom:base \
+                                --load \
+                                docker/ || {
+                                echo "❌ Error: Could not build base Jenkins image"
+                                exit 1
+                            }
                         fi
-                        
-                        echo "✓ Base Jenkins image found: jenkins-custom:base"
-                        
-                        # Switch to default builder for local base images (container builder can't see host images)
-                        # The default builder has access to local images, container builder doesn't
-                        echo "Switching to default builder for local base image access..."
-                        docker buildx use default || docker buildx use builder
-                        
+
+                        # Validate the base image can be resolved for linux/amd64. If not, rebuild it.
+                        docker buildx imagetools inspect jenkins-custom:base 2>/dev/null | grep -q 'linux/amd64' || {
+                            echo "Base image exists but is missing linux/amd64. Rebuilding jenkins-custom:base..."
+                            docker buildx build \
+                                --platform linux/amd64 \
+                                -f docker/Dockerfile.jenkins.base \
+                                -t jenkins-custom:base \
+                                --load \
+                                docker/ || {
+                                echo "❌ Error: Could not rebuild base Jenkins image for linux/amd64"
+                                exit 1
+                            }
+                        }
+
+                        echo "✓ Base Jenkins image is ready for linux/amd64"
+
                         # Build incremental Jenkins image (FROM base)
                         if [ -f "docker/Dockerfile.jenkins" ]; then
                             echo "Building incremental Jenkins image: jenkins-custom:lts (FROM base)..."

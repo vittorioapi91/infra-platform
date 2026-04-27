@@ -281,6 +281,38 @@ pipeline {
             }
         }
 
+        stage('Build TradingAgent Wheel') {
+            steps {
+                script {
+                    echo "Building TradingAgent wheel artifact..."
+                    sh """
+                        set -eu
+
+                        TRADING_AGENT_ROOT="/workspace/trading-agent"
+                        if [ ! -d "\${TRADING_AGENT_ROOT}" ]; then
+                            echo "❌ TradingAgent repository not found at \${TRADING_AGENT_ROOT}"
+                            exit 1
+                        fi
+
+                        cd "\${TRADING_AGENT_ROOT}"
+                        python3 -m pip install --quiet --upgrade pip setuptools wheel
+
+                        # Build staging wheel explicitly (setup.py routes output to dist/{env}/)
+                        ENV=staging python3 setup.py bdist_wheel
+
+                        # Validate wheel artifact exists
+                        STAGING_WHEEL=\$(find dist/staging -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${STAGING_WHEEL}" ]; then
+                            echo "❌ Wheel build completed but no staging wheel found in dist/staging"
+                            exit 1
+                        fi
+
+                        echo "✓ Built TradingAgent wheel: \$(basename "\${STAGING_WHEEL}")"
+                    """
+                }
+            }
+        }
+
         stage('Install TradingAgent Wheel') {
             steps {
                 script {
@@ -294,7 +326,11 @@ pipeline {
                             exit 1
                         fi
 
-                        WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) | sort -V | tail -n 1)
+                        # Prefer environment-specific wheel output (dist/staging), then fallback to legacy dist root.
+                        WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        fi
                         if [ -z "\${WHEEL_FILE}" ]; then
                             echo "❌ No TradingAgent wheel found in \${WHEEL_DIR}"
                             exit 1

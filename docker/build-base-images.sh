@@ -53,7 +53,7 @@ if [ "${BUILD_JENKINS}" = "true" ]; then
     echo "This may take 10-20 minutes (installs tools, dependencies)..."
     
     if docker build \
-        --platform linux/amd64 \
+        --platform linux/arm64 \
         -f docker/Dockerfile.jenkins.base \
         -t jenkins-custom:base \
         docker/; then
@@ -75,7 +75,7 @@ if [ "${BUILD_TRADING_AGENT}" = "true" ]; then
     
     # Build context docker/ provides requirements.txt; Dockerfile in kubernetes/
     if docker build \
-        --platform linux/amd64 \
+        --platform linux/arm64 \
         -f kubernetes/Dockerfile.model-training.base \
         -t hmm-model-training-base:base \
         docker/; then

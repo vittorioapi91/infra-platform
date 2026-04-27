@@ -257,7 +257,7 @@ sudo systemctl restart jenkins
 # Install in Jenkins container
 docker exec -it jenkins bash
 # Inside container:
-#   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
 #   install kubectl /usr/local/bin/
 #   # Similar for kind
 ```

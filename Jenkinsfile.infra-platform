@@ -197,34 +197,77 @@ pipeline {
                         # Ensure buildx is available and create builder if needed
                         docker buildx version || docker buildx install
                         docker buildx create --use --name builder 2>/dev/null || docker buildx use builder
+
+                        rebuild_base_image_arm64() {
+                            docker buildx build \
+                                --platform linux/arm64 \
+                                -f docker/Dockerfile.jenkins.base \
+                                -t jenkins-custom:base \
+                                --load \
+                                docker/
+                            build_rc=\$?
+
+                            # On some Docker Desktop/buildx combinations, the image may be loaded
+                            # even if buildx returns a non-zero status. Validate final image arch directly.
+                            rebuilt_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
+                            if [ "\${rebuilt_arch}" = "arm64" ]; then
+                                echo "✓ Base Jenkins image is available as arm64"
+                                return 0
+                            fi
+
+                            echo "❌ Base Jenkins image rebuild did not produce arm64 (rc=\${build_rc}, arch=\${rebuilt_arch})"
+                            return 1
+                        }
                         
-                        # Check if base image exists (base images are built manually, not in pipeline)
-                        if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q '^jenkins-custom:base\$'; then
-                            echo "❌ ERROR: Base Jenkins image 'jenkins-custom:base' not found!"
-                            echo ""
-                            echo "Base images must be built manually before running pipelines."
-                            echo "To build the base image, run:"
-                            echo "  docker build -t jenkins-custom:base -f docker/Dockerfile.jenkins.base docker/"
-                            echo ""
-                            echo "See docker/README_BASE_IMAGES.md for more information."
-                            exit 1
+                        # Ensure base image exists for the same target platform used by the incremental build.
+                        # Auto-rebuild to arm64 by default so migration from old amd64 images self-heals.
+                        # Set AUTO_REBUILD_BASE=false only if you want a strict fail-fast behavior.
+                        if ! docker image inspect jenkins-custom:base >/dev/null 2>&1; then
+                            if [ "\${AUTO_REBUILD_BASE:-true}" = "true" ]; then
+                                echo "Base Jenkins image not found locally. AUTO_REBUILD_BASE=true, building jenkins-custom:base..."
+                                rebuild_base_image_arm64 || {
+                                    echo "❌ Error: Could not build base Jenkins image"
+                                    exit 1
+                                }
+                            else
+                                echo "❌ Base Jenkins image not found locally: jenkins-custom:base"
+                                echo "Set AUTO_REBUILD_BASE=true to allow CI rebuilds,"
+                                echo "or prebuild once manually:"
+                                echo "  docker buildx build --platform linux/arm64 -f docker/Dockerfile.jenkins.base -t jenkins-custom:base --load docker/"
+                                exit 1
+                            fi
                         fi
-                        
-                        echo "✓ Base Jenkins image found: jenkins-custom:base"
-                        
-                        # Switch to default builder for local base images (container builder can't see host images)
-                        # The default builder has access to local images, container builder doesn't
-                        echo "Switching to default builder for local base image access..."
-                        docker buildx use default || docker buildx use builder
-                        
+
+                        # Validate local base image architecture.
+                        # Using `imagetools inspect` on local-only images can trigger registry lookups and false failures,
+                        # which caused unnecessary base rebuilds and very slow pipeline runs.
+                        base_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
+                        if [ "\${base_arch}" != "arm64" ]; then
+                            if [ "\${AUTO_REBUILD_BASE:-true}" = "true" ]; then
+                                echo "Base image architecture is '\${base_arch}' (expected arm64). AUTO_REBUILD_BASE=true, rebuilding..."
+                                rebuild_base_image_arm64 || {
+                                    echo "❌ Error: Could not rebuild base Jenkins image for linux/arm64"
+                                    exit 1
+                                }
+                            else
+                                echo "❌ Base image architecture is '\${base_arch}' (expected arm64)."
+                                echo "Set AUTO_REBUILD_BASE=true to allow CI rebuilds, or rebuild manually:"
+                                echo "  docker buildx build --platform linux/arm64 -f docker/Dockerfile.jenkins.base -t jenkins-custom:base --load docker/"
+                                exit 1
+                            fi
+                        fi
+
+                        echo "✓ Base Jenkins image is ready for linux/arm64"
+
                         # Build incremental Jenkins image (FROM base)
                         if [ -f "docker/Dockerfile.jenkins" ]; then
                             echo "Building incremental Jenkins image: jenkins-custom:lts (FROM base)..."
-                            docker buildx build \
-                                --platform linux/amd64 \
+                            # Use local Docker builder so FROM jenkins-custom:base resolves from local images.
+                            # The buildx container driver may try pulling docker.io/library/jenkins-custom:base.
+                            docker build \
+                                --platform linux/arm64 \
                                 -f docker/Dockerfile.jenkins \
                                 -t jenkins-custom:lts \
-                                --load \
                                 docker/ || {
                                 echo "❌ Error: Could not build incremental Jenkins image"
                                 exit 1
@@ -249,6 +292,85 @@ pipeline {
                             docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
                             echo "✓ Infra-platform services configuration is valid"
                         fi
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Test Routing and Utilities') {
+            steps {
+                script {
+                    echo "Running smoke tests for nginx routing, databases, and utilities..."
+                    sh """
+                        set -eu
+
+                        COMPOSE_FILE="docker/docker-compose.infra-platform.yml"
+
+                        if [ ! -f "\${COMPOSE_FILE}" ]; then
+                            echo "⚠️  docker-compose.infra-platform.yml not found. Skipping smoke tests."
+                            exit 0
+                        fi
+
+                        # Verify critical services are up before endpoint checks.
+                        for svc in nginx-proxy postgres-dev postgres-test postgres-prod redis nats registry jenkins; do
+                            if ! docker compose -f "\${COMPOSE_FILE}" ps --services --status running | grep -qx "\${svc}"; then
+                                echo "❌ Required service not running: \${svc}"
+                                exit 1
+                            fi
+                        done
+                        echo "✓ Required infra services are running"
+
+                        # Helper: route must not return 5xx/timeout via nginx host-based routing.
+                        check_route() {
+                            host_header="\$1"
+                            path="\$2"
+                            label="\$3"
+                            code=\$(curl -sS -o /dev/null -m 15 -w "%{http_code}" -H "Host: \${host_header}" "http://nginx-proxy\${path}" || echo "000")
+                            case "\${code}" in
+                                000|5??)
+                                    echo "❌ \${label} via \${host_header}\${path} failed (HTTP \${code})"
+                                    return 1
+                                    ;;
+                                *)
+                                    echo "✓ \${label} via \${host_header}\${path} responded (HTTP \${code})"
+                                    ;;
+                            esac
+                        }
+
+                        # Nginx routing smoke checks.
+                        check_route "jenkins.local.info" "/login" "Jenkins route"
+                        check_route "grafana.local.info" "/login" "Grafana route"
+                        check_route "prometheus.local.info" "/-/ready" "Prometheus route"
+                        check_route "openproject.local.info" "/" "OpenProject route"
+
+                        # PostgreSQL readiness checks (all envs).
+                        for db in postgres-dev postgres-test postgres-prod; do
+                            docker exec "\${db}" pg_isready -U postgres -d datalake > /dev/null
+                            docker exec "\${db}" psql -U postgres -d datalake -c "SELECT 1;" > /dev/null
+                            echo "✓ \${db} is ready and accepts queries"
+                        done
+
+                        # Utility service checks.
+                        if [ "\$(docker exec redis redis-cli ping 2>/dev/null | tr -d '\\r')" != "PONG" ]; then
+                            echo "❌ Redis ping failed"
+                            exit 1
+                        fi
+                        echo "✓ Redis is healthy"
+
+                        curl -sS -m 10 "http://nats:8222/varz" > /dev/null || {
+                            echo "❌ NATS monitoring endpoint check failed"
+                            exit 1
+                        }
+                        echo "✓ NATS monitoring endpoint is reachable"
+
+                        registry_code=\$(curl -sS -o /dev/null -m 10 -w "%{http_code}" "http://registry:5000/v2/" || echo "000")
+                        if [ "\${registry_code}" != "200" ]; then
+                            echo "❌ Docker registry check failed (HTTP \${registry_code})"
+                            exit 1
+                        fi
+                        echo "✓ Docker registry API is reachable"
+
+                        echo "✓ Smoke tests passed"
                     """
                 }
             }

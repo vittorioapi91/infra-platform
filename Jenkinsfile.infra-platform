@@ -306,7 +306,7 @@ pipeline {
                         /tmp/tradingagent_wheel_venv/bin/pip install --quiet --upgrade pip
                         /tmp/tradingagent_wheel_venv/bin/pip install --quiet "\${WHEEL_FILE}"
 
-                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)$', meta, re.MULTILINE); print(r.group(1).strip() if r else 'trading_agent')" "\${WHEEL_FILE}")
+                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)', meta, re.MULTILINE); print(r.group(1).strip() if r else 'trading_agent')" "\${WHEEL_FILE}")
                         MODULE_NAME=\$(echo "\${PACKAGE_NAME}" | tr '-' '_')
                         /tmp/tradingagent_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
 

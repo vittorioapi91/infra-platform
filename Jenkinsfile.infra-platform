@@ -199,45 +199,60 @@ pipeline {
                         docker buildx create --use --name builder 2>/dev/null || docker buildx use builder
                         
                         # Ensure base image exists for the same target platform used by the incremental build.
-                        # If a local base is only arm64 (common on Apple Silicon hosts), linux/amd64 builds
-                        # will fail with "no match for platform in manifest". Rebuild base in that case.
+                        # Auto-rebuilding base in CI can be slow on Apple Silicon.
+                        # By default we fail fast with instructions; set AUTO_REBUILD_BASE=true to opt in.
                         if ! docker image inspect jenkins-custom:base >/dev/null 2>&1; then
-                            echo "Base Jenkins image not found locally. Building jenkins-custom:base..."
-                            docker buildx build \
-                                --platform linux/amd64 \
-                                -f docker/Dockerfile.jenkins.base \
-                                -t jenkins-custom:base \
-                                --load \
-                                docker/ || {
-                                echo "❌ Error: Could not build base Jenkins image"
+                            if [ "\${AUTO_REBUILD_BASE:-false}" = "true" ]; then
+                                echo "Base Jenkins image not found locally. AUTO_REBUILD_BASE=true, building jenkins-custom:base..."
+                                docker buildx build \
+                                    --platform linux/arm64 \
+                                    -f docker/Dockerfile.jenkins.base \
+                                    -t jenkins-custom:base \
+                                    --load \
+                                    docker/ || {
+                                    echo "❌ Error: Could not build base Jenkins image"
+                                    exit 1
+                                }
+                            else
+                                echo "❌ Base Jenkins image not found locally: jenkins-custom:base"
+                                echo "Set AUTO_REBUILD_BASE=true to allow CI rebuilds,"
+                                echo "or prebuild once manually:"
+                                echo "  docker buildx build --platform linux/arm64 -f docker/Dockerfile.jenkins.base -t jenkins-custom:base --load docker/"
                                 exit 1
-                            }
+                            fi
                         fi
 
                         # Validate local base image architecture.
                         # Using `imagetools inspect` on local-only images can trigger registry lookups and false failures,
                         # which caused unnecessary base rebuilds and very slow pipeline runs.
                         base_arch=\$(docker image inspect jenkins-custom:base --format '{{.Architecture}}' 2>/dev/null || echo "unknown")
-                        if [ "\${base_arch}" != "amd64" ]; then
-                            echo "Base image exists but architecture is '\${base_arch}' (expected amd64). Rebuilding jenkins-custom:base..."
-                            docker buildx build \
-                                --platform linux/amd64 \
-                                -f docker/Dockerfile.jenkins.base \
-                                -t jenkins-custom:base \
-                                --load \
-                                docker/ || {
-                                echo "❌ Error: Could not rebuild base Jenkins image for linux/amd64"
+                        if [ "\${base_arch}" != "arm64" ]; then
+                            if [ "\${AUTO_REBUILD_BASE:-false}" = "true" ]; then
+                                echo "Base image architecture is '\${base_arch}' (expected arm64). AUTO_REBUILD_BASE=true, rebuilding..."
+                                docker buildx build \
+                                    --platform linux/arm64 \
+                                    -f docker/Dockerfile.jenkins.base \
+                                    -t jenkins-custom:base \
+                                    --load \
+                                    docker/ || {
+                                    echo "❌ Error: Could not rebuild base Jenkins image for linux/arm64"
+                                    exit 1
+                                }
+                            else
+                                echo "❌ Base image architecture is '\${base_arch}' (expected arm64)."
+                                echo "Set AUTO_REBUILD_BASE=true to allow CI rebuilds, or rebuild manually:"
+                                echo "  docker buildx build --platform linux/arm64 -f docker/Dockerfile.jenkins.base -t jenkins-custom:base --load docker/"
                                 exit 1
-                            }
+                            fi
                         fi
 
-                        echo "✓ Base Jenkins image is ready for linux/amd64"
+                        echo "✓ Base Jenkins image is ready for linux/arm64"
 
                         # Build incremental Jenkins image (FROM base)
                         if [ -f "docker/Dockerfile.jenkins" ]; then
                             echo "Building incremental Jenkins image: jenkins-custom:lts (FROM base)..."
                             docker buildx build \
-                                --platform linux/amd64 \
+                                --platform linux/arm64 \
                                 -f docker/Dockerfile.jenkins \
                                 -t jenkins-custom:lts \
                                 --load \

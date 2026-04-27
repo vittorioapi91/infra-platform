@@ -103,7 +103,7 @@ build_jenkins_images() {
 
   echo "Building incremental Jenkins image: jenkins-custom:lts..."
   docker build \
-    --platform linux/amd64 \
+    --platform linux/arm64 \
     -f "${SCRIPT_DIR}/Dockerfile.jenkins" \
     -t jenkins-custom:lts \
     "${SCRIPT_DIR}"

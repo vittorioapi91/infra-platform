@@ -86,7 +86,7 @@ if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^${BASE_IMAGE_
     
     cd "${INFRA_ROOT}"
     docker build \
-        --platform linux/amd64 \
+        --platform linux/arm64 \
         -f kubernetes/Dockerfile.model-training.base \
         -t "${BASE_IMAGE_FULL}" \
         docker/

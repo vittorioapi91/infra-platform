@@ -295,6 +295,30 @@ pipeline {
                             exit 0
                         fi
 
+                        echo "Smoke test scope:"
+                        echo "- Service availability:"
+                        echo "  nginx-proxy, jenkins, grafana, prometheus, openproject,"
+                        echo "  airflow-dev/test/prod, mlflow, redisinsight, portainer, alertmanager,"
+                        echo "  postgres-dev/test/prod, redis, nats, registry"
+                        echo "- Nginx route responses (non-timeout, non-5xx):"
+                        echo "  jenkins.local.info/login"
+                        echo "  airflow.local.dev.info/login"
+                        echo "  airflow.local.test.info/login"
+                        echo "  airflow.local.prod.info/login"
+                        echo "  grafana.local.info/login"
+                        echo "  prometheus.local.info/-/ready"
+                        echo "  openproject.local.info/"
+                        echo "  mlflow.local.info/"
+                        echo "  redisinsight.local.info/"
+                        echo "  portainer.local.info/"
+                        echo "  nats.local.info/"
+                        echo "  alertmanager.local.info/"
+                        echo "- Database readiness and query checks:"
+                        echo "  postgres-dev/test/prod: pg_isready + SELECT 1"
+                        echo "- Utility checks:"
+                        echo "  redis PING/PONG, nats /varz, registry /v2/"
+                        echo ""
+
                         # Verify critical services are up before endpoint checks.
                         for svc in nginx-proxy jenkins grafana prometheus openproject airflow-dev airflow-test airflow-prod mlflow redisinsight portainer alertmanager postgres-dev postgres-test postgres-prod redis nats registry; do
                             if ! docker compose -f "\${COMPOSE_FILE}" ps --services --status running | grep -qx "\${svc}"; then

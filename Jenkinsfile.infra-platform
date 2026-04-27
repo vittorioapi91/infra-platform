@@ -288,13 +288,19 @@ pipeline {
                     sh """
                         set -eu
 
-                        TRADING_AGENT_ROOT="/workspace/trading-agent"
-                        if [ ! -d "\${TRADING_AGENT_ROOT}" ]; then
-                            echo "❌ TradingAgent repository not found at \${TRADING_AGENT_ROOT}"
+                        TRADING_AGENT_SRC="/workspace/trading-agent"
+                        TRADING_AGENT_BUILD_ROOT="/tmp/trading-agent-build-src"
+                        if [ ! -d "\${TRADING_AGENT_SRC}" ]; then
+                            echo "❌ TradingAgent repository not found at \${TRADING_AGENT_SRC}"
                             exit 1
                         fi
 
-                        cd "\${TRADING_AGENT_ROOT}"
+                        # TradingAgent is mounted read-only in Jenkins; build from a writable temp copy.
+                        rm -rf "\${TRADING_AGENT_BUILD_ROOT}"
+                        mkdir -p "\${TRADING_AGENT_BUILD_ROOT}"
+                        cp -a "\${TRADING_AGENT_SRC}/." "\${TRADING_AGENT_BUILD_ROOT}/"
+
+                        cd "\${TRADING_AGENT_BUILD_ROOT}"
                         python3 -m pip install --quiet --upgrade pip setuptools wheel
 
                         # Build staging wheel explicitly (setup.py routes output to dist/{env}/)
@@ -321,13 +327,17 @@ pipeline {
                         set -eu
 
                         WHEEL_DIR="/workspace/trading-agent/dist"
+                        TMP_WHEEL_DIR="/tmp/trading-agent-build-src/dist"
                         if [ ! -d "\${WHEEL_DIR}" ]; then
                             echo "❌ TradingAgent wheel directory not found: \${WHEEL_DIR}"
                             exit 1
                         fi
 
-                        # Prefer environment-specific wheel output (dist/staging), then fallback to legacy dist root.
-                        WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        # Prefer wheel produced in writable temp build root, then fallback to mounted dist paths.
+                        WHEEL_FILE=\$(find "\${TMP_WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        if [ -z "\${WHEEL_FILE}" ]; then
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        fi
                         if [ -z "\${WHEEL_FILE}" ]; then
                             WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
                         fi

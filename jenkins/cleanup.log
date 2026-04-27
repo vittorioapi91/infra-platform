@@ -1127,3 +1127,224 @@ Dry run: false
    - Pip caches (Docker BuildKit cache and host pip caches)
 
 Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-11 02:00:03] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-12 02:00:04] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-13 02:00:01] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-14 02:00:01] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-15 02:10:30] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-16 02:11:29] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-17 02:00:00] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-18 02:00:05] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-19 02:00:05] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-20 02:00:02] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-21 02:00:01] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-22 02:00:00] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-23 02:00:00] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-24 02:03:24] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-25 02:00:04] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-26 02:06:35] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+[2026-04-27 02:00:02] Starting Jenkins workspace cleanup...
+Jenkins Workspace Cleanup
+========================
+Workspace directory: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace
+Keep workspaces from last 1 days
+Keep last 3 workspaces per job
+Dry run: false
+
+⚠️  PROTECTED (will NOT be deleted):
+   - Docker images (all images, including :base images)
+   - Pip caches (Docker BuildKit cache and host pip caches)
+
+Error: Workspace directory not found: /Users/Snake91/CursorProjects/infra-platform/jenkins/data/workspace

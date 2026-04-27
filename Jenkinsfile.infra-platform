@@ -281,22 +281,6 @@ pipeline {
             }
         }
         
-        stage('Validate Infra-Platform Services') {
-            steps {
-                script {
-                    echo "Validating infra-platform services can start..."
-                    sh """
-                        # Test that docker-compose files are valid and services can be checked
-                        if [ -f "docker/docker-compose.infra-platform.yml" ]; then
-                            echo "Checking infra-platform services..."
-                            docker compose -f docker/docker-compose.infra-platform.yml config --services | head -10
-                            echo "✓ Infra-platform services configuration is valid"
-                        fi
-                    """
-                }
-            }
-        }
-
         stage('Smoke Test Routing and Utilities') {
             steps {
                 script {

@@ -289,16 +289,26 @@ pipeline {
                         set -eu
 
                         TRADING_AGENT_SRC="/workspace/trading-agent"
-                        TRADING_AGENT_BUILD_ROOT="/tmp/trading-agent-build-src"
                         if [ ! -d "\${TRADING_AGENT_SRC}" ]; then
                             echo "❌ TradingAgent repository not found at \${TRADING_AGENT_SRC}"
                             exit 1
                         fi
 
                         # TradingAgent is mounted read-only in Jenkins; build from a writable temp copy.
-                        rm -rf "\${TRADING_AGENT_BUILD_ROOT}"
+                        # Use a unique temp directory to avoid cross-build cleanup issues.
+                        TRADING_AGENT_BUILD_ROOT=\$(mktemp -d /tmp/trading-agent-build-src.XXXXXX)
+                        echo "\${TRADING_AGENT_BUILD_ROOT}" > .trading-agent-build-root
                         mkdir -p "\${TRADING_AGENT_BUILD_ROOT}"
-                        cp -a "\${TRADING_AGENT_SRC}/." "\${TRADING_AGENT_BUILD_ROOT}/"
+
+                        # Copy only project sources needed for wheel build; exclude local virtualenv/caches.
+                        tar \\
+                            --exclude='.git' \\
+                            --exclude='.venv' \\
+                            --exclude='venv' \\
+                            --exclude='__pycache__' \\
+                            --exclude='.pytest_cache' \\
+                            --exclude='.mypy_cache' \\
+                            -C "\${TRADING_AGENT_SRC}" -cf - . | tar -C "\${TRADING_AGENT_BUILD_ROOT}" -xf -
 
                         cd "\${TRADING_AGENT_BUILD_ROOT}"
                         python3 -m pip install --quiet --upgrade pip setuptools wheel
@@ -336,7 +346,12 @@ pipeline {
                         set -eu
 
                         WHEEL_DIR="/workspace/trading-agent/dist"
-                        TMP_WHEEL_DIR="/tmp/trading-agent-build-src/dist"
+                        if [ ! -f ".trading-agent-build-root" ]; then
+                            echo "❌ Missing TradingAgent build root marker (.trading-agent-build-root)"
+                            exit 1
+                        fi
+                        TRADING_AGENT_BUILD_ROOT=\$(cat .trading-agent-build-root)
+                        TMP_WHEEL_DIR="\${TRADING_AGENT_BUILD_ROOT}/dist"
                         if [ ! -d "\${WHEEL_DIR}" ]; then
                             echo "❌ TradingAgent wheel directory not found: \${WHEEL_DIR}"
                             exit 1
@@ -366,6 +381,9 @@ pipeline {
                         /tmp/tradingagent_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
 
                         echo "✓ TradingAgent wheel installed and import verified (\${PACKAGE_NAME})"
+
+                        rm -rf "\${TRADING_AGENT_BUILD_ROOT}"
+                        rm -f .trading-agent-build-root
                     """
                 }
             }

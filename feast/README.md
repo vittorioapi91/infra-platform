@@ -59,6 +59,8 @@ The Feast repository is configured in `feast_repo/feature_store.yaml`:
 - **Project**: macro_features
 - **Provider**: local (SQLite for online store)
 - **Offline store**: file-based
+- **Source file path**: defaults to `feast/feast_repo/data/macro_features.parquet`
+  - Override with `FEAST_MACRO_FEATURES_PATH=/absolute/path/to/macro_features.parquet`
 
 ## Feature Views
 

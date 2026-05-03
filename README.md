@@ -90,7 +90,7 @@ Once services are running, they are available at:
 - **Prometheus**: http://localhost:9090
 - **Alert Manager**: http://localhost:8090
 - **Kubernetes Dashboard**: https://localhost:8001
-- **PostgreSQL**: via nginx 54321–54326 (six servers; see gateway/README)
+- **PostgreSQL**: via nginx 54324–54326 (three servers: dev/test/prod; see gateway/README)
 - **Redis**: localhost:6379
 
 ## 📋 Services

@@ -12,6 +12,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_PARENT="$(cd "${SCRIPT_DIR}/../../infra-data-pipelines" 2>/dev/null && pwd || true)"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -38,7 +39,7 @@ log_error() {
 
 # Get environment and package name from arguments
 ENV="${1:-dev}"
-PACKAGE_NAME="${2:-trading_agent}"
+PACKAGE_NAME="${2:-idp}"
 
 INSTALL_DIR_ENV="${ENV}"
 
@@ -65,13 +66,13 @@ else
 fi
 
 # Check for fallback location: mounted source code
-# Try mounted source code location: /workspace/trading-agent/src/_airflow_dags_ (inside container)
-# or TradingPythonAgent/src/_airflow_dags_ (on host)
+# Try mounted source code location: /workspace/infra-data-pipelines/src/_airflow_dags_ (inside container)
+# or infra-data-pipelines/src/_airflow_dags_ (on host)
 FALLBACK_DIR=""
-if [ -d "/workspace/trading-agent/src/_airflow_dags_" ]; then
+if [ -d "/workspace/infra-data-pipelines/src/_airflow_dags_" ]; then
     # Inside Docker container
-    FALLBACK_DIR="/workspace/trading-agent/src/_airflow_dags_"
-elif [ -d "${SOURCE_PARENT}/src/_airflow_dags_" ]; then
+    FALLBACK_DIR="/workspace/infra-data-pipelines/src/_airflow_dags_"
+elif [ -n "${SOURCE_PARENT}" ] && [ -d "${SOURCE_PARENT}/src/_airflow_dags_" ]; then
     # On host filesystem
     FALLBACK_DIR="${SOURCE_PARENT}/src/_airflow_dags_"
 fi
@@ -99,12 +100,12 @@ elif [ ! -d "${SOURCE_DIR}" ] || [ "${WHEEL_DAG_COUNT}" -eq 0 ]; then
         log_error "Could not find _airflow_dags_ directory"
         log_error "Checked locations:"
         log_error "  1. ${SOURCE_DIR} (${WHEEL_DAG_COUNT} DAGs)"
-        log_error "  2. /workspace/trading-agent/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
+        log_error "  2. /workspace/infra-data-pipelines/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
         log_error "  3. ${SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
         log_error ""
         log_error "Please ensure:"
         log_error "  1. ${PACKAGE_NAME} wheel is installed with all DAGs, OR"
-        log_error "  2. TradingPythonAgent source is mounted and contains src/_airflow_dags_/"
+        log_error "  2. infra-data-pipelines source is mounted and contains src/_airflow_dags_/"
         exit 1
     fi
 fi
@@ -126,7 +127,7 @@ log_info "  DAG source: ${SOURCE_DIR}"
 log_info "  Import scripts: ${DAGS_DIR}"
 
 # Find all Python DAG files in the source directory (excluding __init__.py and __pycache__)
-DAG_FILES=$(find "${SOURCE_DIR}" -type f -name "*.py" ! -name "__init__.py" ! -path "*/__pycache__/*" 2>/dev/null)
+DAG_FILES=$(find "${SOURCE_DIR}" -type f -name "*.py" ! -name "__init__.py" ! -name "dag_params.py" ! -path "*/__pycache__/*" 2>/dev/null)
 
 if [ -z "${DAG_FILES}" ]; then
     log_warn "No Python DAG files found in ${SOURCE_DIR}"
@@ -143,7 +144,7 @@ IMPORT_SCRIPT="${DAGS_DIR}/${PACKAGE_NAME}_dags.py"
 
 log_info "Creating import script: $(basename "${IMPORT_SCRIPT}")"
 
-# workspace_root for generated Python: dev uses .../trading_agent-workspace; test/prod use package_root
+# workspace_root for generated Python: dev uses .../idp-workspace; test/prod use package_root
 WORKSPACE_ROOT_FOR_PYTHON="${WORKSPACE_ROOT}/${PACKAGE_NAME}-workspace"
 [ "${INSTALL_DIR_ENV}" != "dev" ] && WORKSPACE_ROOT_FOR_PYTHON="${WORKSPACE_ROOT}"
 
@@ -174,7 +175,7 @@ try:
         load_dotenv(env_file, override=True)
     else:
         # Fallback: try mounted location
-        mounted_env_file = f"/workspace/trading-agent/.env.{env_file_name}"
+        mounted_env_file = f"/workspace/infra-data-pipelines/.env.{env_file_name}"
         if os.path.exists(mounted_env_file):
             load_dotenv(mounted_env_file, override=True)
 except ImportError:
@@ -186,42 +187,10 @@ except Exception as e:
     logging.getLogger(__name__).warning(f"Failed to load .env file: {e}")
 
 # Add workspace root to Python path to enable imports from installed package
-# Dev: package at workspace/trading_agent-workspace/trading_agent; test/prod: package_root/trading_agent
+# Dev: package at workspace/idp-workspace/idp; test/prod: package_root/idp
 workspace_root = "${WORKSPACE_ROOT_FOR_PYTHON}"
 if workspace_root and workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
-
-# Add source code path so DAGs can import from fundamentals, macro, etc.
-# (TradingPythonAgent source is mounted at /workspace/trading-agent)
-# The source has src/fundamentals/, but DAGs import trading_agent.fundamentals
-# We create a trading_agent namespace that points to src
-import os
-import types
-source_parent = "/workspace/trading-agent"
-if os.path.exists(source_parent) and source_parent not in sys.path:
-    sys.path.insert(0, source_parent)
-    
-    # Create trading_agent namespace package that points to src
-    # This allows "from trading_agent.fundamentals" to work
-    try:
-        import src
-        trading_agent_module = types.ModuleType('trading_agent')
-        trading_agent_module.__path__ = [os.path.join(source_parent, 'src')]
-        # Make src's submodules accessible via trading_agent
-        for attr_name in dir(src):
-            if not attr_name.startswith('_'):
-                try:
-                    attr = getattr(src, attr_name)
-                    if hasattr(attr, '__module__') or isinstance(attr, types.ModuleType):
-                        setattr(trading_agent_module, attr_name, attr)
-                except:
-                    pass
-        sys.modules['trading_agent'] = trading_agent_module
-    except Exception:
-        # Fallback: just add src to path
-        source_path = os.path.join(source_parent, 'src')
-        if source_path not in sys.path:
-            sys.path.insert(0, source_path)
 
 # Add /opt/airflow to Python path so 'operators' package can be imported
 # (operators is at /opt/airflow/operators, so we need the parent directory)
@@ -235,25 +204,18 @@ import os
 airflow_env = os.getenv('AIRFLOW_ENV', '${ENV}')
 storage_env = airflow_env
 default_storage_root = f"/workspace/storage-other-data/ta/{storage_env}"
-storage_root = os.getenv('TRADING_AGENT_STORAGE', default_storage_root)
-if os.path.exists(storage_root):
-    # Set environment variable so DAGs can access storage path
-    os.environ['TRADING_AGENT_STORAGE'] = storage_root
-    # Also make it available via trading_agent module
-    # This allows DAGs to use: from trading_agent import STORAGE_PATH
-    if 'trading_agent' in sys.modules:
-        trading_agent_module = sys.modules['trading_agent']
-        trading_agent_module.STORAGE_PATH = storage_root
+if not os.getenv('TRADING_AGENT_STORAGE'):
+    os.environ['TRADING_AGENT_STORAGE'] = default_storage_root
 
-# Import all DAG objects from the package module
+# Import all DAG objects from the installed package
 # DAGs are in {package_name}/_airflow_dags_/, which Python imports as {package_name}._airflow_dags_
 
 EOF
 
 # Determine if we're using fallback location (mounted source code)
-# If SOURCE_DIR contains "/workspace/trading-agent" or "/src/_airflow_dags_", we're using fallback
+# If SOURCE_DIR contains "/workspace/infra-data-pipelines" or "/src/_airflow_dags_", we're using fallback
 USE_FALLBACK=false
-if echo "${SOURCE_DIR}" | grep -q "/workspace/trading-agent\|/src/_airflow_dags_\|TradingPythonAgent"; then
+if echo "${SOURCE_DIR}" | grep -q "/workspace/infra-data-pipelines\|/src/_airflow_dags_\|infra-data-pipelines"; then
     USE_FALLBACK=true
     # For fallback, DAGs are directly in SOURCE_DIR
     DAG_BASE_PATH="${SOURCE_DIR}"
@@ -293,64 +255,17 @@ while IFS= read -r dag_file; do
         import_module="${PACKAGE_NAME}.${DAG_MODULE_NAME}.${rel_dir_dots}.${dag_basename}"
     fi
     
-    # Add import statement to the script
-    # For EDGAR DAGs, use direct file import to avoid SQLAlchemy conflicts with workspace dependencies
-    # For other DAGs, use standard import
-    if echo "${dag_basename}" | grep -q "^edgar"; then
-        # EDGAR DAGs: Import directly from file to avoid SQLAlchemy conflicts
-        # Use the actual file path (either from fallback or workspace)
-        cat >> "${IMPORT_SCRIPT}" <<EOF
-# Import EDGAR DAG from ${rel_path} (direct file import to avoid SQLAlchemy conflicts)
-try:
-    import importlib.util
-    # Use actual DAG file path (workspace or fallback location)
-    dag_file_path = "${dag_file}"
-    if not os.path.exists(dag_file_path):
-        # Fallback: try workspace location
-        dag_file_path = os.path.join(workspace_root, "${PACKAGE_NAME}", "_airflow_dags_", "${rel_path}")
-    if os.path.exists(dag_file_path):
-        spec = importlib.util.spec_from_file_location("${import_module}", dag_file_path)
-        if spec and spec.loader:
-            module = importlib.util.module_from_spec(spec)
-            # Temporarily remove workspace from sys.path to avoid SQLAlchemy conflict
-            workspace_in_path = workspace_root in sys.path
-            if workspace_in_path:
-                sys.path.remove(workspace_root)
-            try:
-                spec.loader.exec_module(module)
-                if hasattr(module, 'dag') and module.dag:
-                    globals()[module.dag.dag_id] = module.dag
-            finally:
-                # Restore workspace to sys.path
-                if workspace_in_path and workspace_root not in sys.path:
-                    sys.path.insert(0, workspace_root)
-    else:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f"DAG file not found: {dag_file_path}")
-except Exception as e:
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.warning(f"Failed to import/register DAG from ${dag_basename}: {e}")
-    # Continue with other imports even if one fails
-
-EOF
-    else
-        # Other DAGs: Use standard import
-        cat >> "${IMPORT_SCRIPT}" <<EOF
+    cat >> "${IMPORT_SCRIPT}" <<EOF
 # Import DAG from ${rel_path}
 try:
     import ${import_module} as module
-    # Register the DAG in global namespace using its dag_id as the key
     globals()[module.dag.dag_id] = module.dag
 except Exception as e:
     import logging
     logger = logging.getLogger(__name__)
     logger.warning(f"Failed to import/register DAG from ${import_module}: {e}")
-    # Continue with other imports even if one fails
 
 EOF
-    fi
     
     IMPORT_COUNT=$((IMPORT_COUNT + 1))
     log_debug "  Added import for: ${dag_basename} (from ${import_module})"

@@ -15,14 +15,14 @@ WHEEL_VERSION = "Not installed"
 try:
     import importlib.metadata
     for dist in importlib.metadata.distributions():
-        if dist.metadata["Name"].startswith("trading_agent-"):
+        if dist.metadata["Name"] == "idp" or dist.metadata["Name"].startswith("idp-"):
             WHEEL_VERSION = f"{dist.metadata['Name']} {dist.version}"
             break
 except (ImportError, AttributeError):
     try:
         import importlib_metadata
         for dist in importlib_metadata.distributions():
-            if dist.metadata["Name"].startswith("trading_agent-"):
+            if dist.metadata["Name"] == "idp" or dist.metadata["Name"].startswith("idp-"):
                 WHEEL_VERSION = f"{dist.metadata['Name']} {dist.version}"
                 break
     except ImportError:

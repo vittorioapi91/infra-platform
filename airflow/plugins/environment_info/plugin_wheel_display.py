@@ -20,15 +20,15 @@ PACKAGE_INSTALLED = False
 # Try multiple methods to detect installed wheel
 # Method 1: Check if package can be imported (most reliable)
 try:
-    # Import trading_agent module (installed from wheel)
-    import trading_agent
+    # Import idp module (installed from wheel)
+    import idp
     # Try to get version from package
-    version = getattr(trading_agent, '__version__', 'unknown')
+    version = getattr(idp, '__version__', 'unknown')
     # Try to get package name from installed distribution
     import importlib.metadata
     for dist in importlib.metadata.distributions():
-        # Check if this distribution provides trading_agent
-        if 'trading_agent' in dist.metadata.get('Name', '').lower():
+        # Check if this distribution provides idp
+        if 'idp' in dist.metadata.get('Name', '').lower():
             package_name = dist.metadata['Name']
             WHEEL_VERSION = f"{package_name} {dist.version}"
             WHEEL_FILE = package_name
@@ -44,11 +44,11 @@ except (ImportError, AttributeError, NameError):
 if not PACKAGE_INSTALLED:
     try:
         import importlib.metadata
-        # Try to find trading_agent package (check various name formats)
+        # Try to find idp package (check various name formats)
         for dist in importlib.metadata.distributions():
             name = dist.metadata.get("Name", "")
-            # Check for trading_agent-dev, trading_agent_dev, trading-agent-dev, etc.
-            if "trading_agent" in name.lower() or "trading-agent" in name.lower():
+            # Check for idp-dev, idp_dev, idp-dev, etc.
+            if "idp" in name.lower() or "idp" in name.lower():
                 WHEEL_VERSION = f"{name} {dist.version}"
                 WHEEL_FILE = name
                 PACKAGE_INSTALLED = True
@@ -59,7 +59,7 @@ if not PACKAGE_INSTALLED:
             import importlib_metadata
             for dist in importlib_metadata.distributions():
                 name = dist.metadata.get("Name", "")
-                if "trading_agent" in name.lower() or "trading-agent" in name.lower():
+                if "idp" in name.lower() or "idp" in name.lower():
                     WHEEL_VERSION = f"{name} {dist.version}"
                     WHEEL_FILE = name
                     PACKAGE_INSTALLED = True
@@ -74,21 +74,21 @@ if not PACKAGE_INSTALLED:
     _repo_root = os.path.join(_airflow_root, "..")  # infra-platform/
     _storage_airflow = os.path.join(_repo_root, "storage-infra", "airflow")
     package_root_dirs = [
-        "/opt/airflow/package_root/trading_agent",  # Docker (test/prod)
-        "/opt/airflow/workspace/trading_agent-workspace/trading_agent",  # Docker (dev)
-        os.path.join(_storage_airflow, "dev", "workspace", "trading_agent-workspace", "trading_agent"),
-        os.path.join(_storage_airflow, "test", "package_root", "trading_agent"),
-        os.path.join(_storage_airflow, "prod", "package_root", "trading_agent"),
-        os.path.join(_airflow_root, "dev", "trading_agent"),  # legacy
-        os.path.join(_airflow_root, "test", "trading_agent"),
-        os.path.join(_airflow_root, "prod", "trading_agent"),
+        "/opt/airflow/package_root/idp",  # Docker (test/prod)
+        "/opt/airflow/workspace/idp-workspace/idp",  # Docker (dev)
+        os.path.join(_storage_airflow, "dev", "workspace", "idp-workspace", "idp"),
+        os.path.join(_storage_airflow, "test", "package_root", "idp"),
+        os.path.join(_storage_airflow, "prod", "package_root", "idp"),
+        os.path.join(_airflow_root, "dev", "idp"),  # legacy
+        os.path.join(_airflow_root, "test", "idp"),
+        os.path.join(_airflow_root, "prod", "idp"),
     ]
     
     for package_root in package_root_dirs:
         if os.path.exists(package_root):
-            # Look for trading_agent*.dist-info directory
+            # Look for idp*.dist-info directory
             import glob
-            dist_info_dirs = glob.glob(os.path.join(package_root, "trading_agent*.dist-info"))
+            dist_info_dirs = glob.glob(os.path.join(package_root, "idp*.dist-info"))
             
             if dist_info_dirs:
                 # Use the first dist-info found (should only be one)
@@ -126,7 +126,7 @@ if not PACKAGE_INSTALLED:
                                     wheel_patterns = [
                                         f"{package_name}-{package_version}-*.whl",
                                         f"{package_name.replace('-', '_')}-{package_version}-*.whl",
-                                        f"trading_agent-{package_version}-*.whl",
+                                        f"idp-{package_version}-*.whl",
                                     ]
                                     
                                     for pattern in wheel_patterns:
@@ -165,13 +165,13 @@ if not PACKAGE_INSTALLED:
     
     for wheel_dir in wheel_dirs:
         if os.path.exists(wheel_dir):
-            # Wheels are now named: trading_agent-{version}-*.whl (no env suffix in filename)
+            # Wheels are now named: idp-{version}-*.whl (no env suffix in filename)
             wheel_patterns = [
-                "trading_agent-*.whl",  # trading_agent-0.1.0-py3-none-manylinux2014_aarch64.whl
-                f"trading_agent_{ENV}-*.whl",  # Legacy: trading_agent_dev-0.1.0-py3-none-any.whl
-                f"trading-agent-{ENV}-*.whl",   # Legacy: trading-agent-dev-0.1.0-py3-none-any.whl
-                "trading_agent_*-*.whl",        # Any trading_agent wheel with underscores
-                "trading-agent-*-*.whl",       # Any trading-agent wheel with hyphens
+                "idp-*.whl",  # idp-0.1.0-py3-none-manylinux2014_aarch64.whl
+                f"idp_{ENV}-*.whl",  # Legacy: idp_dev-0.1.0-py3-none-any.whl
+                f"idp-{ENV}-*.whl",   # Legacy: idp-dev-0.1.0-py3-none-any.whl
+                "idp_*-*.whl",        # Any idp wheel with underscores
+                "idp-*-*.whl",       # Any idp wheel with hyphens
             ]
             
             for pattern in wheel_patterns:
@@ -182,7 +182,7 @@ if not PACKAGE_INSTALLED:
                     wheel_files_with_versions = []
                     for wf in wheel_files:
                         basename = os.path.basename(wf)
-                        # Extract version from filename: trading_agent-0.1.0-...
+                        # Extract version from filename: idp-0.1.0-...
                         parts = basename.replace(".whl", "").split("-")
                         if len(parts) >= 2:
                             try:
@@ -200,10 +200,10 @@ if not PACKAGE_INSTALLED:
                         # Extract package name and version from filename
                         parts = wheel_name.replace(".whl", "").split("-")
                         if len(parts) >= 2:
-                            package_part = parts[0]  # trading_agent
+                            package_part = parts[0]  # idp
                             version_part = parts[1]  # 0.1.0
                             # Use the actual wheel filename for display
-                            WHEEL_VERSION = wheel_name  # e.g., "trading_agent-0.1.0-py3-none-manylinux2014_aarch64.whl"
+                            WHEEL_VERSION = wheel_name  # e.g., "idp-0.1.0-py3-none-manylinux2014_aarch64.whl"
                             WHEEL_FILE = wheel_name
                             PACKAGE_INSTALLED = True
                             break

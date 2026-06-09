@@ -13,27 +13,27 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Detect TradingPythonAgent root location
+# Detect infra-data-pipelines root location
 # Priority: 1) Docker mount path, 2) Environment variable, 3) Relative path, 4) Absolute path
-if [ -d "/workspace/trading-agent" ]; then
+if [ -d "/workspace/infra-data-pipelines" ]; then
     # Running in Docker/Jenkins - use mounted path
-    TRADING_AGENT_ROOT="/workspace/trading-agent"
-elif [ -n "${TRADING_AGENT_ROOT:-}" ] && [ -d "${TRADING_AGENT_ROOT}" ]; then
+    IDP_ROOT="/workspace/infra-data-pipelines"
+elif [ -n "${IDP_ROOT:-}" ] && [ -d "${IDP_ROOT}" ]; then
     # Use environment variable if set
-    TRADING_AGENT_ROOT="${TRADING_AGENT_ROOT}"
-elif [ -d "${SCRIPT_DIR}/../../TradingPythonAgent" ]; then
-    # Relative path from infra-platform/airflow to TradingPythonAgent
-    TRADING_AGENT_ROOT="$(cd "${SCRIPT_DIR}/../../TradingPythonAgent" && pwd)"
-elif [ -d "/Users/Snake91/CursorProjects/TradingPythonAgent" ]; then
+    IDP_ROOT="${IDP_ROOT}"
+elif [ -d "${SCRIPT_DIR}/../../infra-data-pipelines" ]; then
+    # Relative path from infra-platform/airflow to infra-data-pipelines
+    IDP_ROOT="$(cd "${SCRIPT_DIR}/../../infra-data-pipelines" && pwd)"
+elif [ -d "/Users/Snake91/CursorProjects/infra-data-pipelines" ]; then
     # Fallback to absolute path (local development)
-    TRADING_AGENT_ROOT="/Users/Snake91/CursorProjects/TradingPythonAgent"
+    IDP_ROOT="/Users/Snake91/CursorProjects/infra-data-pipelines"
 else
-    log_warn "Could not find TradingPythonAgent directory"
-    log_warn "Please set TRADING_AGENT_ROOT environment variable or mount it in Docker"
+    log_warn "Could not find infra-data-pipelines directory"
+    log_warn "Please set IDP_ROOT environment variable or mount it in Docker"
     exit 1
 fi
 
-PROJECT_ROOT="${TRADING_AGENT_ROOT}"
+PROJECT_ROOT="${IDP_ROOT}"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -145,15 +145,18 @@ fi
 mkdir -p "${WHEELS_DIR}"
 
 # Find the latest wheel for this environment
-# Wheels are now in dist/{env}/ directory with base package name (no env suffix)
-# Example: dist/dev/trading_agent-*.whl
-DIST_ENV_DIR="${PROJECT_ROOT}/dist/${ENV}"
-WHEEL_FILE=$(find "${DIST_ENV_DIR}" -name "trading_agent-*.whl" 2>/dev/null | sort -V | tail -n 1)
+# Wheels are in dist/{build_env}/ (Airflow test env reads dist/staging/)
+case "${ENV}" in
+    test) DIST_ENV="staging" ;;
+    *) DIST_ENV="${ENV}" ;;
+esac
+DIST_ENV_DIR="${PROJECT_ROOT}/dist/${DIST_ENV}"
+WHEEL_FILE=$(find "${DIST_ENV_DIR}" -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
 
 if [ -z "${WHEEL_FILE}" ]; then
     log_warn "No wheel found for environment '${ENV}' in ${DIST_ENV_DIR}/"
-    log_warn "Please build the wheel first: ./build-wheel.sh ${ENV}"
-    log_warn "Expected location: ${DIST_ENV_DIR}/trading_agent-*.whl"
+    log_warn "Please build the wheel first: ./scripts/build-wheel.sh ${DIST_ENV}"
+    log_warn "Expected location: ${DIST_ENV_DIR}/idp-*.whl"
     exit 1
 fi
 
@@ -172,4 +175,4 @@ log_info "  Airflow will install this wheel on startup"
 
 # List all wheels in the directory
 log_info "Available wheels in ${WHEELS_DIR}:"
-ls -lh "${WHEELS_DIR}"/trading_agent-*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"
+ls -lh "${WHEELS_DIR}"/idp-*.whl 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || log_warn "  No wheels found"

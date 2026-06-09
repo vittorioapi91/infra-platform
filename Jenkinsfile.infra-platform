@@ -281,26 +281,23 @@ pipeline {
             }
         }
 
-        stage('Build TradingAgent Wheel') {
+        stage('Build IDP Wheel') {
             steps {
                 script {
-                    echo "Building TradingAgent wheel artifact..."
+                    echo "Building and deploying IDP wheel..."
                     sh """
                         set -eu
 
-                        TRADING_AGENT_SRC="/workspace/trading-agent"
-                        if [ ! -d "\${TRADING_AGENT_SRC}" ]; then
-                            echo "❌ TradingAgent repository not found at \${TRADING_AGENT_SRC}"
+                        IDP_SRC="/workspace/infra-data-pipelines"
+                        if [ ! -d "\${IDP_SRC}" ]; then
+                            echo "❌ infra-data-pipelines repository not found at \${IDP_SRC}"
                             exit 1
                         fi
 
-                        # TradingAgent is mounted read-only in Jenkins; build from a writable temp copy.
-                        # Use a unique temp directory to avoid cross-build cleanup issues.
-                        TRADING_AGENT_BUILD_ROOT=\$(mktemp -d /tmp/trading-agent-build-src.XXXXXX)
-                        echo "\${TRADING_AGENT_BUILD_ROOT}" > .trading-agent-build-root
-                        mkdir -p "\${TRADING_AGENT_BUILD_ROOT}"
+                        IDP_BUILD_ROOT=\$(mktemp -d /tmp/idp-build-src.XXXXXX)
+                        echo "\${IDP_BUILD_ROOT}" > .idp-build-root
+                        mkdir -p "\${IDP_BUILD_ROOT}"
 
-                        # Copy only project sources needed for wheel build; exclude local virtualenv/caches.
                         tar \\
                             --exclude='.git' \\
                             --exclude='.venv' \\
@@ -308,82 +305,88 @@ pipeline {
                             --exclude='__pycache__' \\
                             --exclude='.pytest_cache' \\
                             --exclude='.mypy_cache' \\
-                            -C "\${TRADING_AGENT_SRC}" -cf - . | tar -C "\${TRADING_AGENT_BUILD_ROOT}" -xf -
+                            -C "\${IDP_SRC}" -cf - . | tar -C "\${IDP_BUILD_ROOT}" -xf -
 
-                        cd "\${TRADING_AGENT_BUILD_ROOT}"
+                        cd "\${IDP_BUILD_ROOT}"
                         python3 -m pip install --quiet --upgrade pip setuptools wheel
 
-                        # Build staging wheel explicitly (setup.py routes output to dist/{env}/)
-                        ENV=staging python3 setup.py bdist_wheel
-
-                        # Validate wheel artifact exists. Some setuptools/wheel combos still emit into dist/.
-                        STAGING_WHEEL=\$(find dist/staging -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
-                        if [ -z "\${STAGING_WHEEL}" ]; then
-                            ROOT_WHEEL=\$(find dist -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
-                            if [ -n "\${ROOT_WHEEL}" ]; then
-                                mkdir -p dist/staging
-                                cp -f "\${ROOT_WHEEL}" dist/staging/
-                                STAGING_WHEEL="dist/staging/\$(basename "\${ROOT_WHEEL}")"
-                                echo "ℹ️  Wheel emitted to dist/. Copied to dist/staging for pipeline consistency."
-                            fi
+                        ARCH="\$(uname -m)"
+                        if [ "\${ARCH}" = "aarch64" ] || [ "\${ARCH}" = "arm64" ]; then
+                            PLATFORM_FLAG="--linux-arm64"
+                        else
+                            PLATFORM_FLAG="--linux-x86_64"
                         fi
+
+                        if [ -d "\${WORKSPACE}" ]; then
+                            export INFRA_PLATFORM_ROOT="\${WORKSPACE}"
+                        elif [ -d "/var/jenkins_home/workspace/infra-platform" ]; then
+                            export INFRA_PLATFORM_ROOT="/var/jenkins_home/workspace/infra-platform"
+                        else
+                            echo "❌ infra-platform workspace not found for wheel deploy"
+                            exit 1
+                        fi
+
+                        chmod +x scripts/build-wheel.sh
+                        ./scripts/build-wheel.sh staging "\${PLATFORM_FLAG}" --deploy
+
+                        STAGING_WHEEL=\$(find dist/staging -maxdepth 1 -type f -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
                         if [ -z "\${STAGING_WHEEL}" ]; then
                             echo "❌ Wheel build completed but no staging wheel found in dist/staging"
                             exit 1
                         fi
 
-                        echo "✓ Built TradingAgent wheel: \$(basename "\${STAGING_WHEEL}")"
+                        echo "✓ Built and deployed IDP wheel: \$(basename "\${STAGING_WHEEL}")"
                     """
                 }
             }
         }
 
-        stage('Install TradingAgent Wheel') {
+        stage('Install IDP Wheel') {
             steps {
                 script {
-                    echo "Installing TradingAgent wheel in CI validation environment..."
+                    echo "Installing IDP wheel in CI validation environment..."
                     sh """
                         set -eu
 
-                        WHEEL_DIR="/workspace/trading-agent/dist"
-                        if [ ! -f ".trading-agent-build-root" ]; then
-                            echo "❌ Missing TradingAgent build root marker (.trading-agent-build-root)"
+                        WHEEL_DIR="/workspace/infra-data-pipelines/dist"
+                        if [ ! -f ".idp-build-root" ]; then
+                            echo "❌ Missing IDP build root marker (.idp-build-root)"
                             exit 1
                         fi
-                        TRADING_AGENT_BUILD_ROOT=\$(cat .trading-agent-build-root)
-                        TMP_WHEEL_DIR="\${TRADING_AGENT_BUILD_ROOT}/dist"
+                        IDP_BUILD_ROOT=\$(cat .idp-build-root)
+                        TMP_WHEEL_DIR="\${IDP_BUILD_ROOT}/dist"
                         if [ ! -d "\${WHEEL_DIR}" ]; then
-                            echo "❌ TradingAgent wheel directory not found: \${WHEEL_DIR}"
+                            echo "❌ IDP wheel directory not found: \${WHEEL_DIR}"
                             exit 1
                         fi
 
                         # Prefer wheel produced in writable temp build root, then fallback to mounted dist paths.
-                        WHEEL_FILE=\$(find "\${TMP_WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                        WHEEL_FILE=\$(find "\${TMP_WHEEL_DIR}/staging" -maxdepth 1 -type f -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
                         if [ -z "\${WHEEL_FILE}" ]; then
-                            WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}/staging" -maxdepth 1 -type f -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
                         fi
                         if [ -z "\${WHEEL_FILE}" ]; then
-                            WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f \\( -name "trading_agent-*.whl" -o -name "trading-agent-*.whl" \\) 2>/dev/null | sort -V | tail -n 1)
+                            WHEEL_FILE=\$(find "\${WHEEL_DIR}" -maxdepth 1 -type f -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
                         fi
                         if [ -z "\${WHEEL_FILE}" ]; then
-                            echo "❌ No TradingAgent wheel found in \${WHEEL_DIR}"
+                            echo "❌ No IDP wheel found in \${WHEEL_DIR}"
                             exit 1
                         fi
 
                         echo "Using wheel: \$(basename "\${WHEEL_FILE}")"
 
-                        python3 -m venv /tmp/tradingagent_wheel_venv
-                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet --upgrade pip
-                        /tmp/tradingagent_wheel_venv/bin/pip install --quiet "\${WHEEL_FILE}"
+                        python3 -m venv /tmp/idp_wheel_venv
+                        /tmp/idp_wheel_venv/bin/pip install --quiet --upgrade pip
+                        /tmp/idp_wheel_venv/bin/pip install --quiet "\${WHEEL_FILE}"
 
-                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)', meta, re.MULTILINE); print(r.group(1).strip() if r else 'trading_agent')" "\${WHEEL_FILE}")
+                        PACKAGE_NAME=\$(python3 -c "import sys,zipfile,re; f=zipfile.ZipFile(sys.argv[1]); m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')][0]; meta=f.read(m).decode('utf-8'); f.close(); r=re.search(r'^Name:\\\\s*(.+)', meta, re.MULTILINE); print(r.group(1).strip() if r else 'idp')" "\${WHEEL_FILE}")
                         MODULE_NAME=\$(echo "\${PACKAGE_NAME}" | tr '-' '_')
-                        /tmp/tradingagent_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
+                        /tmp/idp_wheel_venv/bin/python -c "import importlib,sys; importlib.import_module(sys.argv[1])" "\${MODULE_NAME}"
 
-                        echo "✓ TradingAgent wheel installed and import verified (\${PACKAGE_NAME})"
+                        echo "✓ IDP wheel installed and import verified (\${PACKAGE_NAME})"
 
-                        rm -rf "\${TRADING_AGENT_BUILD_ROOT}"
-                        rm -f .trading-agent-build-root
+                        rm -rf "\${IDP_BUILD_ROOT}"
+                        rm -f .idp-build-root
                     """
                 }
             }

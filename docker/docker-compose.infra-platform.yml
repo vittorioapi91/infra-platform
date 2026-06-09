@@ -128,6 +128,8 @@ services:
       - ../../infra-data-pipelines:/workspace/infra-data-pipelines
       # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
+      # Canonical TA storage (TRADING_AGENT_STORAGE); must match host path in .env.{env}
+      - /Volumes/storage-volume:/Volumes/storage-volume
       # Mount infra-platform root to access .env.tradingAgent.{env} files (read-only)
       - ..:/workspace/infra-platform:ro
       # Mount Docker socket to enable container restart from within
@@ -367,6 +369,8 @@ services:
       - ../../infra-data-pipelines:/workspace/infra-data-pipelines
       # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
+      # Canonical TA storage (TRADING_AGENT_STORAGE); must match host path in .env.{env}
+      - /Volumes/storage-volume:/Volumes/storage-volume
       # Mount .env file for environment configuration (read-only)
       - ../../infra-data-pipelines/.env.test:/workspace/infra-data-pipelines/.env.test:ro
       # Mount Docker socket to enable container restart from within
@@ -472,6 +476,8 @@ services:
       - ../../infra-data-pipelines:/workspace/infra-data-pipelines
       # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
+      # Canonical TA storage (TRADING_AGENT_STORAGE); must match host path in .env.{env}
+      - /Volumes/storage-volume:/Volumes/storage-volume
       # Mount .env file for environment configuration (read-only)
       - ../../infra-data-pipelines/.env.prod:/workspace/infra-data-pipelines/.env.prod:ro
       # Mount Docker socket to enable container restart from within

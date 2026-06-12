@@ -12,13 +12,13 @@ Legacy compatibility mount: `storage-other-data` at `/workspace/storage-other-da
 
 **Canonical path:** `/Volumes/storage-volume/storage/{env}/` (e.g. `/Volumes/storage-volume/storage/dev/`)
 
-The storage path is set up in `trading_agent_dags` and is available via:
+The storage path is set up in `idp_dags` and is available via:
 - Environment variable: `TRADING_AGENT_STORAGE`
-- Module attribute: `trading_agent.STORAGE_PATH`
+- Module attribute: `idp.STORAGE_PATH`
 
 ## Writing Pattern
 
-DAGs should write files using `TRADING_AGENT_STORAGE` or `trading_agent.STORAGE_PATH`:
+DAGs should write files using `TRADING_AGENT_STORAGE` or `idp.STORAGE_PATH`:
 
 ```python
 import os
@@ -26,7 +26,7 @@ from pathlib import Path
 
 # Get storage path (set from .env.tradingAgent.{env})
 storage_path = os.getenv('TRADING_AGENT_STORAGE', '/Volumes/storage-volume/storage/dev')
-# Or use: from trading_agent import STORAGE_PATH
+# Or use: from idp import STORAGE_PATH
 
 # Write files, organized by module/feature
 output_file = Path(storage_path) / "fundamentals" / "edgar" / "company_tickers.json"

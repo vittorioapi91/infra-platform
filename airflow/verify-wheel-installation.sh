@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Verify and install trading_agent wheel in Airflow container
+# Verify and install idp wheel in Airflow container
 #
 # This script helps verify if the wheel is installed and provides
 # instructions for manual installation if needed.
@@ -41,13 +41,13 @@ if [ ! -d "${WHEELS_DIR}" ]; then
     exit 1
 fi
 
-WHEEL_FILES=$(find "${WHEELS_DIR}" -name "trading_agent*.whl" 2>/dev/null | sort)
+WHEEL_FILES=$(find "${WHEELS_DIR}" -name "idp*.whl" 2>/dev/null | sort)
 
 if [ -z "${WHEEL_FILES}" ]; then
     log_warn "No wheel files found in ${WHEELS_DIR}"
     log_info "To install a wheel:"
     log_info "  1. Build the wheel: ./build-wheel.sh dev"
-    log_info "  2. Install it: airflow/install-trading_agent-wheel.sh dev"
+    log_info "  2. Install it: airflow/install-idp-wheel.sh dev"
     exit 1
 fi
 
@@ -65,19 +65,19 @@ if [ -n "${AIRFLOW_HOME:-}" ] || [ -f "/opt/airflow/airflow.cfg" ] || [ -d "/opt
     log_info "Running in Airflow container environment"
     
     # Check if package is installed
-    log_info "Checking if trading_agent package is installed..."
+    log_info "Checking if idp package is installed..."
     if python3 -c "import src" 2>/dev/null; then
-        log_info "✓ trading_agent package is importable"
+        log_info "✓ idp package is importable"
         
         # Try to get version
         VERSION=$(python3 -c "import src; print(getattr(src, '__version__', 'unknown'))" 2>/dev/null || echo "unknown")
         log_info "  Version: ${VERSION}"
     else
-        log_warn "✗ trading_agent package is NOT importable"
+        log_warn "✗ idp package is NOT importable"
         log_info "Installing wheel from /opt/airflow/wheels..."
         
         # Find the latest wheel
-        LATEST_WHEEL=$(find /opt/airflow/wheels -name "trading_agent*.whl" 2>/dev/null | sort -V | tail -n 1)
+        LATEST_WHEEL=$(find /opt/airflow/wheels -name "idp*.whl" 2>/dev/null | sort -V | tail -n 1)
         
         if [ -n "${LATEST_WHEEL}" ]; then
             log_info "Installing: $(basename "${LATEST_WHEEL}")"
@@ -94,18 +94,18 @@ if [ -n "${AIRFLOW_HOME:-}" ] || [ -f "/opt/airflow/airflow.cfg" ] || [ -d "/opt
     fi
     
     # Check installed packages
-    log_info "Checking installed trading_agent packages..."
+    log_info "Checking installed idp packages..."
     python3 -c "
 import importlib.metadata
 try:
     dists = list(importlib.metadata.distributions())
-    trading_agent_dists = [d for d in dists if 'trading_agent' in d.metadata.get('Name', '').lower()]
-    if trading_agent_dists:
+    idp_dists = [d for d in dists if 'idp' in d.metadata.get('Name', '').lower()]
+    if idp_dists:
         print('Installed packages:')
-        for d in trading_agent_dists:
+        for d in idp_dists:
             print(f\"  - {d.metadata['Name']} {d.version}\")
     else:
-        print('  No trading_agent packages found in installed distributions')
+        print('  No idp packages found in installed distributions')
 except Exception as e:
     print(f'Error checking distributions: {e}')
 " || log_warn "Could not check installed distributions"

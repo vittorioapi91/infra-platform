@@ -154,7 +154,7 @@ services:
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Found wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
-          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if '.dist-info/METADATA' in n];metadata=f.read(m[0]).decode('utf-8') if m else '';r=re.search(r'^Name:\\s*(.+)$',metadata,re.MULTILINE) if metadata else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('\$${WHEEL_FILE}');m=[n for n in f.namelist() if '.dist-info/METADATA' in n];metadata=f.read(m[0]).decode('utf-8') if m else '';r=re.search(r'^Name:\\s*(.+)$',metadata,re.MULTILINE) if metadata else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
           
           # Workspace directory: /opt/airflow/workspace/{package_name}-workspace (mounted from storage-infra/airflow/dev/workspace)
           WORKSPACE_DIR=\"/opt/airflow/workspace/\$${PACKAGE_NAME}-workspace\"
@@ -169,12 +169,16 @@ services:
           INSTALL_LOCK=\"\$${WORKSPACE_DIR}/.wheel_install.lock\"
           ENV_FILE_DEST=\"\$${WORKSPACE_DIR}/.env.\$${ENV_FOR_ENV_FILE}\"
           NEEDS_INSTALL=false
-          
-          # Check for lock file (installation in progress)
+          # Compare installed package version with the latest wheel before skipping reinstall
+          DIST_INFO=\$$(find \"\$${WORKSPACE_DIR}\" -maxdepth 1 -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
+          INSTALLED_VERSION=\"\"
+          if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
+            INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:[[:space:]]*//' | head -1 || echo \"\")
+          fi
+          WHEEL_VERSION=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('\$${WHEEL_FILE}');m=[n for n in f.namelist() if n.endswith('.dist-info/METADATA')];metadata=f.read(m[0]).decode('utf-8') if m else '';r=re.search(r'^Version:\\\\s*(.+)$',metadata,re.MULTILINE) if metadata else None;print(r.group(1).strip() if r else '');f.close()\" 2>/dev/null || echo \"\")
           if [ -f \"\$${INSTALL_LOCK}\" ]; then
             LOCK_AGE=\$$(find \"\$${INSTALL_LOCK}\" -mmin +30 2>/dev/null && echo \"old\" || echo \"recent\")
             if [ \"\$${LOCK_AGE}\" = \"old\" ]; then
-              # Lock file is old (stale), remove it and proceed
               rm -f \"\$${INSTALL_LOCK}\"
               echo \"Stale lock file removed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
               NEEDS_INSTALL=true
@@ -182,21 +186,15 @@ services:
               echo \"Installation in progress (lock file exists). Skipping installation.\"
               NEEDS_INSTALL=false
             fi
-          # Check for .env file (installation completed)
-          elif [ -f \"\$${ENV_FILE_DEST}\" ]; then
-            echo \"Workspace .env file exists. Skipping installation (wheel hasn't changed).\"
-            NEEDS_INSTALL=false
-          # Check for dist-info (package installed)
+          elif [ -z \"\$${INSTALLED_VERSION}\" ]; then
+            echo \"Package not installed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
+            NEEDS_INSTALL=true
+          elif [ \"\$${INSTALLED_VERSION}\" != \"\$${WHEEL_VERSION}\" ]; then
+            echo \"Upgrading package \$${INSTALLED_VERSION} -> \$${WHEEL_VERSION} from \$$(basename \$${WHEEL_FILE})\"
+            NEEDS_INSTALL=true
           else
-            DIST_INFO=\$$(find \"\$${WORKSPACE_DIR}\" -maxdepth 1 -type d -name \"\$${PACKAGE_NAME}*.dist-info\" 2>/dev/null | head -1)
-            if [ -n \"\$${DIST_INFO}\" ] && [ -f \"\$${DIST_INFO}/METADATA\" ]; then
-              INSTALLED_VERSION=\$$(grep -E \"^Version:\" \"\$${DIST_INFO}/METADATA\" 2>/dev/null | sed 's/Version:[[:space:]]*//' | head -1 || echo \"\")
-              echo \"Package already installed (version \$${INSTALLED_VERSION}). Skipping installation.\"
-              NEEDS_INSTALL=false
-            else
-              echo \"Package not installed. Will install wheel \$$(basename \$${WHEEL_FILE})\"
-              NEEDS_INSTALL=true
-            fi
+            echo \"Package already installed (version \$${INSTALLED_VERSION}). Skipping installation.\"
+            NEEDS_INSTALL=false
           fi
           
           if [ \"\$${NEEDS_INSTALL}\" = \"true\" ]; then
@@ -386,7 +384,7 @@ services:
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
-          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('\$${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
           # Installation directory: /opt/airflow/package_root/{package_name} (mounted from storage-infra/airflow/test/package_root)
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking
@@ -493,7 +491,7 @@ services:
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
-          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
+          PACKAGE_NAME=\$$(python3 -c \"import zipfile,re;f=zipfile.ZipFile('\$${WHEEL_FILE}');m=[n for n in f.namelist() if 'METADATA' in n or n.endswith('.dist-info/METADATA')];r=re.search(r'^Name:\\s*(.+)$',f.read(m[0]).decode('utf-8'),re.MULTILINE) if m else None;print(r.group(1).strip() if r else 'idp');f.close()\" 2>/dev/null || echo \"idp\")
           # Installation directory: /opt/airflow/package_root/{package_name} (mounted from storage-infra/airflow/prod/package_root)
           INSTALL_DIR=\"/opt/airflow/package_root/\$${PACKAGE_NAME}\"
           # Install wheel to environment-specific directory in background with timeout to avoid blocking

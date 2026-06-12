@@ -2,42 +2,34 @@
 Airflow local settings for UI customization
 This file allows adding UI alerts/banners to the Airflow UI
 """
-from airflow.configuration import conf
-# Removed import - not available in Airflow 2.9.3
-# from airflow.utils.dag_processing_context import get_current_context
 import os
+import sys
 
 # Get environment info
 ENV = os.getenv("AIRFLOW_ENV", "unknown").upper()
 
-# Get wheel information
-WHEEL_VERSION = "Not installed"
+_plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
+if _plugins_dir not in sys.path:
+    sys.path.insert(0, _plugins_dir)
+
 try:
-    import importlib.metadata
-    for dist in importlib.metadata.distributions():
-        if dist.metadata["Name"] == "idp" or dist.metadata["Name"].startswith("idp-"):
-            WHEEL_VERSION = f"{dist.metadata['Name']} {dist.version}"
-            break
-except (ImportError, AttributeError):
-    try:
-        import importlib_metadata
-        for dist in importlib_metadata.distributions():
-            if dist.metadata["Name"] == "idp" or dist.metadata["Name"].startswith("idp-"):
-                WHEEL_VERSION = f"{dist.metadata['Name']} {dist.version}"
-                break
-    except ImportError:
-        pass
+    from environment_info.idp_install_info import resolve_database_display, resolve_idp_install_info
 
-# Get database info
-db_host = os.getenv("POSTGRES_HOST", "not set")
-db_port = os.getenv("POSTGRES_PORT", "not set")
-db_name = os.getenv("POSTGRES_DB", "not set")
-db_user = os.getenv("POSTGRES_USER", "not set")
+    _install = resolve_idp_install_info()
+    WHEEL_VERSION = _install.label
+    _db_instance, db_user = resolve_database_display()
+except Exception:
+    WHEEL_VERSION = "Not installed"
+    db_host = os.getenv("POSTGRES_HOST", "not set")
+    db_port = os.getenv("POSTGRES_PORT", "not set")
+    db_name = os.getenv("POSTGRES_DB", "not set")
+    db_user = os.getenv("POSTGRES_USER", "not set")
+    if db_host != "not set" and db_port != "not set":
+        _db_instance = f"{db_user}@{db_host}:{db_port}/{db_name}"
+    else:
+        _db_instance = "not configured"
 
-if db_host != "not set" and db_port != "not set":
-    db_instance = f"{db_host}:{db_port}/{db_name}"
-else:
-    db_instance = "not configured"
+db_instance = _db_instance
 
 # Create environment badge HTML
 env_color = "#28a745" if ENV == "DEV" else "#ffc107" if ENV == "STAGING" else "#dc3545"
@@ -54,12 +46,12 @@ banner_html = f"""
                 </span>
             </div>
             <div>
-                <strong style="font-size: 14px; opacity: 0.9;">Wheel:</strong>
+                <strong style="font-size: 14px; opacity: 0.9;">Package:</strong>
                 <span style="font-family: monospace; margin-left: 8px;">{WHEEL_VERSION}</span>
             </div>
             <div>
                 <strong style="font-size: 14px; opacity: 0.9;">Database:</strong>
-                <span style="font-family: monospace; margin-left: 8px;">{db_user}@{db_instance}</span>
+                <span style="font-family: monospace; margin-left: 8px;">{db_instance}</span>
             </div>
         </div>
         <div>
@@ -69,10 +61,9 @@ banner_html = f"""
 </div>
 """
 
-# UIAlert for dashboard (shows on home page)
 try:
     from airflow.utils.ui_alerts import UIAlert
-    
+
     DASHBOARD_UIALERTS = [
         UIAlert(
             message=banner_html,
@@ -81,5 +72,4 @@ try:
         ),
     ]
 except ImportError:
-    # Fallback if UIAlert is not available
     DASHBOARD_UIALERTS = []

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build and copy trading_agent wheel into kubernetes/wheels/
+# Build and copy idp + trading_agent wheels into kubernetes/wheels/
 # Usage: bash kubernetes/install-model-wheels.sh [dev|staging|prod]
 #
 # Platform (default linux-arm64 for model-training Docker on ARM):
@@ -42,6 +42,19 @@ find_wheel() {
   ls -1 "${dist_dir}/${pkg_prefix}"-*"${platform_tag}"*.whl 2>/dev/null | sort -V | tail -n 1 || true
 }
 
+build_idp_wheel() {
+  local platform_flag="$1"
+  local platform_tag="$2"
+  local build_script="${IDP_ROOT}/scripts/build-wheel.sh"
+  if [ ! -x "${build_script}" ]; then
+    echo "idp build script not found: ${build_script}" >&2
+    exit 1
+  fi
+  echo "Building idp wheel for env=${ENV} platform=${WHEEL_PLATFORM}..." >&2
+  (cd "${IDP_ROOT}" && "${build_script}" "${ENV}" "${platform_flag}")
+  find_wheel "${IDP_ROOT}/dist/${ENV}" "idp" "${platform_tag}"
+}
+
 build_trading_agent_wheel() {
   local platform_flag="$1"
   local platform_tag="$2"
@@ -54,6 +67,15 @@ build_trading_agent_wheel() {
   (cd "${TPA_ROOT}" && "${build_script}" "${ENV}" "${platform_flag}")
   find_wheel "${TPA_ROOT}/dist/${ENV}" "trading_agent" "${platform_tag}"
 }
+
+if [ -d "${IFP_ROOT}/../infra-data-pipelines" ]; then
+  IDP_ROOT="$(cd "${IFP_ROOT}/../infra-data-pipelines" && pwd)"
+elif [ -n "${IDP_ROOT:-}" ] && [ -d "${IDP_ROOT}" ]; then
+  IDP_ROOT="${IDP_ROOT}"
+else
+  echo "infra-data-pipelines not found (expected sibling of infra-platform)" >&2
+  exit 1
+fi
 
 if [ -d "${IFP_ROOT}/../TradingPythonAgent" ]; then
   TPA_ROOT="$(cd "${IFP_ROOT}/../TradingPythonAgent" && pwd)"
@@ -69,9 +91,19 @@ PLATFORM_TAG="$(resolve_wheel_tag "${WHEEL_PLATFORM}")"
 WHEELS_DIR="${IFP_ROOT}/kubernetes/wheels"
 mkdir -p "${WHEELS_DIR}"
 
+IDP_WHEEL="$(find_wheel "${IDP_ROOT}/dist/${ENV}" "idp" "${PLATFORM_TAG}")"
+if [ -z "${IDP_WHEEL}" ]; then
+  IDP_WHEEL="$(build_idp_wheel "${PLATFORM_FLAG}" "${PLATFORM_TAG}")"
+fi
+
 TPA_WHEEL="$(find_wheel "${TPA_ROOT}/dist/${ENV}" "trading_agent" "${PLATFORM_TAG}")"
 if [ -z "${TPA_WHEEL}" ]; then
   TPA_WHEEL="$(build_trading_agent_wheel "${PLATFORM_FLAG}" "${PLATFORM_TAG}")"
+fi
+
+if [ -z "${IDP_WHEEL}" ] || [ ! -f "${IDP_WHEEL}" ]; then
+  echo "No idp wheel found for platform tag ${PLATFORM_TAG} in ${IDP_ROOT}/dist/${ENV}/" >&2
+  exit 1
 fi
 
 if [ -z "${TPA_WHEEL}" ] || [ ! -f "${TPA_WHEEL}" ]; then
@@ -79,7 +111,7 @@ if [ -z "${TPA_WHEEL}" ] || [ ! -f "${TPA_WHEEL}" ]; then
   exit 1
 fi
 
-rm -f "${WHEELS_DIR}"/trading_agent-*.whl
+cp "${IDP_WHEEL}" "${WHEELS_DIR}/"
 cp "${TPA_WHEEL}" "${WHEELS_DIR}/"
-echo "Copied wheel to ${WHEELS_DIR}:"
-ls -1 "${WHEELS_DIR}"/trading_agent-*.whl
+echo "Copied wheels to ${WHEELS_DIR}:"
+ls -1 "${WHEELS_DIR}"/*.whl

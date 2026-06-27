@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Docker image for HMM model training (trading_agent wheel)
+# Build Docker image for HMM model training (idp + trading_agent wheels)
 # Usage: bash kubernetes/build-model-image.sh [dev|staging|prod]
 
 set -euo pipefail

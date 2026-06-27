@@ -1,11 +1,10 @@
-# Incremental model training image - installs idp + trading_agent wheels and IFP mlflow module
+# Incremental model training image - installs trading_agent wheel and IFP mlflow module
 FROM hmm-model-training-base:base
 
 ARG ENV=dev
 
-# Install data + modeling wheels (copied by install-model-wheels.sh before build)
-COPY kubernetes/wheels/idp-*.whl kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
-RUN pip install --no-cache-dir /tmp/wheels/idp-*.whl /tmp/wheels/trading_agent-*.whl \
+COPY kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
+RUN pip install --no-cache-dir /tmp/wheels/trading_agent-*.whl \
     && rm -rf /tmp/wheels
 
 # infra-platform MLflow tracker module (IFP_MLFLOW_PATH for trading_agent.src.mlflow)

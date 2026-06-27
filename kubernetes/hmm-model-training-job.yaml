@@ -7,7 +7,6 @@ metadata:
     app: hmm-model
     component: training
 spec:
-  # Keep job for 24 hours after completion for debugging
   ttlSecondsAfterFinished: 86400
   backoffLimit: 3
   template:
@@ -19,75 +18,61 @@ spec:
       restartPolicy: Never
       containers:
       - name: model-training
-        # Custom image with code and dependencies
-        # Build using: bash .ops/.kubernetes/build-and-push-model-image.sh
         image: hmm-model-training:latest
-        imagePullPolicy: Never  # Use local image for kind cluster
+        imagePullPolicy: Never
         command: ["/bin/bash"]
         args:
           - -c
           - |
-            python -m trading_agent.model.main \
+            python -m trading_agent.macro.main \
               --series-ids ${SERIES_IDS} \
               --start-date ${START_DATE} \
+              --end-date ${END_DATE} \
               --feature-method ${FEATURE_METHOD} \
               --n-regimes ${N_REGIMES} \
-              --covariance-type ${COVARIANCE_TYPE} \
               --random-state ${RANDOM_STATE} \
-              --dbname ${DB_NAME} \
-              --dbuser ${DB_USER} \
-              --dbhost ${DB_HOST} \
-              --dbpassword ${DB_PASSWORD} \
+              --num-steps ${NUM_STEPS} \
               --mlflow-tracking-uri ${MLFLOW_TRACKING_URI} \
               --experiment-name ${EXPERIMENT_NAME} \
-              --prometheus-port ${PROMETHEUS_PORT}
-        
+              --skip-prometheus
         env:
-          # Data parameters
           - name: SERIES_IDS
-            value: "GDP UNRATE CPIAUCSL"
+            value: "GDP CPIAUCSL FEDFUNDS"
           - name: START_DATE
             value: "2000-01-01"
+          - name: END_DATE
+            value: ""
           - name: FEATURE_METHOD
             value: "pct_change"
-          
-          # Model parameters
           - name: N_REGIMES
             value: "4"
-          - name: COVARIANCE_TYPE
-            value: "full"
           - name: RANDOM_STATE
             value: "42"
-          
-          # Database configuration
-          - name: DB_NAME
-            value: "fred"
-          - name: DB_USER
-            value: "tradingAgent"
-          - name: DB_HOST
-            value: "postgres.trading-monitoring.svc.cluster.local"
-          - name: DB_PASSWORD
+          - name: NUM_STEPS
+            value: "1000"
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: user
+                optional: true
+          - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: postgres-secret
                 key: password
+          - name: POSTGRES_HOST
+            value: "postgres.dev.local.info"
           - name: POSTGRES_PORT
-            value: "5432"
-          
-          # MLflow configuration
+            value: "54324"
+          - name: ENV
+            value: "dev"
+          - name: IFP_MLFLOW_PATH
+            value: "/workspace/mlflow"
           - name: MLFLOW_TRACKING_URI
             value: "http://mlflow.trading-monitoring.svc.cluster.local:5000"
           - name: EXPERIMENT_NAME
             value: "macro-cycle-hmm"
-          
-          # Prometheus configuration
-          - name: PROMETHEUS_PORT
-            value: "8000"
-          
-          # Python path
-          - name: PYTHONPATH
-            value: "/workspace"
-        
         resources:
           requests:
             cpu: "500m"
@@ -106,11 +91,9 @@ metadata:
     app: hmm-model
     component: training
 data:
-  # Default training parameters - can be overridden via Job env vars
-  default_series_ids: "GDP UNRATE CPIAUCSL"
+  default_series_ids: "GDP CPIAUCSL FEDFUNDS"
   default_start_date: "2000-01-01"
   default_feature_method: "pct_change"
   default_n_regimes: "4"
-  default_covariance_type: "full"
   default_random_state: "42"
-
+  default_num_steps: "1000"

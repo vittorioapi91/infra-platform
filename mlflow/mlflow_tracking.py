@@ -3,10 +3,11 @@ MLflow integration for experiment tracking and model registry
 """
 
 import mlflow
-import mlflow.sklearn
 from typing import Dict, Optional, Any
 import logging
 import os
+import pickle
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +68,12 @@ class MLflowTracker:
             if tags:
                 mlflow.set_tags(tags)
             
-            # Log model
-            mlflow.sklearn.log_model(
-                model,
-                'model',
-                registered_model_name='macro-cycle-hmm'
-            )
+            # Log model artifact (Pyro HMM is not a sklearn estimator)
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as handle:
+                pickle.dump(model, handle)
+                artifact_path = handle.name
+            mlflow.log_artifact(artifact_path, artifact_path="model")
+            os.unlink(artifact_path)
             
             # Log artifacts
             if artifacts:
@@ -139,9 +140,7 @@ class MLflowTracker:
         else:
             model_uri = f"models:/{model_name}/latest"
         
-        model = mlflow.sklearn.load_model(model_uri)
-        
-        logger.info(f"Model loaded: {model_uri}")
-        
-        return model
+        raise NotImplementedError(
+            "HMM models are logged as pickle artifacts; load via mlflow.artifacts.download_artifacts"
+        )
 

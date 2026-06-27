@@ -1,21 +1,17 @@
-# Incremental model training image - builds FROM base image
-# This builds on top of hmm-model-training-base:base which has dependencies pre-installed
-# Base image should be pulled from local registry (localhost:5000) before building
-# Build base first and push to registry: .ops/.docker/push-base-images.sh
-# Pipeline will pull base image from registry and tag it locally before building
+# Incremental model training image - installs idp + trading_agent wheels and IFP mlflow module
 FROM hmm-model-training-base:base
 
-# Base image already has WORKDIR /workspace and requirements installed
-# Only copy source code here (incremental layer)
+ARG ENV=dev
 
-# Copy source code
-COPY src/ /workspace/src/
-# Note: .ops/ is NOT copied - it contains infrastructure/monitoring tooling
-# which should only be built in infra-platform pipeline images, not model training images
+# Install data + modeling wheels (copied by install-model-wheels.sh before build)
+COPY kubernetes/wheels/idp-*.whl kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
+RUN pip install --no-cache-dir /tmp/wheels/idp-*.whl /tmp/wheels/trading_agent-*.whl \
+    && rm -rf /tmp/wheels
 
-# Set Python path
-ENV PYTHONPATH=/workspace
+# infra-platform MLflow tracker module (IFP_MLFLOW_PATH for trading_agent.src.mlflow)
+COPY mlflow/ /workspace/mlflow/
+ENV IFP_MLFLOW_PATH=/workspace/mlflow
+ENV MLFLOW_TRACKING_URI=http://mlflow:5000
+ENV PYTHONPATH=/workspace/mlflow
 
-# Default command (can be overridden in Job)
-CMD ["python", "-m", "trading_agent.model.main"]
-
+CMD ["python", "-m", "trading_agent.macro.main", "--series-ids", "GDP", "CPIAUCSL", "FEDFUNDS", "--start-date", "2000-01-01", "--skip-prometheus", "--skip-mlflow"]

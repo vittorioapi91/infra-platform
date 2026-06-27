@@ -1,0 +1,2 @@
+# Copied by kubernetes/install-model-wheels.sh before Docker build
+*.whl

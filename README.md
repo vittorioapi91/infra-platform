@@ -20,7 +20,7 @@ Infra-Platform provides a complete infrastructure stack for:
 │                  Infrastructure Services                      │
 ├─────────────────────────────────────────────────────────────┤
 │  Airflow │ Jenkins │ Grafana │ Prometheus │ MLflow         │
-│  PostgreSQL │ Redis │ Kubernetes │ Feast │ KServe          │
+│  PostgreSQL │ Redis │ Kubernetes │ Feast │ dbt │ KServe          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -35,6 +35,7 @@ infra-platform/
 │   ├── Dockerfile.jenkins       # Jenkins Docker image
 │   └── Dockerfile.jenkins.base   # Base Jenkins image
 ├── feast/                       # Feast feature store configuration
+├── dbt/                         # dbt project (engineered features → feast schema)
 ├── grafana/                     # Grafana dashboards and configuration
 ├── jenkins/                     # Jenkins configuration and plugins
 ├── kserve/                      # KServe model serving configuration
@@ -83,7 +84,7 @@ docker-compose -f docker-compose.infra-platform.yml up -d
 
 Once services are running, they are available at:
 
-- **Airflow**: http://localhost:8080
+- **Airflow**: http://airflow.local.dev.info (or direct http://localhost:8082)
 - **Jenkins**: http://localhost:8081
 - **Grafana**: http://localhost:3000 (admin/admin)
 - **MLflow**: http://localhost:55000
@@ -256,7 +257,7 @@ The Jenkins pipeline automatically validates:
 ### Services Won't Start
 
 - Check Docker is running: `docker info`
-- Verify ports are not in use: `lsof -i :8080`
+- Verify ports are not in use: `lsof -i :8082` (Airflow dev), `lsof -i :8081` (Jenkins)
 - Check Docker Compose logs: `docker-compose -f docker/docker-compose.infra-platform.yml logs`
 
 ### Kubernetes Issues

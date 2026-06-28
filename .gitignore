@@ -81,3 +81,20 @@ storage-infra/airflow/prod/package_root/*
 !storage-infra/airflow/prod/package_root/.gitkeep
 storage-infra/airflow/prod/logs/*
 !storage-infra/airflow/prod/logs/.gitkeep
+
+# storage-doltgres: keep folder structure, ignore Dolt data inside (dev|test|prod may be symlinks)
+storage-doltgres/dev/*
+!storage-doltgres/dev/.gitkeep
+storage-doltgres/test/*
+!storage-doltgres/test/.gitkeep
+storage-doltgres/prod/*
+!storage-doltgres/prod/.gitkeep
+
+# dbt build artifacts
+dbt/**/target/
+dbt/**/logs/
+dbt/**/dbt_packages/
+dbt/.user.yml
+
+# postgres -> doltgres migration staging (large dumps)
+docker/.migration-staging/

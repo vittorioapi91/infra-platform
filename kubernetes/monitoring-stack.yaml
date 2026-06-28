@@ -183,11 +183,6 @@ spec:
       containers:
         - name: mlflow
           image: ghcr.io/mlflow/mlflow:v2.8.1
-          env:
-            - name: MLFLOW_BACKEND_STORE_URI
-              value: "sqlite:///mlflow.db"
-            - name: MLFLOW_DEFAULT_ARTIFACT_ROOT
-              value: "/mlflow/artifacts"
           resources:
             requests:
               cpu: "100m"
@@ -200,10 +195,24 @@ spec:
           volumeMounts:
             - name: mlflow-storage
               mountPath: /mlflow
-          command: [ "mlflow", "server", "--host", "0.0.0.0", "--port", "5000" ]
+          command:
+            - mlflow
+            - server
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "5000"
+            - --backend-store-uri
+            - sqlite:////mlflow/mlflow.db
+            - --artifacts-destination
+            - /mlflow/artifacts
+            - --serve-artifacts
       volumes:
+        # Bind host MLflow data dir into the pod (configure kind extraMounts for this path).
         - name: mlflow-storage
-          emptyDir: {}
+          hostPath:
+            path: /var/lib/trading/mlflow
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
@@ -242,7 +251,7 @@ spec:
     spec:
       containers:
         - name: airflow
-          image: apache/airflow:2.9.3
+          image: apache/airflow:3.2.2
           env:
             - name: AIRFLOW_HOME
               value: /opt/airflow

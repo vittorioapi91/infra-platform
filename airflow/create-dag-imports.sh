@@ -13,6 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_PARENT="$(cd "${SCRIPT_DIR}/../../infra-data-pipelines" 2>/dev/null && pwd || true)"
+TPA_SOURCE_PARENT="$(cd "${SCRIPT_DIR}/../../TradingPythonAgent" 2>/dev/null && pwd || true)"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -65,16 +66,20 @@ else
     SOURCE_DIR="${WORKSPACE_ROOT}/${PACKAGE_NAME}/_airflow_dags_"
 fi
 
-# Check for fallback location: mounted source code
-# Try mounted source code location: /workspace/infra-data-pipelines/src/_airflow_dags_ (inside container)
-# or infra-data-pipelines/src/_airflow_dags_ (on host)
+# Check for fallback location: mounted source code (idp or trading_agent)
 FALLBACK_DIR=""
-if [ -d "/workspace/infra-data-pipelines/src/_airflow_dags_" ]; then
-    # Inside Docker container
-    FALLBACK_DIR="/workspace/infra-data-pipelines/src/_airflow_dags_"
-elif [ -n "${SOURCE_PARENT}" ] && [ -d "${SOURCE_PARENT}/src/_airflow_dags_" ]; then
-    # On host filesystem
-    FALLBACK_DIR="${SOURCE_PARENT}/src/_airflow_dags_"
+if [ "${PACKAGE_NAME}" = "trading_agent" ]; then
+    if [ -d "/workspace/TradingPythonAgent/src/_airflow_dags_" ]; then
+        FALLBACK_DIR="/workspace/TradingPythonAgent/src/_airflow_dags_"
+    elif [ -n "${TPA_SOURCE_PARENT}" ] && [ -d "${TPA_SOURCE_PARENT}/src/_airflow_dags_" ]; then
+        FALLBACK_DIR="${TPA_SOURCE_PARENT}/src/_airflow_dags_"
+    fi
+else
+    if [ -d "/workspace/infra-data-pipelines/src/_airflow_dags_" ]; then
+        FALLBACK_DIR="/workspace/infra-data-pipelines/src/_airflow_dags_"
+    elif [ -n "${SOURCE_PARENT}" ] && [ -d "${SOURCE_PARENT}/src/_airflow_dags_" ]; then
+        FALLBACK_DIR="${SOURCE_PARENT}/src/_airflow_dags_"
+    fi
 fi
 
 # Use fallback if installed wheel doesn't exist, is empty, or has fewer DAGs than source
@@ -85,6 +90,15 @@ if [ -d "${SOURCE_DIR}" ]; then
 fi
 if [ -n "${FALLBACK_DIR}" ] && [ -d "${FALLBACK_DIR}" ]; then
     FALLBACK_DAG_COUNT=$(ls -A "${FALLBACK_DIR}"/*.py 2>/dev/null | grep -v __init__ | grep -v __pycache__ | wc -l | tr -d ' ')
+fi
+
+# trading_agent: prefer mounted repo source when available (iterate without wheel rebuild)
+if [ "${PACKAGE_NAME}" = "trading_agent" ] && [ -n "${FALLBACK_DIR}" ] && [ -d "${FALLBACK_DIR}" ] && [ "${FALLBACK_DAG_COUNT}" -gt 0 ]; then
+    if [ -d "/workspace/TradingPythonAgent/src/_airflow_dags_" ] \
+        || { [ -n "${TPA_SOURCE_PARENT}" ] && [ -d "${TPA_SOURCE_PARENT}/src/_airflow_dags_" ]; }; then
+        log_info "Using TradingPythonAgent source DAGs: ${FALLBACK_DIR}"
+        SOURCE_DIR="${FALLBACK_DIR}"
+    fi
 fi
 
 # Use fallback if it has more DAGs than the installed wheel
@@ -100,12 +114,21 @@ elif [ ! -d "${SOURCE_DIR}" ] || [ "${WHEEL_DAG_COUNT}" -eq 0 ]; then
         log_error "Could not find _airflow_dags_ directory"
         log_error "Checked locations:"
         log_error "  1. ${SOURCE_DIR} (${WHEEL_DAG_COUNT} DAGs)"
-        log_error "  2. /workspace/infra-data-pipelines/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
-        log_error "  3. ${SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
-        log_error ""
-        log_error "Please ensure:"
-        log_error "  1. ${PACKAGE_NAME} wheel is installed with all DAGs, OR"
-        log_error "  2. infra-data-pipelines source is mounted and contains src/_airflow_dags_/"
+        if [ "${PACKAGE_NAME}" = "trading_agent" ]; then
+            log_error "  2. /workspace/TradingPythonAgent/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
+            log_error "  3. ${TPA_SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
+            log_error ""
+            log_error "Please ensure:"
+            log_error "  1. trading_agent wheel is installed with all DAGs, OR"
+            log_error "  2. TradingPythonAgent source is mounted and contains src/_airflow_dags_/"
+        else
+            log_error "  2. /workspace/infra-data-pipelines/src/_airflow_dags_ (container, ${FALLBACK_DAG_COUNT} DAGs)"
+            log_error "  3. ${SOURCE_PARENT}/src/_airflow_dags_ (host, ${FALLBACK_DAG_COUNT} DAGs)"
+            log_error ""
+            log_error "Please ensure:"
+            log_error "  1. ${PACKAGE_NAME} wheel is installed with all DAGs, OR"
+            log_error "  2. infra-data-pipelines source is mounted and contains src/_airflow_dags_/"
+        fi
         exit 1
     fi
 fi
@@ -126,8 +149,12 @@ log_info "Creating DAG import scripts..."
 log_info "  DAG source: ${SOURCE_DIR}"
 log_info "  Import scripts: ${DAGS_DIR}"
 
-# Find all Python DAG files in the source directory (excluding __init__.py and __pycache__)
-DAG_FILES=$(find "${SOURCE_DIR}" -type f -name "*.py" ! -name "__init__.py" ! -name "dag_params.py" ! -path "*/__pycache__/*" 2>/dev/null)
+# Find Python files that define a top-level `dag = DAG(...)` (exclude helpers / task-only modules)
+DAG_FILES=$(grep -rl 'dag = DAG' "${SOURCE_DIR}" --include '*.py' 2>/dev/null \
+    | grep -v __init__ \
+    | grep -v dag_params.py \
+    | grep -v __pycache__ \
+    || true)
 
 if [ -z "${DAG_FILES}" ]; then
     log_warn "No Python DAG files found in ${SOURCE_DIR}"
@@ -212,10 +239,31 @@ if not os.getenv('TRADING_AGENT_STORAGE'):
 
 EOF
 
+if [ "${PACKAGE_NAME}" = "trading_agent" ] && echo "${SOURCE_DIR}" | grep -q "TradingPythonAgent"; then
+    cat >> "${IMPORT_SCRIPT}" <<'PYEOF'
+# trading_agent source mount: setup.py package_dir maps trading_agent -> src/
+import types
+for _candidate in (
+    "/workspace/TradingPythonAgent/src",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../TradingPythonAgent/src")),
+):
+    if os.path.isdir(_candidate):
+        _pkg = sys.modules.get("trading_agent") or types.ModuleType("trading_agent")
+        _pkg.__path__ = [_candidate]
+        sys.modules["trading_agent"] = _pkg
+        break
+
+PYEOF
+fi
+
+cat >> "${IMPORT_SCRIPT}" <<EOF
+
+EOF
+
 # Determine if we're using fallback location (mounted source code)
 # If SOURCE_DIR contains "/workspace/infra-data-pipelines" or "/src/_airflow_dags_", we're using fallback
 USE_FALLBACK=false
-if echo "${SOURCE_DIR}" | grep -q "/workspace/infra-data-pipelines\|/src/_airflow_dags_\|infra-data-pipelines"; then
+if echo "${SOURCE_DIR}" | grep -q "/workspace/infra-data-pipelines\|/src/_airflow_dags_\|infra-data-pipelines\|TradingPythonAgent"; then
     USE_FALLBACK=true
     # For fallback, DAGs are directly in SOURCE_DIR
     DAG_BASE_PATH="${SOURCE_DIR}"

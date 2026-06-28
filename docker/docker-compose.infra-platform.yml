@@ -45,12 +45,21 @@ services:
     container_name: mlflow
     ports:
       - "55000:5000"
-    environment:
-      - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow.db
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
     volumes:
+      # Backend DB + run artifacts live on the host, not in the image layer
       - ../storage-infra/mlflow/data:/mlflow
-    command: mlflow server --host 0.0.0.0 --port 5000
+    command:
+      - mlflow
+      - server
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --artifacts-destination
+      - /mlflow/artifacts
+      - --serve-artifacts
     networks:
       - monitoring
     restart: unless-stopped
@@ -70,9 +79,73 @@ services:
       - monitoring
     restart: unless-stopped
 
+  # dbt – feature engineering into feast schema on postgres-* (see dbt/README.md)
+  dbt-dev:
+    image: python:3.11-slim
+    container_name: dbt-dev
+    working_dir: /workspace/dbt/feast_features
+    environment:
+      - DBT_PROFILES_DIR=/workspace/dbt
+      - DBT_TARGET=dev
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../dbt:/workspace/dbt
+    command: >
+      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
+      && pip install -r /workspace/dbt/requirements.txt
+      && dbt debug --project-dir /workspace/dbt/feast_features
+      && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-dev
+    restart: unless-stopped
+
+  dbt-test:
+    image: python:3.11-slim
+    container_name: dbt-test
+    working_dir: /workspace/dbt/feast_features
+    environment:
+      - DBT_PROFILES_DIR=/workspace/dbt
+      - DBT_TARGET=test
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../dbt:/workspace/dbt
+    command: >
+      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
+      && pip install -r /workspace/dbt/requirements.txt
+      && dbt debug --project-dir /workspace/dbt/feast_features
+      && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-test
+    restart: unless-stopped
+
+  dbt-prod:
+    image: python:3.11-slim
+    container_name: dbt-prod
+    working_dir: /workspace/dbt/feast_features
+    environment:
+      - DBT_PROFILES_DIR=/workspace/dbt
+      - DBT_TARGET=prod
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+    volumes:
+      - ../dbt:/workspace/dbt
+    command: >
+      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
+      && pip install -r /workspace/dbt/requirements.txt
+      && dbt debug --project-dir /workspace/dbt/feast_features
+      && tail -f /dev/null"
+    networks:
+      - monitoring
+    depends_on:
+      - postgres-prod
+    restart: unless-stopped
+
   # Airflow DEV (for dev/* branches)
   airflow-dev:
-    image: apache/airflow:2.9.3
+    image: apache/airflow:3.2.2
     container_name: airflow-dev
     ports:
       - "8082:8080"
@@ -84,9 +157,13 @@ services:
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
       # Use PostgreSQL instead of SQLite for better performance and concurrency
       # Connect directly to postgres-dev; database datalake, schema postgres (nginx proxy used for host access)
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://dev.user:${POSTGRES_PASSWORD:-2014}@postgres-dev:5432/datalake?options=-c%20search_path%3Dpostgres
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres-dev:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
-      - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
+      - AIRFLOW__CORE__AUTH_MANAGER=airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      - _PIP_ADDITIONAL_REQUIREMENTS=apache-airflow-providers-fab apache-airflow-providers-standard docker
+      # Stable secrets so FAB/CSRF sessions survive restarts (dev only)
+      - AIRFLOW__API__SECRET_KEY=dev-airflow-api-secret-key
+      - AIRFLOW__WEBSERVER__SECRET_KEY=dev-airflow-fab-secret-key
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/1
       # Use 1 worker for webserver to reduce resource contention (scheduler runs separately)
       - AIRFLOW__WEBSERVER__WORKERS=1
@@ -96,7 +173,14 @@ services:
       - AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
       - AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT=180
       # Display environment badge in Airflow UI title
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=Airflow (DEV)
+      - AIRFLOW__API__INSTANCE_NAME=Airflow (DEV)
+      - AIRFLOW__API__EXPOSE_CONFIG=True
+      # Public URLs (avoid stale airflow.cfg base_url=http://localhost:8080 redirects)
+      - AIRFLOW__API__BASE_URL=http://airflow.local.dev.info
+      - AIRFLOW__WEBSERVER__BASE_URL=http://airflow.local.dev.info
+      - AIRFLOW__CLI__ENDPOINT_URL=http://airflow.local.dev.info
+      - AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX=True
+      - FORWARDED_ALLOW_IPS=*
       # Make custom operators available inside the container
       - PYTHONPATH=/opt/airflow/operators
       # Set environment for config.py and wheel selection
@@ -105,13 +189,14 @@ services:
       # PostgreSQL (direct to postgres-dev; database datalake, default schema postgres)
       - POSTGRES_HOST=postgres-dev
       - POSTGRES_PORT=5432
-      - POSTGRES_USER=dev.user
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=datalake
       - POSTGRES_SCHEMA=postgres
     volumes:
       - ../storage-infra/airflow/dev/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
+      - ../airflow/airflow_local_settings.py:/opt/airflow-settings/airflow_local_settings.py:ro
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
       # Wheels and workspace in storage-infra (not versioned)
@@ -126,6 +211,8 @@ services:
       # Mount infra-data-pipelines to access built wheels and allow writing data files
       # (writable so DAGs can write to src/fundamentals/edgar/, etc.)
       - ../../infra-data-pipelines:/workspace/infra-data-pipelines
+      # TradingPythonAgent DAG source + wheel fallback (dbt orchestration, modeling)
+      - ../../TradingPythonAgent:/workspace/TradingPythonAgent
       # Bind-mount storage-other-data from host (<repo>/storage-other-data); legacy compatibility mount. Canonical path is TRADING_AGENT_STORAGE (/Volumes/storage-volume/storage/{env})
       - ../storage-other-data:/workspace/storage-other-data
       # Canonical TA storage (TRADING_AGENT_STORAGE); must match host path in .env.{env}
@@ -137,6 +224,8 @@ services:
       - ../storage-infra/airflow/dev/db:/opt/airflow
     command: >
       bash -c "
+        mkdir -p /opt/airflow/config &&
+        cp /opt/airflow-settings/airflow_local_settings.py /opt/airflow/config/airflow_local_settings.py &&
         # Run install-idp-wheel.sh automatically to copy wheels from infra-data-pipelines/dist/ to /opt/airflow/wheels/
         ENV=dev
         echo \"Running install-idp-wheel.sh to copy wheels from infra-data-pipelines/dist/...\"
@@ -150,7 +239,10 @@ services:
         # Install environment-specific wheel (dev)
         # Wheels are now named with base package name (no env suffix): idp-*.whl
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
-        WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        WHEEL_FILE=\$$(ARCH=\$$(uname -m); if [ \"\$${ARCH}\" = \"aarch64\" ] || [ \"\$${ARCH}\" = \"arm64\" ]; then find /opt/airflow/wheels -name 'idp-*aarch64*.whl' 2>/dev/null | sort -V | tail -n 1; else find /opt/airflow/wheels -name 'idp-*x86_64*.whl' 2>/dev/null | sort -V | tail -n 1; fi)
+        if [ -z \"\$${WHEEL_FILE}\" ]; then
+          WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        fi
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Found wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
@@ -192,6 +284,9 @@ services:
           elif [ \"\$${INSTALLED_VERSION}\" != \"\$${WHEEL_VERSION}\" ]; then
             echo \"Upgrading package \$${INSTALLED_VERSION} -> \$${WHEEL_VERSION} from \$$(basename \$${WHEEL_FILE})\"
             NEEDS_INSTALL=true
+          elif [ -n \"\$${DIST_INFO}\" ] && [ \"\$${WHEEL_FILE}\" -nt \"\$${DIST_INFO}/METADATA\" ]; then
+            echo \"Wheel is newer than installed package (version \$${INSTALLED_VERSION}). Reinstalling.\"
+            NEEDS_INSTALL=true
           else
             echo \"Package already installed (version \$${INSTALLED_VERSION}). Skipping installation.\"
             NEEDS_INSTALL=false
@@ -205,6 +300,7 @@ services:
             mkdir -p \"\$${WORKSPACE_DIR}\"
             # Create lock file to indicate installation is in progress
             touch \"\$${INSTALL_LOCK}\"
+            rm -rf \"\$${WORKSPACE_DIR}/idp\" \"\$${WORKSPACE_DIR}/\$${PACKAGE_NAME}\"*.dist-info
             # Only clean up if workspace is truly empty (not if it has files from previous install)
             if [ \"\$$(ls -A \$${WORKSPACE_DIR} 2>/dev/null | wc -l)\" -le 2 ]; then
               echo \"Workspace is empty. Proceeding with installation.\"
@@ -289,6 +385,10 @@ services:
             echo \"Warning: No wheel found for environment \$${ENV}. Looking for idp-*.whl\"
           export WHEEL_VERSION=\"Not installed\"
         fi
+        echo \"Running create-dag-imports.sh for trading_agent (dbt DAGs)...\"
+        bash /opt/airflow/create-dag-imports.sh \$${ENV} trading_agent 2>&1 || {
+          echo \"Warning: create-dag-imports.sh failed for trading_agent\"
+        }
         # Install PostgreSQL client tools (pg_dump, pg_restore, psql) for backup DAGs
         if ! command -v pg_dump > /dev/null 2>&1; then
           echo \"Installing PostgreSQL client tools...\"
@@ -301,14 +401,16 @@ services:
         python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
-        rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid
+        rm -f /opt/airflow/airflow-api-server.pid /opt/airflow/airflow-scheduler.pid /opt/airflow/airflow-dag-processor.pid
         airflow db migrate &&
         # Only create admin user if it doesn't exist (check first to avoid resetting)
         airflow users list | grep -q 'admin' || airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password 2014 || true
         # Create vittorioapi user if it doesn't exist (persist across restarts)
         airflow users list | grep -q 'vittorioapi' || airflow users create --username vittorioapi --firstname Vittorio --lastname API --role Admin --email vittorioapi@example.com --password 2014 || true
-        airflow webserver --port 8080 &
-        airflow scheduler
+        airflow api-server --port 8080 --proxy-headers &
+        airflow scheduler &
+        airflow dag-processor &
+        exec airflow triggerer
       "
     networks:
       - monitoring
@@ -316,7 +418,7 @@ services:
 
   # Airflow TEST (for test branch)
   airflow-test:
-    image: apache/airflow:2.9.3
+    image: apache/airflow:3.2.2
     container_name: airflow-test
     ports:
       - "8083:8080"
@@ -329,7 +431,8 @@ services:
       # Use PostgreSQL instead of SQLite for better performance and concurrency
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://test.user:${POSTGRES_PASSWORD:-2014}@postgres-test:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
-      - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
+      - AIRFLOW__CORE__AUTH_MANAGER=airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      - _PIP_ADDITIONAL_REQUIREMENTS=apache-airflow-providers-fab apache-airflow-providers-standard docker
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/2
       # Use 1 worker for webserver to reduce resource contention (scheduler runs separately)
       - AIRFLOW__WEBSERVER__WORKERS=1
@@ -339,7 +442,14 @@ services:
       - AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
       - AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT=180
       # Display environment badge in Airflow UI title
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=Airflow (TEST)
+      - AIRFLOW__API__INSTANCE_NAME=Airflow (TEST)
+      - AIRFLOW__API__EXPOSE_CONFIG=True
+      # Public URLs (avoid stale airflow.cfg base_url=http://localhost:8080 redirects)
+      - AIRFLOW__API__BASE_URL=http://airflow.local.test.info
+      - AIRFLOW__WEBSERVER__BASE_URL=http://airflow.local.test.info
+      - AIRFLOW__CLI__ENDPOINT_URL=http://airflow.local.test.info
+      - AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX=True
+      - FORWARDED_ALLOW_IPS=*
       # Make custom operators available inside the container
       - PYTHONPATH=/opt/airflow/operators
       # Set environment for config.py and wheel selection
@@ -355,6 +465,7 @@ services:
     volumes:
       - ../storage-infra/airflow/test/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
+      - ../airflow/airflow_local_settings.py:/opt/airflow-settings/airflow_local_settings.py:ro
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
       # Wheels and package_root in storage-infra (not versioned)
@@ -376,11 +487,16 @@ services:
       - ../storage-infra/airflow/test/db:/opt/airflow
     command: >
       bash -c "
+        mkdir -p /opt/airflow/config &&
+        cp /opt/airflow-settings/airflow_local_settings.py /opt/airflow/config/airflow_local_settings.py &&
         # Install environment-specific wheel (test)
         ENV=test
         # Note: setuptools converts hyphens to underscores, so idp-test becomes idp_test
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
-        WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        WHEEL_FILE=\$$(ARCH=\$$(uname -m); if [ \"\$${ARCH}\" = \"aarch64\" ] || [ \"\$${ARCH}\" = \"arm64\" ]; then find /opt/airflow/wheels -name 'idp-*aarch64*.whl' 2>/dev/null | sort -V | tail -n 1; else find /opt/airflow/wheels -name 'idp-*x86_64*.whl' 2>/dev/null | sort -V | tail -n 1; fi)
+        if [ -z \"\$${WHEEL_FILE}\" ]; then
+          WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        fi
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
@@ -410,12 +526,14 @@ services:
         python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
-        rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid
+        rm -f /opt/airflow/airflow-api-server.pid /opt/airflow/airflow-scheduler.pid /opt/airflow/airflow-dag-processor.pid
         airflow db migrate &&
         # Only create admin user if it doesn't exist (check first to avoid resetting)
         airflow users list | grep -q 'admin' || airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password 2014 || true
-        airflow webserver --port 8080 &
-        airflow scheduler
+        airflow api-server --port 8080 --proxy-headers &
+        airflow scheduler &
+        airflow dag-processor &
+        exec airflow triggerer
       "
     networks:
       - monitoring
@@ -423,7 +541,7 @@ services:
 
   # Airflow PROD (for main branch)
   airflow-prod:
-    image: apache/airflow:2.9.3
+    image: apache/airflow:3.2.2
     container_name: airflow-prod
     ports:
       - "8084:8080"
@@ -436,7 +554,8 @@ services:
       # Use PostgreSQL instead of SQLite for better performance and concurrency
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://prod.user:${POSTGRES_PASSWORD:-2014}@postgres-prod:5432/datalake?options=-c%20search_path%3Dpostgres
       # Use FAB auth manager so 'airflow users create' controls login
-      - AIRFLOW__CORE__AUTH_MANAGER=airflow.auth.managers.fab.fab_auth_manager.FabAuthManager
+      - AIRFLOW__CORE__AUTH_MANAGER=airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      - _PIP_ADDITIONAL_REQUIREMENTS=apache-airflow-providers-fab apache-airflow-providers-standard docker
       - AIRFLOW__WEBSERVER__RATELIMIT_STORAGE_URI=redis://redis:6379/3
       # Use 1 worker for webserver to reduce resource contention (scheduler runs separately)
       - AIRFLOW__WEBSERVER__WORKERS=1
@@ -446,7 +565,14 @@ services:
       - AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
       - AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT=180
       # Display environment badge in Airflow UI title
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=Airflow (PROD)
+      - AIRFLOW__API__INSTANCE_NAME=Airflow (PROD)
+      - AIRFLOW__API__EXPOSE_CONFIG=True
+      # Public URLs (avoid stale airflow.cfg base_url=http://localhost:8080 redirects)
+      - AIRFLOW__API__BASE_URL=http://airflow.local.prod.info
+      - AIRFLOW__WEBSERVER__BASE_URL=http://airflow.local.prod.info
+      - AIRFLOW__CLI__ENDPOINT_URL=http://airflow.local.prod.info
+      - AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX=True
+      - FORWARDED_ALLOW_IPS=*
       # Make custom operators available inside the container
       - PYTHONPATH=/opt/airflow/operators
       # Set environment for config.py and wheel selection
@@ -462,6 +588,7 @@ services:
     volumes:
       - ../storage-infra/airflow/prod/logs:/opt/airflow/logs
       - ../airflow/plugins:/opt/airflow/plugins
+      - ../airflow/airflow_local_settings.py:/opt/airflow-settings/airflow_local_settings.py:ro
       # Mount custom operators package
       - ../airflow/operators:/opt/airflow/operators
       # Wheels and package_root in storage-infra (not versioned)
@@ -483,11 +610,16 @@ services:
       - ../storage-infra/airflow/prod/db:/opt/airflow
     command: >
       bash -c "
+        mkdir -p /opt/airflow/config &&
+        cp /opt/airflow-settings/airflow_local_settings.py /opt/airflow/config/airflow_local_settings.py &&
         # Install environment-specific wheel (prod)
         ENV=prod
         # Note: setuptools converts hyphens to underscores, so idp-prod becomes idp_prod
         # Find the latest version by sorting all matching wheels by version (-V) and taking the last one
-        WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        WHEEL_FILE=\$$(ARCH=\$$(uname -m); if [ \"\$${ARCH}\" = \"aarch64\" ] || [ \"\$${ARCH}\" = \"arm64\" ]; then find /opt/airflow/wheels -name 'idp-*aarch64*.whl' 2>/dev/null | sort -V | tail -n 1; else find /opt/airflow/wheels -name 'idp-*x86_64*.whl' 2>/dev/null | sort -V | tail -n 1; fi)
+        if [ -z \"\$${WHEEL_FILE}\" ]; then
+          WHEEL_FILE=\$$(find /opt/airflow/wheels -name "idp-*.whl" 2>/dev/null | sort -V | tail -n 1)
+        fi
         if [ -n \"\$${WHEEL_FILE}\" ]; then
           echo \"Installing wheel: \$$(basename \$${WHEEL_FILE})\"
           # Extract package name from wheel file
@@ -517,12 +649,14 @@ services:
         python3 -m pip install --quiet tqdm pandas psycopg2-binary requests python-dotenv docker > /tmp/pip_install.log 2>&1 &
         # Start Airflow services immediately (dependencies will install in background)
         # Remove stale PID files if they exist
-        rm -f /opt/airflow/airflow-webserver.pid /opt/airflow/airflow-scheduler.pid
+        rm -f /opt/airflow/airflow-api-server.pid /opt/airflow/airflow-scheduler.pid /opt/airflow/airflow-dag-processor.pid
         airflow db migrate &&
         # Only create admin user if it doesn't exist (check first to avoid resetting)
         airflow users list | grep -q 'admin' || airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password 2014 || true
-        airflow webserver --port 8080 &
-        airflow scheduler
+        airflow api-server --port 8080 --proxy-headers &
+        airflow scheduler &
+        airflow dag-processor &
+        exec airflow triggerer
       "
     networks:
       - monitoring
@@ -573,6 +707,58 @@ services:
     volumes:
       - ../storage-postgresql/prod:/var/lib/postgresql/data
       - ./init-pg-datalake-prod.sql:/docker-entrypoint-initdb.d/01-datalake-prod.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # Doltgres – version-controlled PostgreSQL (parallel to postgres-*; migrate later; see doltgres/README.md)
+  doltgres-dev:
+    image: dolthub/doltgresql:latest
+    container_name: doltgres-dev
+    environment:
+      - DOLTGRES_USER=postgres
+      - DOLTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DOLTGRES_DB=datalake
+    ports:
+      - "54331:5432"
+    volumes:
+      - ../storage-doltgres/dev:/var/lib/doltgres
+      - ./init-doltgres-bootstrap-dev.sh:/docker-entrypoint-initdb.d/01-bootstrap-dev.sh:ro
+      - ./init-doltgres-datalake-dev.sql:/opt/doltgres-init/datalake-dev.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  doltgres-test:
+    image: dolthub/doltgresql:latest
+    container_name: doltgres-test
+    environment:
+      - DOLTGRES_USER=postgres
+      - DOLTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DOLTGRES_DB=datalake
+    ports:
+      - "54332:5432"
+    volumes:
+      - ../storage-doltgres/test:/var/lib/doltgres
+      - ./init-doltgres-bootstrap-test.sh:/docker-entrypoint-initdb.d/01-bootstrap-test.sh:ro
+      - ./init-doltgres-datalake-test.sql:/opt/doltgres-init/datalake-test.sql:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  doltgres-prod:
+    image: dolthub/doltgresql:latest
+    container_name: doltgres-prod
+    environment:
+      - DOLTGRES_USER=postgres
+      - DOLTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DOLTGRES_DB=datalake
+    ports:
+      - "54333:5432"
+    volumes:
+      - ../storage-doltgres/prod:/var/lib/doltgres
+      - ./init-doltgres-bootstrap-prod.sh:/docker-entrypoint-initdb.d/01-bootstrap-prod.sh:ro
+      - ./init-doltgres-datalake-prod.sql:/opt/doltgres-init/datalake-prod.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
@@ -743,9 +929,14 @@ services:
       - "54324:54324"  # postgres.dev.local.info (TradingAgent dev)
       - "54325:54325"  # postgres.test.local.info (TradingAgent test)
       - "54326:54326"  # postgres.prod.local.info (TradingAgent prod)
+      # Doltgres TCP proxy (parallel; see gateway/nginx/nginx-doltgres.stream.conf)
+      - "54334:54334"  # doltgres.dev.local.info
+      - "54335:54335"  # doltgres.test.local.info
+      - "54336:54336"  # doltgres.prod.local.info
     volumes:
       - ../gateway/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Custom nginx.conf with stream module
       - ../gateway/nginx/nginx-postgres.stream.conf:/etc/nginx/stream-postgres.conf:ro
+      - ../gateway/nginx/nginx-doltgres.stream.conf:/etc/nginx/stream-doltgres.conf:ro
       - ../gateway/nginx/nginx-jenkins.conf:/etc/nginx/conf.d/jenkins.conf:ro
       - ../gateway/nginx/nginx-airflow.conf:/etc/nginx/conf.d/airflow.conf:ro
       - ../gateway/nginx/nginx-grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
@@ -766,6 +957,9 @@ services:
           - postgres.dev.local.info
           - postgres.test.local.info
           - postgres.prod.local.info
+          - doltgres.dev.local.info
+          - doltgres.test.local.info
+          - doltgres.prod.local.info
     restart: unless-stopped
 
   # Jenkins CI/CD server (direct access, no nginx proxy for performance)

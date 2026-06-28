@@ -167,7 +167,7 @@ airflow webserver
 
 ### Accessing Airflow UI
 
-1. Open `http://localhost:8080`
+1. Open `http://airflow.local.dev.info` (or `http://localhost:8082` for direct Docker port)
 2. Login with admin credentials
 3. Find the DAGs:
    - `macro_sql_workflows` (SQL workflows for all modules)

@@ -1,9 +1,6 @@
 """
-Airflow webserver configuration
-This file allows customization of the Airflow UI
-"""
-import os
+Airflow webserver configuration (legacy).
 
-# Custom template folder for environment banner
-# This will be used to override templates
-TEMPLATE_FOLDER = os.path.join(os.path.dirname(__file__), "plugins", "environment_info", "templates")
+Airflow 3 uses airflow_local_settings.py (DASHBOARD_UIALERTS) and FastAPI plugins
+for UI customization. This file is kept for compatibility with older tooling.
+"""

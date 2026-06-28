@@ -65,8 +65,13 @@
         </div>
         
         <div class="info-item">
-            <div class="info-label">Wheel Version:</div>
+            <div class="info-label">IDP Package:</div>
             <div class="info-value">{{ wheel_version }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">TPA Package:</div>
+            <div class="info-value">{{ tpa_version }}</div>
         </div>
         
         {% if wheel_file %}
@@ -109,8 +114,13 @@
         </div>
         
         <div class="info-item">
-            <div class="info-label">Database User:</div>
+            <div class="info-label">Database User (connection):</div>
             <div class="info-value">{{ db_user }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Logged in as:</div>
+            <div class="info-value">{{ logged_in_user }}</div>
         </div>
     </div>
 </div>

@@ -73,6 +73,7 @@ Currently defined:
 ## Integration
 
 Feast is integrated into:
+- **dbt**: engineered feature tables in Postgres `feast` schema (`dbt/README.md`); materialize or export for Feast
 - **Kubeflow Pipeline**: `update_feature_store` component
 - **Training Script**: Can be used to store features after training
 

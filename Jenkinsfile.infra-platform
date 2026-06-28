@@ -167,7 +167,7 @@ pipeline {
                             echo "Validating Airflow DAGs..."
                             # Create minimal venv for DAG validation
                             python3 -m venv /tmp/infra_venv || true
-                            /tmp/infra_venv/bin/pip install --quiet apache-airflow tqdm pandas psycopg2-binary requests python-dotenv || true
+                            /tmp/infra_venv/bin/pip install --quiet 'apache-airflow>=3.2.0' apache-airflow-providers-standard tqdm pandas psycopg2-binary requests python-dotenv || true
                             
                             export AIRFLOW_HOME=/tmp/airflow_infra_home
                             export AIRFLOW__CORE__DAGS_FOLDER=airflow/dags

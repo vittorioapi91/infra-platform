@@ -183,7 +183,7 @@ if airflow_env == 'prod':
         'database_backup_prod_to_dev',
         default_args=default_args,
         description='Daily backup: Restore dev datalake schemas from prod',
-        schedule_interval='0 2 * * *',  # Daily at 2 AM
+        schedule='0 2 * * *',  # Daily at 2 AM
         start_date=datetime(2024, 1, 1),
         catchup=False,
         tags=['backup', 'database', 'dev'],
@@ -200,7 +200,7 @@ if airflow_env == 'prod':
         'database_backup_prod_to_test',
         default_args=default_args,
         description='Weekly backup: Restore test datalake schemas from prod',
-        schedule_interval='0 3 * * 0',  # Weekly on Sunday at 3 AM
+        schedule='0 3 * * 0',  # Weekly on Sunday at 3 AM
         start_date=datetime(2024, 1, 1),
         catchup=False,
         tags=['backup', 'database', 'test'],

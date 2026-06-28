@@ -1,0 +1,17 @@
+name: feast_features
+version: 1.0.0
+config-version: 2
+profile: feast_features
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+models:
+  feast_features:
+    features:
+      +schema: feast
+      +materialized: table
+      +tags: ["feast"]

@@ -24,8 +24,11 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-portainer.conf` - Routes `portainer.local.info` to Portainer
 - `nginx-pma-dashboard.conf` - PMA (PredictionMarketsAgent) dashboard; routes `predictionmarketsagent.local.info` to host.docker.internal:7567
 - `nginx-postgres.stream.conf` - PostgreSQL TCP proxy (stream); included from `nginx.conf` **stream** block. **Three TradingAgent Postgres servers** – dev, test, prod. Each port proxies to its own container.
+- `nginx-doltgres.stream.conf` - Doltgres TCP proxy (stream); three parallel servers – dev, test, prod (see `doltgres/README.md`).
 
 Use these hostnames + ports in your DB clients and `.env` files:
+
+### PostgreSQL (current)
 
 | Hostname | Port | Server | Use for |
 |----------|------|--------|---------|
@@ -33,7 +36,17 @@ Use these hostnames + ports in your DB clients and `.env` files:
 | `postgres.test.local.info` | 54325 | postgres-test | TradingAgent & PredictionMarketsAgent test |
 | `postgres.prod.local.info` | 54326 | postgres-prod | TradingAgent & PredictionMarketsAgent prod |
 
-Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** Postgres container. All apps use the single **datalake** database; previous DB names are now **schemas** (e.g. `postgres`, `polymarket`, `edgar`).
+### Doltgres (parallel; migrate when ready)
+
+| Hostname | Port | Server | Use for |
+|----------|------|--------|---------|
+| `doltgres.dev.local.info` | 54334 | doltgres-dev | Future cutover target (dev) |
+| `doltgres.test.local.info` | 54335 | doltgres-test | Future cutover target (test) |
+| `doltgres.prod.local.info` | 54336 | doltgres-prod | Future cutover target (prod) |
+
+Direct container ports (bypass nginx): dev **54331**, test **54332**, prod **54333**.
+
+Stream routing is **by port only** (hostname is ignored by Nginx). Each port proxies to a **different** database container. All apps use the single **datalake** database; previous DB names are now **schemas** (e.g. `postgres`, `polymarket`, `edgar`).
 
 **DB client / IDE connection check** – use this matrix:
 
@@ -96,6 +109,9 @@ To use these domain names, add entries to `/etc/hosts`:
 
 # PostgreSQL (TradingAgent dev/test/prod; port in connection string)
 127.0.0.1 postgres.dev.local.info postgres.test.local.info postgres.prod.local.info
+
+# Doltgres (parallel; port in connection string)
+127.0.0.1 doltgres.dev.local.info doltgres.test.local.info doltgres.prod.local.info
 ```
 
 See `docker/README.md` for complete setup instructions.

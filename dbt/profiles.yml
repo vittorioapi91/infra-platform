@@ -1,0 +1,33 @@
+# Connection targets for dbt-dev / dbt-test / dbt-prod containers.
+# Each container sets DBT_TARGET to its env (dev, test, prod).
+
+feast_features:
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
+  outputs:
+    dev:
+      type: postgres
+      host: postgres-dev
+      port: 5432
+      user: dev.user
+      password: "{{ env_var('POSTGRES_PASSWORD', '2014') }}"
+      dbname: datalake
+      schema: feast
+      threads: 4
+    test:
+      type: postgres
+      host: postgres-test
+      port: 5432
+      user: test.user
+      password: "{{ env_var('POSTGRES_PASSWORD', '2014') }}"
+      dbname: datalake
+      schema: feast
+      threads: 4
+    prod:
+      type: postgres
+      host: postgres-prod
+      port: 5432
+      user: prod.user
+      password: "{{ env_var('POSTGRES_PASSWORD', '2014') }}"
+      dbname: datalake
+      schema: feast
+      threads: 4

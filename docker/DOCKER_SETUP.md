@@ -15,7 +15,7 @@ This will start:
 - **Grafana** on http://localhost:3000 (admin/2014)
 - **Prometheus** on http://localhost:9090
 - **MLflow** on http://localhost:55000
-- **Airflow** on http://localhost:8080
+- **Airflow** on http://airflow.local.dev.info (direct: http://localhost:8082)
 - **PostgreSQL** (six servers) via Nginx TCP proxy on ports 54321–54326 (see `gateway/README.md`)
 - **Feast** CLI container (long-running, for feature management)
 
@@ -82,8 +82,8 @@ MLflow tracking server with:
 
 Airflow is included as an optional orchestration service:
 
-- **Port**: 8080  
-- **URL**: http://localhost:8080  
+- **Port**: 8082 (host) → 8080 (container)  
+- **URL**: http://airflow.local.dev.info or http://localhost:8082  
 - **Home (in container)**: `/opt/airflow`  
 - **DAGs folder in container**: `/opt/airflow/dags`  
 - **DAGs mapped from**: `airflow/dags`  
@@ -93,7 +93,7 @@ To access Airflow:
 
 1. Ensure environment variables in `airflow/QUICK_START.md` are set (especially `AIRFLOW_HOME` and `AIRFLOW__CORE__DAGS_FOLDER`) if you also run Airflow outside Docker.
 2. Start services with `docker-compose up -d`.
-3. Open `http://localhost:8080` in your browser.
+3. Open `http://airflow.local.dev.info` (or `http://localhost:8082`) in your browser.
 
 See `airflow/QUICK_START.md` for detailed Airflow setup and authentication.
 

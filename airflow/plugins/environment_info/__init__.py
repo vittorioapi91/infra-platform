@@ -1,3 +1,1 @@
-"""
-Airflow plugin to display environment and wheel information
-"""
+"""Airflow 3 environment_info plugin (FastAPI + external views)."""

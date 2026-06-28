@@ -46,7 +46,7 @@ airflow db migrate  # For Airflow 3.x (use 'airflow db init' for Airflow 2.x)
    ```
    The password is also saved to `~/airflow/simple_auth_manager_passwords.json`
 
-4. Log in to the web UI at `http://localhost:8080` using:
+4. Log in to the web UI at `http://airflow.local.dev.info` (or `http://localhost:8082`) using:
    - Username: `admin` (or whatever you set in step 1)
    - Password: The generated password from step 3
 
@@ -69,7 +69,7 @@ dags_folder = /Users/Snake91/CursorProjects/infra-platform/airflow/dags
 source .venv/bin/activate
 airflow standalone
 ```
-This starts both scheduler and API server (web UI). Access UI at `http://localhost:8080`
+This starts both scheduler and API server (web UI). Access UI at `http://airflow.local.dev.info` or `http://localhost:8082`
 
 **Important:** You must create an admin user first (see step 3 above) before you can log in.
 

@@ -5,7 +5,7 @@ This folder contains Docker Compose configurations for infrastructure and applic
 ## Files
 
 - **`docker-compose.infra-platform.yml`**: Infrastructure services Docker Compose configuration
-  - Defines all infrastructure services: Grafana, Prometheus, MLflow, Airflow (dev/test/prod), PostgreSQL, Redis, Jenkins, Alert Manager
+  - Defines all infrastructure services: Grafana, Prometheus, MLflow, Airflow (dev/test/prod), PostgreSQL, Doltgres, dbt, Redis, Jenkins, Alert Manager
   - Configures networking and volumes
   - Sets up service dependencies
   - **Use this for infrastructure deployment**

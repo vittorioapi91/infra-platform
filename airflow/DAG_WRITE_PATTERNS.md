@@ -95,3 +95,21 @@ docker exec airflow-dev ls -la /Volumes/storage-volume/storage/dev/fundamentals/
 ```
 
 Both should show the same file.
+
+## TaskGroup colors (idp vs tpa)
+
+Wrap DAG tasks in colored TaskGroups so the graph view shows package ownership at a glance:
+
+| Package | Helper | Color |
+|---------|--------|-------|
+| infra-data-pipelines | `create_idp_task_group(dag)` from `dag_task_groups` | Red |
+| tradingpythonagent | `create_tpa_task_group(dag)` from `dag_task_groups` | Blue |
+
+idp ships `dag_task_groups.py` in the wheel (`idp/_airflow_dags_/`). tpa DAGs import the same module from `/opt/airflow/operators` (`infra-platform/airflow/operators/dag_task_groups.py`).
+
+```python
+from dag_task_groups import create_tpa_task_group
+
+with create_tpa_task_group(dag):
+    my_task = SomeOperator(task_id="my_task", dag=dag)
+```

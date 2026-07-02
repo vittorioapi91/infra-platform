@@ -1,0 +1,12 @@
+# Pipeline image: project code only (runtime data lives on host / PVC mounts).
+dbt/**/target/
+dbt/**/logs/
+dbt/**/dbt_packages/
+dbt/.user.yml
+feast/repos/*/data/
+feast/feast_repo/data/
+mlflow/mlruns/
+storage-infra/
+storage-postgresql/
+jenkins/data/
+**/*.log

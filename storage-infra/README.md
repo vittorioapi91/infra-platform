@@ -15,8 +15,19 @@ Lives **on the host** at `<repo>/storage-infra`. In this repo, `storage-infra` i
 | `portainer/data/` | Portainer | `/data` |
 | `jenkins/data/` | Jenkins | `/var/jenkins_home` |
 | `airflow/{dev,test,prod}/` | Airflow | db (home), wheels, workspace/package_root, logs |
+| `feast/{dev,test,prod}/data/` | Feast (Compose + Kubeflow) | `feast/repos/{env}/data` (registry, parquet, online store) |
+| `dbt/{dev,test,prod}/target/` | dbt (Compose + Kubeflow) | `dbt/feast_features/target` (manifest, catalog) |
+| `dbt/{dev,test,prod}/logs/` | dbt | `dbt/feast_features/logs` |
 
 **Airflow:** `airflow/{env}/db` (Airflow home, bind-mounted as `/opt/airflow`), plus `wheels`, `workspace` (dev) or `package_root` (test/prod), and `logs`. DAGs stay versioned in `airflow/{env}/dags/`.
+
+**Feast / dbt:** Project code (`feast/repos/*/definitions.py`, `dbt/feast_features/models/`) stays in the git repo and in the `tpa-pipeline-runner` image. Runtime artifacts live under `storage-infra/feast/` and `storage-infra/dbt/` and are bind-mounted into Compose sidecars and kind pipeline pods.
+
+Provision dirs (and one-time migrate from legacy repo paths):
+
+```bash
+bash kubernetes/provision-pipeline-runtime-data.sh
+```
 
 Folder structure is committed; contents are gitignored (see root `.gitignore`).
 

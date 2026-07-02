@@ -89,6 +89,25 @@ storage-infra/airflow/prod/package_root/*
 storage-infra/airflow/prod/logs/*
 !storage-infra/airflow/prod/logs/.gitkeep
 
+storage-infra/feast/dev/data/*
+!storage-infra/feast/dev/data/.gitkeep
+storage-infra/feast/test/data/*
+!storage-infra/feast/test/data/.gitkeep
+storage-infra/feast/prod/data/*
+!storage-infra/feast/prod/data/.gitkeep
+storage-infra/dbt/dev/target/*
+!storage-infra/dbt/dev/target/.gitkeep
+storage-infra/dbt/dev/logs/*
+!storage-infra/dbt/dev/logs/.gitkeep
+storage-infra/dbt/test/target/*
+!storage-infra/dbt/test/target/.gitkeep
+storage-infra/dbt/test/logs/*
+!storage-infra/dbt/test/logs/.gitkeep
+storage-infra/dbt/prod/target/*
+!storage-infra/dbt/prod/target/.gitkeep
+storage-infra/dbt/prod/logs/*
+!storage-infra/dbt/prod/logs/.gitkeep
+
 # storage-doltgres: keep folder structure, ignore Dolt data inside (dev|test|prod may be symlinks)
 storage-doltgres/dev/*
 !storage-doltgres/dev/.gitkeep
@@ -102,6 +121,9 @@ dbt/**/target/
 dbt/**/logs/
 dbt/**/dbt_packages/
 dbt/.user.yml
+
+# mlflow local runs (runtime)
+mlflow/mlruns/
 
 # postgres -> doltgres migration staging (large dumps)
 docker/.migration-staging/

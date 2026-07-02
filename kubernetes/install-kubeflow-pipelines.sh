@@ -49,4 +49,7 @@ if [[ "${host_arch}" == "arm64" ]]; then
   kubectl scale deployment metadata-writer -n kubeflow --replicas=0 2>/dev/null || true
 fi
 
+log "Installing pipeline runtime data volumes (Feast/dbt host-backed PVCs)..."
+bash "${SCRIPT_DIR}/install-pipeline-data-volumes.sh"
+
 log "Kubeflow Pipelines is ready. UI: http://kubeflow.local.info (compose sidecar kubeflow-port-forward)"

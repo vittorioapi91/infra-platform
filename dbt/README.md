@@ -45,6 +45,8 @@ Each `dbt-{env}` sidecar serves generated docs on port **8880** (host-mapped **8
 
 Docs regenerate on container start and when `dbt docs serve` restarts. Add hostnames via `gateway/nginx/redirects.md`.
 
+dbt `target/` and `logs/` are bind-mounted from `storage-infra/dbt/{env}/target` and `storage-infra/dbt/{env}/logs` (not stored in the image).
+
 ## Project layout
 
 ```

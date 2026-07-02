@@ -1,5 +1,6 @@
-# Incremental pipeline runner image (dbt + Feast + trading_agent wheel)
-# Tag: tpa-pipeline-runner:latest
+# Incremental pipeline runner image (dbt + Feast code + trading_agent wheel).
+# Runtime data (Feast registry/parquet, dbt target) is NOT in the image — mounted via
+# storage-infra on Compose and PVC/hostPath on kind (see kubernetes/pipeline-data-volumes.yaml).
 #
 # Build: bash kubernetes/build-pipeline-image.sh [dev|staging|prod]
 
@@ -15,17 +16,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY dbt/requirements.txt /tmp/dbt-requirements.txt
-RUN pip install --no-cache-dir -r /tmp/dbt-requirements.txt "feast[local]>=0.36.0"
+RUN pip install --no-cache-dir -r /tmp/dbt-requirements.txt "feast[grpcio]>=0.36.0"
 
 COPY kubernetes/wheels/idp-*.whl kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
 RUN pip install --no-cache-dir /tmp/wheels/idp-*.whl /tmp/wheels/trading_agent-*.whl \
     && rm -rf /tmp/wheels
 
 COPY dbt/profiles.yml /workspace/dbt/profiles.yml
-COPY dbt/feast_features /workspace/dbt/feast_features
+COPY dbt/feast_features/dbt_project.yml /workspace/dbt/feast_features/dbt_project.yml
+COPY dbt/feast_features/models /workspace/dbt/feast_features/models
+COPY dbt/feast_features/macros /workspace/dbt/feast_features/macros
 COPY feast/repos /workspace/feast/repos
 
+# Empty runtime dirs (overlaid by volume mounts at run time).
+RUN for env in dev test prod; do \
+      mkdir -p "/workspace/feast/repos/${env}/data" \
+        "/workspace/dbt-runtime/${env}/target" \
+        "/workspace/dbt-runtime/${env}/logs"; \
+    done
+
 ENV DBT_PROFILES_DIR=/workspace/dbt
+ENV DBT_RUNTIME_ROOT=/workspace/dbt-runtime
 ENV PYTHONPATH=/workspace
 
 RUN python -c "import trading_agent._kubeflow_.runner; import trading_agent._kubeflow_.commands"

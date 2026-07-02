@@ -18,6 +18,7 @@ set -euo pipefail
 #
 
 CLUSTER_NAME="trading-cluster"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DASHBOARD_VERSION="v2.7.0"
 DASHBOARD_YAML_URL="https://raw.githubusercontent.com/kubernetes/dashboard/${DASHBOARD_VERSION}/aio/deploy/recommended.yaml"
 MONITORING_STACK_YAML=".ops/.kubernetes/monitoring-stack.yaml"
@@ -42,11 +43,15 @@ if ! command -v kind >/dev/null 2>&1; then
 fi
 
 echo "=== Ensuring kind cluster '${CLUSTER_NAME}' exists ==="
+KIND_CONFIG="$(bash "${SCRIPT_DIR}/generate-kind-config.sh")"
 if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
   echo "kind cluster '${CLUSTER_NAME}' already exists."
+  echo "If pipeline Feast/dbt data mounts fail, recreate with:"
+  echo "  kind delete cluster --name ${CLUSTER_NAME}"
+  echo "  bash kubernetes/generate-kind-config.sh | kind create cluster --config=-"
 else
-  echo "Creating kind cluster '${CLUSTER_NAME}' (this may take a minute)..."
-  kind create cluster --name "${CLUSTER_NAME}"
+  echo "Creating kind cluster '${CLUSTER_NAME}' with storage-infra runtime data mounts..."
+  echo "${KIND_CONFIG}" | kind create cluster --config=-
 fi
 
 echo "=== Setting kubectl context to kind-${CLUSTER_NAME} ==="
@@ -89,7 +94,6 @@ kubectl patch deployment kubernetes-dashboard -n kubernetes-dashboard --type='js
   echo "Run: kubectl patch deployment kubernetes-dashboard -n kubernetes-dashboard --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0/args/-\",\"value\":\"--enable-skip-login\"},{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0/args/-\",\"value\":\"--enable-insecure-login\"}]'"
 }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "=== Granting dashboard service account cluster-admin (skip-login uses this SA) ==="
 kubectl apply -f "${SCRIPT_DIR}/kubernetes-dashboard-rbac.yaml"
 

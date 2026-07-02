@@ -1,0 +1,63 @@
+# Static PV/PVC for Kubeflow pipeline runtime data (Feast sqlite/parquet, dbt target).
+# Host paths are on the kind node via extraMounts in kind-trading-cluster.yaml
+# (storage-infra/feast and storage-infra/dbt from the Mac host).
+#
+# Apply: bash kubernetes/install-pipeline-data-volumes.sh
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ifp-feast-runtime-data
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /var/lib/trading/feast-data
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ifp-feast-runtime-data
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: manual
+  volumeName: ifp-feast-runtime-data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ifp-dbt-runtime-data
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /var/lib/trading/dbt-data
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ifp-dbt-runtime-data
+  namespace: kubeflow
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: manual
+  volumeName: ifp-dbt-runtime-data

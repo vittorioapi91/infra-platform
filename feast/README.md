@@ -10,7 +10,7 @@ feast/
 │   ├── dev/          # feast-dev container
 │   │   ├── feature_store.yaml
 │   │   ├── definitions.py
-│   │   └── data/     # macro_hp_cycle.parquet, registry.db, online_store.db
+│   │   └── data/     # runtime: bind-mounted from storage-infra/feast/{env}/data
 │   ├── test/         # feast-test
 │   └── prod/         # feast-prod
 └── feast_repo/       # legacy single-env repo (deprecated)
@@ -23,6 +23,8 @@ feast/
 | dev | `feast-dev` | `/workspace/feast/repos/dev` | `postgres-dev` / `feast.*` |
 | test | `feast-test` | `/workspace/feast/repos/test` | `postgres-test` |
 | prod | `feast-prod` | `/workspace/feast/repos/prod` | `postgres-prod` |
+
+Runtime data (registry, parquet, online store) lives on the host at `storage-infra/feast/{env}/data/` and is bind-mounted into each sidecar. Project code stays in `feast/repos/`.
 
 Start with dbt sidecars:
 

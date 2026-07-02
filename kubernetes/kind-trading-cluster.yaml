@@ -1,0 +1,20 @@
+# kind cluster config for trading-cluster.
+# extraMounts expose storage-infra Feast/dbt runtime data on the kind node for pipeline PVs.
+#
+# Regenerate with absolute paths: bash kubernetes/generate-kind-config.sh > /tmp/kind-trading-cluster.yaml
+# kind create cluster --name trading-cluster --config /tmp/kind-trading-cluster.yaml
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: trading-cluster
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: __IFP_ROOT__/storage-infra/feast
+        containerPath: /var/lib/trading/feast-data
+        readOnly: false
+        selinuxRelabel: false
+      - hostPath: __IFP_ROOT__/storage-infra/dbt
+        containerPath: /var/lib/trading/dbt-data
+        readOnly: false
+        selinuxRelabel: false

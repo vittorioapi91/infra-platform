@@ -117,6 +117,7 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ../storage-infra/feast/dev/data:/workspace/feast/repos/dev/data
       - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/dev
@@ -135,6 +136,7 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ../storage-infra/feast/test/data:/workspace/feast/repos/test/data
       - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/test
@@ -153,6 +155,7 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ../storage-infra/feast/prod/data:/workspace/feast/repos/prod/data
       - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/prod
@@ -184,6 +187,9 @@ services:
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
+      - ../storage-infra/dbt/dev/target:/workspace/dbt/feast_features/target
+      - ../storage-infra/dbt/dev/logs:/workspace/dbt/feast_features/logs
+      - ../storage-infra/feast/dev/data:/workspace/feast/repos/dev/data
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
@@ -215,6 +221,9 @@ services:
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
+      - ../storage-infra/dbt/test/target:/workspace/dbt/feast_features/target
+      - ../storage-infra/dbt/test/logs:/workspace/dbt/feast_features/logs
+      - ../storage-infra/feast/test/data:/workspace/feast/repos/test/data
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
@@ -246,6 +255,9 @@ services:
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
+      - ../storage-infra/dbt/prod/target:/workspace/dbt/feast_features/target
+      - ../storage-infra/dbt/prod/logs:/workspace/dbt/feast_features/logs
+      - ../storage-infra/feast/prod/data:/workspace/feast/repos/prod/data
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro

@@ -18,7 +18,10 @@ Pipeline definition lives in the **trading_agent wheel** (`trading_agent._kubefl
 
 1. Docker Compose stack running (Postgres, MLflow, Feast repos on host ports).
 2. kind cluster with Kubeflow Pipelines (`kubernetes/QUICK_START.md`).
-3. Built pipeline image loaded into kind.
+3. Pipeline runtime data dirs: `bash kubernetes/provision-pipeline-runtime-data.sh`
+4. Built pipeline image loaded into kind.
+
+**Image vs data:** `tpa-pipeline-runner` contains dbt/Feast **project code** only. Feast registry/parquet and dbt `target/` live under `storage-infra/feast/` and `storage-infra/dbt/`, mounted into Compose sidecars and Kubeflow pipeline pods (PVC `ifp-feast-runtime-data`, `ifp-dbt-runtime-data`).
 
 ```bash
 # From infra-platform/

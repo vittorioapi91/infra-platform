@@ -13,7 +13,7 @@ export ENV
 bash "${SCRIPT_DIR}/install-trading-agent.sh"
 
 if ! python -c "import kfp" 2>/dev/null; then
-    pip install -q "kfp>=2.0.0"
+    pip install -q "kfp>=2.0.0" "kfp-kubernetes>=1.2.0"
 fi
 
 python <<PY

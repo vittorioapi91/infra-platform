@@ -32,7 +32,8 @@ storage-other-data/pma/prod/*
 # jenkins: runtime data (plugins, war, builds, workspaces); use storage-infra/jenkins/data
 jenkins/data/
 
-# feast: generated local sqlite stores (keep source parquet versioned)
+# feast: generated local sqlite stores per env (keep parquet versioned if desired)
+feast/repos/*/data/*.db
 feast/feast_repo/data/*.db
 
 # storage-infra: keep <service>/data structure, ignore contents inside data/
@@ -40,6 +41,12 @@ storage-infra/prometheus/data/*
 !storage-infra/prometheus/data/.gitkeep
 storage-infra/grafana/data/*
 !storage-infra/grafana/data/.gitkeep
+storage-infra/mlflow/dev/data/*
+!storage-infra/mlflow/dev/data/.gitkeep
+storage-infra/mlflow/test/data/*
+!storage-infra/mlflow/test/data/.gitkeep
+storage-infra/mlflow/prod/data/*
+!storage-infra/mlflow/prod/data/.gitkeep
 storage-infra/mlflow/data/*
 !storage-infra/mlflow/data/.gitkeep
 storage-infra/redisinsight/data/*

@@ -1,73 +1,49 @@
 # MLflow Integration (infra-platform)
 
-MLflow tracking helpers for model training jobs. The model-training Docker image
-copies this folder to `/workspace/mlflow` and sets `IFP_MLFLOW_PATH`.
+Per-environment MLflow tracking servers — same pattern as `postgres-dev` / `feast-dev` / `dbt-dev`.
 
-## Artifact storage (outside the image)
+## Servers
 
-Run artifacts and the tracking DB must **not** live inside container images.
+| Env | Container | Host port | Nginx hostname | Storage |
+|-----|-----------|-----------|----------------|---------|
+| dev | `mlflow-dev` | 55000 | `mlflow.local.dev.info` | `storage-infra/mlflow/dev/data` |
+| test | `mlflow-test` | 55001 | `mlflow.local.test.info` | `storage-infra/mlflow/test/data` |
+| prod | `mlflow-prod` | 55002 | `mlflow.local.prod.info` | `storage-infra/mlflow/prod/data` |
 
-| Environment | Host path | Container mount |
-|-------------|-----------|-----------------|
-| Docker Compose | `storage-infra/mlflow/data/` | `/mlflow` |
-| Kubernetes (kind) | `/var/lib/trading/mlflow` on the node | `/mlflow` |
+Each server has its own SQLite backend (`mlflow.db`) and artifact directory.
 
-The MLflow server is started with:
+## `/etc/hosts`
+
+```
+127.0.0.1 mlflow.local.dev.info mlflow.local.test.info mlflow.local.prod.info
+```
+
+## Training (trading_agent wheel)
+
+`trading_agent._mlflow_.paths.resolve_mlflow_tracking_uri()` picks the URI from:
+
+1. `MLFLOW_TRACKING_URI` if set
+2. Inside Docker: `http://mlflow-{env}:5000`
+3. On host: `http://localhost:55000` (dev), `55001` (test), `55002` (prod)
+
+`dbt-{env}` sidecars set `MLFLOW_TRACKING_URI` automatically.
 
 ```bash
-mlflow server \
-  --backend-store-uri sqlite:////mlflow/mlflow.db \
-  --artifacts-destination /mlflow/artifacts \
-  --serve-artifacts
+ENV=dev python -m trading_agent.macro.main --feature-method hp_cycle --series-ids GDP CPIAUCSL FEDFUNDS
+# → http://localhost:55000
+
+docker exec -e ENV=test dbt-test python -m trading_agent.macro.main ...
+# → http://mlflow-test:5000
 ```
 
-Use `--artifacts-destination` (not `--default-artifact-root`) so new experiments get
-`mlflow-artifacts:/…` URIs and clients upload over HTTP. With `--default-artifact-root`
-set to a filesystem path, the local debugger tries to write `/mlflow` on the Mac and fails.
+## Implementation
 
-For kind, map the host repo path into nodes if you want the same folder as Docker Compose:
+`mlflow_tracking.py` re-exports `MLflowTracker` from `trading_agent._mlflow_` (wheel). Install via `mlflow/install-trading-agent.sh` or `dbt/install-trading-agent.sh`.
 
-```yaml
-# kind cluster config excerpt
-extraMounts:
-  - hostPath: /path/to/infra-platform/storage-infra/mlflow/data
-    containerPath: /var/lib/trading/mlflow
-```
-
-## Usage (inside training_agent)
-
-```python
-from src.mlflow import get_mlflow_tracker_class
-
-MLflowTracker = get_mlflow_tracker_class()
-tracker = MLflowTracker(
-    tracking_uri="http://mlflow:5000",
-    experiment_name="macro-cycle-hmm",
-)
-run_id = tracker.log_hmm_experiment(
-    model=model,
-    params={"n_regimes": 4},
-    metrics={"log_likelihood": -100.5},
-)
-```
-
-## Configuration
+## Start
 
 ```bash
-export MLFLOW_TRACKING_URI=http://mlflow.local.info:55000
-export IFP_MLFLOW_PATH=/workspace/mlflow
+docker compose -f docker/docker-compose.infra-platform.yml up -d mlflow-dev mlflow-test mlflow-prod
 ```
 
-Local debugger (training on Mac, MLflow in Docker):
-
-```bash
-export MLFLOW_TRACKING_URI=http://localhost:55000
-export IFP_MLFLOW_PATH=/path/to/infra-platform/mlflow
-```
-
-After changing the server command, recreate the container:
-
-```bash
-cd infra-platform/docker
-docker compose -f docker-compose.infra-platform.yml up -d mlflow
-```
+Legacy single `mlflow` container and `storage-infra/mlflow/data/` are deprecated.

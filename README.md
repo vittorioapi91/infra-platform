@@ -87,7 +87,7 @@ Once services are running, they are available at:
 - **Airflow**: http://airflow.local.dev.info (or direct http://localhost:8082)
 - **Jenkins**: http://localhost:8081
 - **Grafana**: http://localhost:3000 (admin/admin)
-- **MLflow**: http://localhost:55000
+- **MLflow**: http://localhost:55000 (dev), :55001 (test), :55002 (prod)
 - **Prometheus**: http://localhost:9090
 - **Alert Manager**: http://localhost:8090
 - **Kubernetes Dashboard**: https://localhost:8001

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Install trading_agent into dbt sidecars (provides _dbt_ and _feast_ modules).
+# Install trading_agent into dbt sidecars (provides _dbt_, _feast_, features, _mlflow_).
 #
 # Same pattern as Airflow: prefer mounted TradingPythonAgent source for dev iteration,
 # fall back to the trading_agent wheel in kubernetes/wheels/.
@@ -45,5 +45,11 @@ else
     install_from_wheel || install_from_source
 fi
 
-python -c "import trading_agent._feast_.materialize; import trading_agent._dbt_.config"
-log "trading_agent._dbt_ / trading_agent._feast_ ready"
+python -c "
+import trading_agent._dbt_.config
+import trading_agent._feast_.materialize
+import trading_agent.features.macro.hodrick_prescott
+import trading_agent._mlflow_.tracking
+print('trading_agent pipeline modules ready')
+"
+log "trading_agent wheel installed (_dbt_, _feast_, features, _mlflow_)"

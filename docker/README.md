@@ -76,12 +76,13 @@ docker-compose -f docker-compose.yml down
 - **Data**: Bind-mounted from `storage-infra/prometheus/data`
 
 ### MLflow
-- **Port**: 5000 (exposed as 55000)
-- **URL**: 
-  - Direct: http://localhost:55000
-  - Via alias: http://mlflow.local.info (requires `/etc/hosts` entry and nginx proxy)
-- **Backend**: SQLite (default) or PostgreSQL (configurable)
-- **Data**: Bind-mounted from `storage-infra/mlflow/data`
+- **Ports**: 55000 (dev), 55001 (test), 55002 (prod) → container port 5000
+- **URL**:
+  - DEV: http://localhost:55000 or http://mlflow.local.dev.info
+  - TEST: http://localhost:55001 or http://mlflow.local.test.info
+  - PROD: http://localhost:55002 or http://mlflow.local.prod.info
+- **Backend**: SQLite per env
+- **Data**: `storage-infra/mlflow/{dev,test,prod}/data`
 
 ### Alert Manager
 - **Port**: 8090
@@ -157,7 +158,7 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 redisinsight.local.info
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
-127.0.0.1 mlflow.local.info
+127.0.0.1 mlflow.local.dev.info mlflow.local.test.info mlflow.local.prod.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
 127.0.0.1 portainer.local.info
@@ -197,7 +198,9 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
 - `http://openproject.local.info` → OpenProject (Project Management - replacement for Jira)
   - Direct: http://localhost:8086
   - Default admin credentials: admin/admin (change on first login)
-- `http://mlflow.local.info` → MLflow
+- `http://mlflow.local.dev.info` → MLflow Dev
+- `http://mlflow.local.test.info` → MLflow Test
+- `http://mlflow.local.prod.info` → MLflow Prod
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
 - `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
 - `http://portainer.local.info` → Portainer Docker Management UI

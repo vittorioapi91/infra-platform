@@ -9,10 +9,10 @@
 ```
 fred.time_series + fred.series (idp macro downloader)
     → dbt staging/intermediate (SQL views)
-    → python -m trading_agent._feast_.features.hodrick_prescott
+    → python -m trading_agent.features.macro.hodrick_prescott
     → feast.macro_hp_decomposition + feast.feature_transform_lineage
-    → python -m trading_agent._feast_.features.hp_feast_export
-    → feast apply
+    → python -m trading_agent.features.macro.hp_feast_export
+    → feast apply (feast-{env})
     → dbt feature views + tests
     → HMM training (--feature-method hp_cycle) logs lineage to MLflow
 ```
@@ -30,7 +30,7 @@ Start with the rest of the stack:
 ```bash
 ./start-all-services.sh
 # or
-docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast
+docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast-dev
 ```
 
 ## Project layout
@@ -95,8 +95,8 @@ From Airflow: `dbt_feast_features_{env}` DAG (TradingPythonAgent `_airflow_dags_
 
 ## Feast + MLflow
 
-- Parquet: `feast/feast_repo/data/macro_hp_cycle.parquet` (wide `{series_id}_cycle` columns)
-- Feature view: `macro_hp_cycle` in `feast/feast_repo/definitions.py`
+- Parquet: `feast/repos/{env}/data/macro_hp_cycle.parquet`
+- Feature view: `macro_hp_cycle` in `feast/repos/{env}/definitions.py`
 - Training: `python -m trading_agent.macro.main --feature-method hp_cycle --series-ids GDP CPIAUCSL FEDFUNDS`
 - MLflow tags: `feast_feature_view`, `feature_code_version`, `feature_git_sha`, etc.
 

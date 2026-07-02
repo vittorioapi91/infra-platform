@@ -6,7 +6,7 @@ Lives **on the host** at `<repo>/storage-infra`. In this repo, `storage-infra` i
 |-----------|---------|----------------|
 | `prometheus/data/` | Prometheus | `/prometheus` |
 | `grafana/data/` | Grafana | `/var/lib/grafana` |
-| `mlflow/data/` | MLflow | `/mlflow` |
+| `mlflow/{dev,test,prod}/data/` | MLflow | `/mlflow` |
 | `redisinsight/data/` | RedisInsight | `/data` |
 | `nats/data/` | NATS | `/data` |
 | `openproject/data/` | OpenProject | `/var/openproject/assets` |

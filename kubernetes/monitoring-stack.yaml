@@ -30,12 +30,24 @@ data:
               service: 'hmm-model'
               component: 'model'
 
-      - job_name: 'mlflow'
+      - job_name: 'mlflow-dev'
         static_configs:
-          - targets: ['mlflow:5000']
+          - targets: ['mlflow-dev:5000']
             labels:
               service: 'mlflow'
-              component: 'tracking'
+              env: 'dev'
+      - job_name: 'mlflow-test'
+        static_configs:
+          - targets: ['mlflow-test:5000']
+            labels:
+              service: 'mlflow'
+              env: 'test'
+      - job_name: 'mlflow-prod'
+        static_configs:
+          - targets: ['mlflow-prod:5000']
+            labels:
+              service: 'mlflow'
+              env: 'prod'
 ---
 # Prometheus Deployment & Service
 apiVersion: apps/v1
@@ -162,23 +174,26 @@ spec:
   selector:
     app: grafana
 ---
-# MLflow Deployment & Service
+# MLflow dev/test/prod — separate tracking DB + artifacts per env
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mlflow
+  name: mlflow-dev
   namespace: trading-monitoring
   labels:
     app: mlflow
+    env: dev
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: mlflow
+      env: dev
   template:
     metadata:
       labels:
         app: mlflow
+        env: dev
     spec:
       containers:
         - name: mlflow
@@ -208,19 +223,19 @@ spec:
             - /mlflow/artifacts
             - --serve-artifacts
       volumes:
-        # Bind host MLflow data dir into the pod (configure kind extraMounts for this path).
         - name: mlflow-storage
           hostPath:
-            path: /var/lib/trading/mlflow
+            path: /var/lib/trading/mlflow/dev
             type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mlflow
+  name: mlflow-dev
   namespace: trading-monitoring
   labels:
     app: mlflow
+    env: dev
 spec:
   type: LoadBalancer
   ports:
@@ -230,6 +245,137 @@ spec:
       name: http
   selector:
     app: mlflow
+    env: dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-test
+  namespace: trading-monitoring
+  labels:
+    app: mlflow
+    env: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+      env: test
+  template:
+    metadata:
+      labels:
+        app: mlflow
+        env: test
+    spec:
+      containers:
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:v2.8.1
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: mlflow-storage
+              mountPath: /mlflow
+          command:
+            - mlflow
+            - server
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "5000"
+            - --backend-store-uri
+            - sqlite:////mlflow/mlflow.db
+            - --artifacts-destination
+            - /mlflow/artifacts
+            - --serve-artifacts
+      volumes:
+        - name: mlflow-storage
+          hostPath:
+            path: /var/lib/trading/mlflow/test
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-test
+  namespace: trading-monitoring
+  labels:
+    app: mlflow
+    env: test
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    app: mlflow
+    env: test
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-prod
+  namespace: trading-monitoring
+  labels:
+    app: mlflow
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+      env: prod
+  template:
+    metadata:
+      labels:
+        app: mlflow
+        env: prod
+    spec:
+      containers:
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:v2.8.1
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: mlflow-storage
+              mountPath: /mlflow
+          command:
+            - mlflow
+            - server
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "5000"
+            - --backend-store-uri
+            - sqlite:////mlflow/mlflow.db
+            - --artifacts-destination
+            - /mlflow/artifacts
+            - --serve-artifacts
+      volumes:
+        - name: mlflow-storage
+          hostPath:
+            path: /var/lib/trading/mlflow/prod
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-prod
+  namespace: trading-monitoring
+  labels:
+    app: mlflow
+    env: prod
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    app: mlflow
+    env: prod
 ---
 # Airflow Deployment & Service (web + scheduler in one pod)
 apiVersion: apps/v1
@@ -385,19 +531,22 @@ stringData:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: feast
+  name: feast-dev
   namespace: trading-monitoring
   labels:
     app: feast
+    env: dev
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: feast
+      env: dev
   template:
     metadata:
       labels:
         app: feast
+        env: dev
     spec:
       containers:
         - name: feast
@@ -405,7 +554,9 @@ spec:
           command: ["sleep", "infinity"]
           env:
             - name: FEAST_REPO_PATH
-              value: "/workspace/feast_repo"
+              value: "/workspace/feast/repos/dev"
+            - name: ENV
+              value: "dev"
           # You can exec into this pod from the Dashboard or kubectl:
           #   kubectl exec -it -n trading-monitoring deploy/feast -- bash
           # and then pip install feast / interact with your repo.

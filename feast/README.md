@@ -1,79 +1,45 @@
-# Feast Feature Store
+# Feast Feature Store (per environment)
 
-This folder contains Feast feature store setup and configuration for macro economic features.
+Each Airflow / dbt environment uses its **own** Feast repo — same pattern as `dbt-dev` / `postgres-dev`.
 
-## Files
+## Layout
 
-- **`feast_setup.py`**: Feast setup and management functions
-  - `create_feast_repo()`: Create Feast repository structure
-  - `define_macro_entities_and_features()`: Define entities and feature views
-  - `materialize_features()`: Materialize features to online store
-  - `get_online_features()`: Retrieve online features
-
-- **`feast_repo/`**: Feast repository configuration
-  - `feature_store.yaml`: Feast configuration
-  - `definitions.py`: Feature definitions (entities, feature views)
-
-## Usage
-
-### Setup Feast Repository
-
-```python
-from src.feast import create_feast_repo, define_macro_entities_and_features
-
-# Create repository
-create_feast_repo('./feast_repo')
-
-# Define entities and features
-define_macro_entities_and_features('./feast_repo')
+```
+feast/
+├── repos/
+│   ├── dev/          # feast-dev container
+│   │   ├── feature_store.yaml
+│   │   ├── definitions.py
+│   │   └── data/     # macro_hp_cycle.parquet, registry.db, online_store.db
+│   ├── test/         # feast-test
+│   └── prod/         # feast-prod
+└── feast_repo/       # legacy single-env repo (deprecated)
 ```
 
-### Use Feature Store
+## Containers
 
-```python
-from feast import FeatureStore
-from src.feast import materialize_features, get_online_features
+| Env | Container | Repo path | Postgres features |
+|-----|-----------|-----------|-------------------|
+| dev | `feast-dev` | `/workspace/feast/repos/dev` | `postgres-dev` / `feast.*` |
+| test | `feast-test` | `/workspace/feast/repos/test` | `postgres-test` |
+| prod | `feast-prod` | `/workspace/feast/repos/prod` | `postgres-prod` |
 
-# Initialize feature store
-fs = FeatureStore(repo_path='./feast_repo')
+Start with dbt sidecars:
 
-# Materialize features
-materialize_features(
-    fs,
-    start_date='2000-01-01',
-    end_date='2024-01-01'
-)
-
-# Get online features
-entity_rows = [{'date': 1609459200}]  # Unix timestamp
-features = get_online_features(
-    fs,
-    entity_rows=entity_rows,
-    feature_refs=['macro_indicators:GDP', 'macro_indicators:UNRATE']
-)
+```bash
+docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast-dev
 ```
 
-## Configuration
+## Pipeline (per env)
 
-The Feast repository is configured in `feast_repo/feature_store.yaml`:
-- **Project**: macro_features
-- **Provider**: local (SQLite for online store)
-- **Offline store**: file-based
-- **Source file path**: defaults to `feast/feast_repo/data/macro_features.parquet`
-  - Override with `FEAST_MACRO_FEATURES_PATH=/absolute/path/to/macro_features.parquet`
+From `dbt-{env}` (or Airflow `dbt_feast_features_{env}`):
 
-## Feature Views
+1. HP materialize → `feast.macro_hp_decomposition` on that env's Postgres
+2. `python -m trading_agent.features.macro.hp_feast_export` → `repos/{env}/data/macro_hp_cycle.parquet`
+3. `feast apply` in `feast-{env}`
 
-Currently defined:
-- **macro_indicators**: Macro economic indicators feature view
-  - Entity: date (time-based)
-  - Features: GDP, UNRATE, CPIAUCSL, etc.
-  - TTL: 365 days
+`FEAST_REPO_PATH` and `ENV` are set automatically in dbt sidecars and Airflow docker exec commands.
 
-## Integration
+## Training
 
-Feast is integrated into:
-- **dbt**: engineered feature tables in Postgres `feast` schema (`dbt/README.md`); materialize or export for Feast
-- **Kubeflow Pipeline**: `update_feature_store` component
-- **Training Script**: Can be used to store features after training
-
+HMM training with `--feature-method hp_cycle` resolves parquet via `trading_agent._feast_.paths.resolve_hp_cycle_parquet_path()` using `ENV` / `DBT_TARGET`.

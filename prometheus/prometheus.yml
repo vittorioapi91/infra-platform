@@ -43,11 +43,23 @@ scrape_configs:
     #     target_label: __address__
     #     replacement: $1:8000
 
-  # Scrape MLflow metrics (if enabled)
-  - job_name: 'mlflow'
+  # Scrape MLflow metrics (per env)
+  - job_name: 'mlflow-dev'
     static_configs:
-      - targets: ['mlflow:5000']
+      - targets: ['mlflow-dev:5000']
         labels:
           service: 'mlflow'
-          component: 'tracking'
+          env: 'dev'
+  - job_name: 'mlflow-test'
+    static_configs:
+      - targets: ['mlflow-test:5000']
+        labels:
+          service: 'mlflow'
+          env: 'test'
+  - job_name: 'mlflow-prod'
+    static_configs:
+      - targets: ['mlflow-prod:5000']
+        labels:
+          service: 'mlflow'
+          env: 'prod'
 

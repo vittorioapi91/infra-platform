@@ -88,7 +88,7 @@ The job is configured via environment variables in the manifest. Key settings:
 
 ### Service Connections
 - `DB_HOST`: PostgreSQL service (default: "postgres.trading-monitoring.svc.cluster.local")
-- `MLFLOW_TRACKING_URI`: MLflow service (default: "http://mlflow.trading-monitoring.svc.cluster.local:5000")
+- `MLFLOW_TRACKING_URI`: MLflow service (default: `http://mlflow-dev.trading-monitoring.svc.cluster.local:5000` for dev job)
 - Database password is read from `postgres-secret` Secret
 
 ## Customizing the Job
@@ -176,7 +176,7 @@ spec:
 3. **Test MLflow connection:**
    ```bash
    kubectl run -it --rm debug --image=curlimages/curl --restart=Never -n trading-monitoring -- \
-     curl http://mlflow.trading-monitoring.svc.cluster.local:5000
+     curl http://mlflow-dev.trading-monitoring.svc.cluster.local:5000
    ```
 
 ### Resource Issues

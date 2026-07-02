@@ -458,7 +458,7 @@ pipeline {
                         echo "  grafana.local.info/login"
                         echo "  prometheus.local.info/-/ready"
                         echo "  openproject.local.info/"
-                        echo "  mlflow.local.info/"
+                        echo "  mlflow.local.dev.info/  mlflow.local.test.info/  mlflow.local.prod.info/"
                         echo "  redisinsight.local.info/"
                         echo "  portainer.local.info/"
                         echo "  nats.local.info/"
@@ -470,7 +470,7 @@ pipeline {
                         echo ""
 
                         # Verify critical services are up before endpoint checks.
-                        for svc in nginx-proxy jenkins grafana prometheus openproject airflow-dev airflow-test airflow-prod mlflow redisinsight portainer alertmanager postgres-dev postgres-test postgres-prod redis nats registry; do
+                        for svc in nginx-proxy jenkins grafana prometheus openproject airflow-dev airflow-test airflow-prod mlflow-dev mlflow-test mlflow-prod redisinsight portainer alertmanager postgres-dev postgres-test postgres-prod redis nats registry; do
                             if ! docker compose -f "\${COMPOSE_FILE}" ps --services --status running | grep -qx "\${svc}"; then
                                 echo "❌ Required service not running: \${svc}"
                                 exit 1
@@ -503,7 +503,9 @@ pipeline {
                         check_route "grafana.local.info" "/login" "Grafana route"
                         check_route "prometheus.local.info" "/-/ready" "Prometheus route"
                         check_route "openproject.local.info" "/" "OpenProject route"
-                        check_route "mlflow.local.info" "/" "MLflow route"
+                        check_route "mlflow.local.dev.info" "/" "MLflow dev route"
+                        check_route "mlflow.local.test.info" "/" "MLflow test route"
+                        check_route "mlflow.local.prod.info" "/" "MLflow prod route"
                         check_route "redisinsight.local.info" "/" "RedisInsight route"
                         check_route "portainer.local.info" "/" "Portainer route"
                         check_route "nats.local.info" "/" "NATS UI route"

@@ -43,7 +43,7 @@ spec:
           - name: END_DATE
             value: ""
           - name: FEATURE_METHOD
-            value: "pct_change"
+            value: "hp_cycle"
           - name: N_REGIMES
             value: "4"
           - name: RANDOM_STATE
@@ -67,10 +67,10 @@ spec:
             value: "54324"
           - name: ENV
             value: "dev"
-          - name: IFP_MLFLOW_PATH
-            value: "/workspace/mlflow"
+          - name: ENV
+            value: "dev"
           - name: MLFLOW_TRACKING_URI
-            value: "http://mlflow.trading-monitoring.svc.cluster.local:5000"
+            value: "http://mlflow-dev.trading-monitoring.svc.cluster.local:5000"
           - name: EXPERIMENT_NAME
             value: "macro-cycle-hmm"
         resources:
@@ -93,7 +93,7 @@ metadata:
 data:
   default_series_ids: "GDP CPIAUCSL FEDFUNDS"
   default_start_date: "2000-01-01"
-  default_feature_method: "pct_change"
+  default_feature_method: "hp_cycle"
   default_n_regimes: "4"
   default_random_state: "42"
   default_num_steps: "1000"

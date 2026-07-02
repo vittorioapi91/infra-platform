@@ -18,7 +18,9 @@ All nginx configuration files are in the `nginx/` subdirectory and follow the pa
 - `nginx-nats.conf` - Routes `nats.local.info` to NATS monitoring endpoint
 - `nginx-openproject.conf` - Routes `openproject.local.info` to OpenProject
 - `nginx-prisma.conf` - Routes `prisma.postgres.{dev|test|prod}` to Prisma Studio. **Use http:// (not https)**. Run `npx prisma studio --port 5555` inside the container.
-- `nginx-mlflow.conf` - Routes `mlflow.local.info` to MLflow
+- `nginx-mlflow-dev.conf` - Routes `mlflow.local.dev.info` to MLflow dev
+- `nginx-mlflow-test.conf` - Routes `mlflow.local.test.info` to MLflow test
+- `nginx-mlflow-prod.conf` - Routes `mlflow.local.prod.info` to MLflow prod
 - `nginx-kubernetes-dashboard.conf` - Routes `kubernetes-dashboard.local.info` to Kubernetes Dashboard
 - `nginx-kubeflow.conf` - Routes `kubeflow.local.info` to Kubeflow Pipelines UI
 - `nginx-portainer.conf` - Routes `portainer.local.info` to Portainer
@@ -101,7 +103,7 @@ To use these domain names, add entries to `/etc/hosts`:
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
 127.0.0.1 prisma.postgres.dev prisma.postgres.test prisma.postgres.prod
-127.0.0.1 mlflow.local.info
+127.0.0.1 mlflow.local.dev.info mlflow.local.test.info mlflow.local.prod.info
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
 127.0.0.1 portainer.local.info

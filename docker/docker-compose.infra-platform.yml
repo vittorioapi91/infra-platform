@@ -39,15 +39,14 @@ services:
       - prometheus
     restart: unless-stopped
 
-  # Optional: MLflow tracking server
-  mlflow:
+  # MLflow tracking — per-env servers (see mlflow/README.md)
+  mlflow-dev:
     image: ghcr.io/mlflow/mlflow:v2.8.1
-    container_name: mlflow
+    container_name: mlflow-dev
     ports:
       - "55000:5000"
     volumes:
-      # Backend DB + run artifacts live on the host, not in the image layer
-      - ../storage-infra/mlflow/data:/mlflow
+      - ../storage-infra/mlflow/dev/data:/mlflow
     command:
       - mlflow
       - server
@@ -64,17 +63,94 @@ services:
       - monitoring
     restart: unless-stopped
 
-  # Optional: Feast CLI / feature store
-  feast:
+  mlflow-test:
+    image: ghcr.io/mlflow/mlflow:v2.8.1
+    container_name: mlflow-test
+    ports:
+      - "55001:5000"
+    volumes:
+      - ../storage-infra/mlflow/test/data:/mlflow
+    command:
+      - mlflow
+      - server
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --artifacts-destination
+      - /mlflow/artifacts
+      - --serve-artifacts
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  mlflow-prod:
+    image: ghcr.io/mlflow/mlflow:v2.8.1
+    container_name: mlflow-prod
+    ports:
+      - "55002:5000"
+    volumes:
+      - ../storage-infra/mlflow/prod/data:/mlflow
+    command:
+      - mlflow
+      - server
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --artifacts-destination
+      - /mlflow/artifacts
+      - --serve-artifacts
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # Feast – per-env repos (parquet + registry + online store); see feast/README.md
+  feast-dev:
     image: python:3.11-slim
-    container_name: feast
+    container_name: feast-dev
     working_dir: /workspace
     volumes:
-      - ..:/workspace
+      - ../feast:/workspace/feast
     environment:
-      - FEAST_REPO_PATH=/workspace/feast/feast_repo
+      - FEAST_REPO_PATH=/workspace/feast/repos/dev
+      - ENV=dev
     command: >
-      bash -c "pip install 'feast[local]>=0.36.0' && cd $$FEAST_REPO_PATH && feast apply && tail -f /dev/null"
+      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  feast-test:
+    image: python:3.11-slim
+    container_name: feast-test
+    working_dir: /workspace
+    volumes:
+      - ../feast:/workspace/feast
+    environment:
+      - FEAST_REPO_PATH=/workspace/feast/repos/test
+      - ENV=test
+    command: >
+      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  feast-prod:
+    image: python:3.11-slim
+    container_name: feast-prod
+    working_dir: /workspace
+    volumes:
+      - ../feast:/workspace/feast
+    environment:
+      - FEAST_REPO_PATH=/workspace/feast/repos/prod
+      - ENV=prod
+    command: >
+      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
     networks:
       - monitoring
     restart: unless-stopped
@@ -88,6 +164,8 @@ services:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=dev
       - ENV=dev
+      - FEAST_REPO_PATH=/workspace/feast/repos/dev
+      - MLFLOW_TRACKING_URI=http://mlflow-dev:5000
       - POSTGRES_HOST=postgres-dev
       - POSTGRES_USER=dev.user
       - POSTGRES_PORT=5432
@@ -118,6 +196,8 @@ services:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=test
       - ENV=test
+      - FEAST_REPO_PATH=/workspace/feast/repos/test
+      - MLFLOW_TRACKING_URI=http://mlflow-test:5000
       - POSTGRES_HOST=postgres-test
       - POSTGRES_USER=test.user
       - POSTGRES_PORT=5432
@@ -148,6 +228,8 @@ services:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=prod
       - ENV=prod
+      - FEAST_REPO_PATH=/workspace/feast/repos/prod
+      - MLFLOW_TRACKING_URI=http://mlflow-prod:5000
       - POSTGRES_HOST=postgres-prod
       - POSTGRES_USER=prod.user
       - POSTGRES_PORT=5432
@@ -973,7 +1055,9 @@ services:
       - ../gateway/nginx/nginx-nats.conf:/etc/nginx/conf.d/nats.conf:ro
       - ../gateway/nginx/nginx-openproject.conf:/etc/nginx/conf.d/openproject.conf:ro
       - ../gateway/nginx/nginx-prisma.conf:/etc/nginx/conf.d/prisma.conf:ro
-      - ../gateway/nginx/nginx-mlflow.conf:/etc/nginx/conf.d/mlflow.conf:ro
+      - ../gateway/nginx/nginx-mlflow-dev.conf:/etc/nginx/conf.d/mlflow-dev.conf:ro
+      - ../gateway/nginx/nginx-mlflow-test.conf:/etc/nginx/conf.d/mlflow-test.conf:ro
+      - ../gateway/nginx/nginx-mlflow-prod.conf:/etc/nginx/conf.d/mlflow-prod.conf:ro
       - ../gateway/nginx/nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
       - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
       - ../gateway/nginx/nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro

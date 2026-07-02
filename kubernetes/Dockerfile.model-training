@@ -1,15 +1,14 @@
-# Incremental model training image - installs idp + trading_agent wheels and IFP mlflow module
+# Incremental model training image - installs idp + trading_agent wheels (includes _mlflow_)
 FROM hmm-model-training-base:base
 
 ARG ENV=dev
 
 COPY kubernetes/wheels/idp-*.whl kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
 RUN pip install --no-cache-dir /tmp/wheels/idp-*.whl /tmp/wheels/trading_agent-*.whl \
-    && rm -rf /tmp/wheels
+    && rm -rf /tmp/wheels \
+    && python -c "from trading_agent._mlflow_.tracking import MLflowTracker"
 
-COPY mlflow/ /workspace/mlflow/
-ENV IFP_MLFLOW_PATH=/workspace/mlflow
-ENV MLFLOW_TRACKING_URI=http://mlflow:5000
-ENV PYTHONPATH=/workspace/mlflow
+ENV MLFLOW_TRACKING_URI=http://mlflow-dev:5000
+ENV ENV=dev
 
-CMD ["python", "-m", "trading_agent.macro.main", "--series-ids", "GDP", "CPIAUCSL", "FEDFUNDS", "--start-date", "2000-01-01", "--skip-prometheus", "--skip-mlflow"]
+CMD ["python", "-m", "trading_agent.macro.main", "--series-ids", "GDP", "CPIAUCSL", "FEDFUNDS", "--start-date", "2000-01-01", "--feature-method", "hp_cycle", "--skip-prometheus"]

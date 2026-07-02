@@ -1,0 +1,33 @@
+# Incremental pipeline runner image (dbt + Feast + trading_agent wheel)
+# Tag: tpa-pipeline-runner:latest
+#
+# Build: bash kubernetes/build-pipeline-image.sh [dev|staging|prod]
+
+FROM python:3.11-slim
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    git \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY dbt/requirements.txt /tmp/dbt-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/dbt-requirements.txt "feast[local]>=0.36.0"
+
+COPY kubernetes/wheels/idp-*.whl kubernetes/wheels/trading_agent-*.whl /tmp/wheels/
+RUN pip install --no-cache-dir /tmp/wheels/idp-*.whl /tmp/wheels/trading_agent-*.whl \
+    && rm -rf /tmp/wheels
+
+COPY dbt/profiles.yml /workspace/dbt/profiles.yml
+COPY dbt/feast_features /workspace/dbt/feast_features
+COPY feast/repos /workspace/feast/repos
+
+ENV DBT_PROFILES_DIR=/workspace/dbt
+ENV PYTHONPATH=/workspace
+
+RUN python -c "import trading_agent._kubeflow_.runner; import trading_agent._kubeflow_.commands"
+
+CMD ["bash"]

@@ -22,14 +22,11 @@ vars:
 models:
   feast_features:
     staging:
-      +schema: feast
       +materialized: view
       +tags: ["staging"]
     intermediate:
-      +schema: feast
       +materialized: view
       +tags: ["intermediate"]
     features:
-      +schema: feast
       +materialized: view
       +tags: ["feast"]

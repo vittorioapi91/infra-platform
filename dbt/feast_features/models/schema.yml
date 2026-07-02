@@ -36,17 +36,3 @@ models:
         tests: [not_null]
       - name: materialized_at
         tests: [not_null]
-
-sources:
-  - name: feast_engineered
-    tables:
-      - name: macro_hp_decomposition
-        freshness:
-          warn_after: {count: 2, period: day}
-          error_after: {count: 7, period: day}
-        loaded_at_field: materialized_at
-      - name: feature_transform_lineage
-        freshness:
-          warn_after: {count: 2, period: day}
-          error_after: {count: 7, period: day}
-        loaded_at_field: materialized_at

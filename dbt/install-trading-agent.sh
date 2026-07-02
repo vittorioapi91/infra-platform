@@ -48,8 +48,9 @@ fi
 python -c "
 import trading_agent._dbt_.config
 import trading_agent._feast_.materialize
+import trading_agent._kubeflow_.commands
 import trading_agent.features.macro.hodrick_prescott
 import trading_agent._mlflow_.tracking
 print('trading_agent pipeline modules ready')
 "
-log "trading_agent wheel installed (_dbt_, _feast_, features, _mlflow_)"
+log "trading_agent wheel installed (_dbt_, _feast_, _kubeflow_, features, _mlflow_)"

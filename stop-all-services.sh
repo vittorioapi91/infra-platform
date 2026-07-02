@@ -24,14 +24,14 @@ log() {
 
 log "=== Stopping Trading Agent Services ==="
 
-# Stop Kubernetes Dashboard port forwarding
-log "${YELLOW}Stopping Kubernetes Dashboard port forwarding...${NC}"
-if pgrep -f "kubectl port-forward.*kubernetes-dashboard.*8001" > /dev/null; then
-    pkill -f "kubectl port-forward.*kubernetes-dashboard.*8001" || true
-    log "${GREEN}✓ Kubernetes Dashboard port forwarding stopped${NC}"
-else
-    log "${YELLOW}No Kubernetes Dashboard port forwarding found${NC}"
+# Stop legacy host port-forwards (compose sidecar k8s-port-forwards is stopped with compose down)
+log "${YELLOW}Stopping legacy host kubectl port-forwards (if any)...${NC}"
+if [[ -f "${HOME}/.trading-agent-k8s-pf-supervisor.pid" ]]; then
+    bash "${PROJECT_ROOT}/kubernetes/k8s-port-forward-supervisor.sh" --stop >> "$LOG_FILE" 2>&1 || true
 fi
+pkill -f "kubectl port-forward.*kubernetes-dashboard.*8001" 2>/dev/null || true
+pkill -f "kubectl port-forward.*ml-pipeline-ui.*8088" 2>/dev/null || true
+log "${GREEN}✓ Legacy host port-forwards cleared${NC}"
 
 # Stop any kubectl proxy processes
 log "${YELLOW}Stopping kubectl proxy processes...${NC}"

@@ -1,0 +1,453 @@
+# PIPELINE DEFINITION
+# Name: macro-ml-pipeline
+# Description: dbt staging → Hodrick-Prescott features → Feast → dbt feature views → HMM training → optional KServe deploy
+# Inputs:
+#    end_date: str [Default: '']
+#    env: str [Default: 'dev']
+#    experiment_name: str [Default: 'macro-cycle-hmm']
+#    feature_method: str [Default: 'hp_cycle']
+#    kserve_model_stage: str [Default: 'Staging']
+#    kserve_namespace: str [Default: 'default']
+#    n_regimes: int [Default: 4.0]
+#    num_steps: int [Default: 1000.0]
+#    random_state: int [Default: 42.0]
+#    series_ids: str [Default: 'GDP CPIAUCSL FEDFUNDS']
+#    skip_kserve: bool [Default: True]
+#    skip_model_registry: bool [Default: False]
+#    start_date: str [Default: '2000-01-01']
+components:
+  comp-condition-1:
+    dag:
+      tasks:
+        deploy-kserve:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-deploy-kserve
+          inputs:
+            parameters:
+              model_stage:
+                componentInputParameter: pipelinechannel--kserve_model_stage
+              namespace:
+                componentInputParameter: pipelinechannel--kserve_namespace
+              pipeline_env:
+                componentInputParameter: pipelinechannel--env
+          taskInfo:
+            name: deploy-kserve
+    inputDefinitions:
+      parameters:
+        pipelinechannel--env:
+          parameterType: STRING
+        pipelinechannel--kserve_model_stage:
+          parameterType: STRING
+        pipelinechannel--kserve_namespace:
+          parameterType: STRING
+        pipelinechannel--skip_kserve:
+          parameterType: BOOLEAN
+  comp-deploy-kserve:
+    executorLabel: exec-deploy-kserve
+    inputDefinitions:
+      parameters:
+        model_stage:
+          parameterType: STRING
+        namespace:
+          parameterType: STRING
+        pipeline_env:
+          parameterType: STRING
+  comp-run-named-step:
+    executorLabel: exec-run-named-step
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-named-step-2:
+    executorLabel: exec-run-named-step-2
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-named-step-3:
+    executorLabel: exec-run-named-step-3
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-named-step-4:
+    executorLabel: exec-run-named-step-4
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-named-step-5:
+    executorLabel: exec-run-named-step-5
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-named-step-6:
+    executorLabel: exec-run-named-step-6
+    inputDefinitions:
+      parameters:
+        pipeline_env:
+          parameterType: STRING
+        step:
+          parameterType: STRING
+  comp-run-train:
+    executorLabel: exec-run-train
+    inputDefinitions:
+      parameters:
+        end_date:
+          parameterType: STRING
+        experiment_name:
+          parameterType: STRING
+        feature_method:
+          parameterType: STRING
+        n_regimes:
+          parameterType: NUMBER_INTEGER
+        num_steps:
+          parameterType: NUMBER_INTEGER
+        pipeline_env:
+          parameterType: STRING
+        random_state:
+          parameterType: NUMBER_INTEGER
+        series_ids:
+          parameterType: STRING
+        skip_model_registry:
+          parameterType: BOOLEAN
+        start_date:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-deploy-kserve:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --model-stage
+        - '{{$.inputs.parameters[''model_stage'']}}'
+        - --namespace
+        - '{{$.inputs.parameters[''namespace'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kserve_.deployment
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step-2:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step-3:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step-4:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step-5:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-named-step-6:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - '{{$.inputs.parameters[''step'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+    exec-run-train:
+      container:
+        args:
+        - --env
+        - '{{$.inputs.parameters[''pipeline_env'']}}'
+        - --step
+        - train
+        - --series-ids
+        - '{{$.inputs.parameters[''series_ids'']}}'
+        - --start-date
+        - '{{$.inputs.parameters[''start_date'']}}'
+        - --end-date
+        - '{{$.inputs.parameters[''end_date'']}}'
+        - --feature-method
+        - '{{$.inputs.parameters[''feature_method'']}}'
+        - --n-regimes
+        - '{{$.inputs.parameters[''n_regimes'']}}'
+        - --num-steps
+        - '{{$.inputs.parameters[''num_steps'']}}'
+        - --random-state
+        - '{{$.inputs.parameters[''random_state'']}}'
+        - --experiment-name
+        - '{{$.inputs.parameters[''experiment_name'']}}'
+        - --skip-model-registry
+        - '{{$.inputs.parameters[''skip_model_registry'']}}'
+        command:
+        - python
+        - -m
+        - trading_agent._kubeflow_.runner
+        image: tpa-pipeline-runner:latest
+pipelineInfo:
+  description: "dbt staging \u2192 Hodrick-Prescott features \u2192 Feast \u2192 dbt\
+    \ feature views \u2192 HMM training \u2192 optional KServe deploy"
+  name: macro-ml-pipeline
+root:
+  dag:
+    tasks:
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - run-train
+        inputs:
+          parameters:
+            pipelinechannel--env:
+              componentInputParameter: env
+            pipelinechannel--kserve_model_stage:
+              componentInputParameter: kserve_model_stage
+            pipelinechannel--kserve_namespace:
+              componentInputParameter: kserve_namespace
+            pipelinechannel--skip_kserve:
+              componentInputParameter: skip_kserve
+        taskInfo:
+          name: deploy-kserve
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--skip_kserve'] == false
+      run-named-step:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: dbt_run_staging
+        taskInfo:
+          name: run-named-step
+      run-named-step-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step-2
+        dependentTasks:
+        - run-named-step
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: materialize_hp
+        taskInfo:
+          name: run-named-step-2
+      run-named-step-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step-3
+        dependentTasks:
+        - run-named-step-2
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: export_feast_parquet
+        taskInfo:
+          name: run-named-step-3
+      run-named-step-4:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step-4
+        dependentTasks:
+        - run-named-step-3
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: feast_apply
+        taskInfo:
+          name: run-named-step-4
+      run-named-step-5:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step-5
+        dependentTasks:
+        - run-named-step-4
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: dbt_run_features
+        taskInfo:
+          name: run-named-step-5
+      run-named-step-6:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-named-step-6
+        dependentTasks:
+        - run-named-step-5
+        inputs:
+          parameters:
+            pipeline_env:
+              componentInputParameter: env
+            step:
+              runtimeValue:
+                constant: dbt_test_features
+        taskInfo:
+          name: run-named-step-6
+      run-train:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-run-train
+        dependentTasks:
+        - run-named-step-6
+        inputs:
+          parameters:
+            end_date:
+              componentInputParameter: end_date
+            experiment_name:
+              componentInputParameter: experiment_name
+            feature_method:
+              componentInputParameter: feature_method
+            n_regimes:
+              componentInputParameter: n_regimes
+            num_steps:
+              componentInputParameter: num_steps
+            pipeline_env:
+              componentInputParameter: env
+            random_state:
+              componentInputParameter: random_state
+            series_ids:
+              componentInputParameter: series_ids
+            skip_model_registry:
+              componentInputParameter: skip_model_registry
+            start_date:
+              componentInputParameter: start_date
+        taskInfo:
+          name: run-train
+  inputDefinitions:
+    parameters:
+      end_date:
+        defaultValue: ''
+        isOptional: true
+        parameterType: STRING
+      env:
+        defaultValue: dev
+        isOptional: true
+        parameterType: STRING
+      experiment_name:
+        defaultValue: macro-cycle-hmm
+        isOptional: true
+        parameterType: STRING
+      feature_method:
+        defaultValue: hp_cycle
+        isOptional: true
+        parameterType: STRING
+      kserve_model_stage:
+        defaultValue: Staging
+        isOptional: true
+        parameterType: STRING
+      kserve_namespace:
+        defaultValue: default
+        isOptional: true
+        parameterType: STRING
+      n_regimes:
+        defaultValue: 4.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      num_steps:
+        defaultValue: 1000.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      random_state:
+        defaultValue: 42.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      series_ids:
+        defaultValue: GDP CPIAUCSL FEDFUNDS
+        isOptional: true
+        parameterType: STRING
+      skip_kserve:
+        defaultValue: true
+        isOptional: true
+        parameterType: BOOLEAN
+      skip_model_registry:
+        defaultValue: false
+        isOptional: true
+        parameterType: BOOLEAN
+      start_date:
+        defaultValue: '2000-01-01'
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.16.0

@@ -129,8 +129,8 @@ The project includes an example KServe **InferenceService** manifest:
 Apply it:
 
 ```bash
-cd /Users/Snake91/CursorProjects/TradingPythonAgent
-kubectl apply -f .ops/.kserve/kserve-inference-service.yaml
+cd /Users/Snake91/CursorProjects/infra-platform
+kubectl apply -f kserve/kserve-inference-service.yaml
 ```
 
 Then:
@@ -147,7 +147,13 @@ call the model locally (see comments inside `kserve-inference-service.yaml`).
 
 ### 6. Install Kubeflow Pipelines (standalone)
 
-Kubeflow Pipelines is deployed in two stages:
+```bash
+bash kubernetes/install-kubeflow-pipelines.sh
+```
+
+Or `start-all-services.sh` runs this automatically when the kind cluster exists but Kubeflow is missing.
+
+Manual install (two stages):
 
 1. **Cluster-scoped resources** (CRDs, namespace, etc.):
 
@@ -187,16 +193,24 @@ kubectl get svc -n kubeflow ml-pipeline-ui
 Port-forward to your local machine:
 
 ```bash
-kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80
+kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8088:80
 ```
 
 Then open:
 
 ```text
-http://localhost:8081
+http://localhost:8088
 ```
 
-This UI is what the `kubeflow_pipeline.py` code in this project can talk to.
+This UI is what `trading_agent._kubeflow_.pipeline.macro_ml_pipeline` targets.
+Compile and upload the pipeline package:
+
+```bash
+cd /Users/Snake91/CursorProjects/infra-platform
+bash kubernetes/build-pipeline-image.sh dev
+bash kubernetes/deploy-pipeline-image-to-kind.sh
+bash kubeflow/compile-pipeline.sh
+```
 
 ---
 
@@ -204,17 +218,12 @@ This UI is what the `kubeflow_pipeline.py` code in this project can talk to.
 
 To keep responsibilities clear:
 
-- **Docker Compose** (`.ops/.docker/docker-compose.yml`):
-  - Grafana, Prometheus, MLflow, Airflow, Postgres, Redis, Feast.
-  - Start/stop with:
-    ```bash
-    cd .ops/.docker
-    ./start-docker-monitoring.sh    # start
-    ./stop-docker-monitoring.sh     # stop
-    ```
+- **Docker Compose** (`infra-platform/docker/docker-compose.infra-platform.yml`):
+  - Grafana, Prometheus, MLflow, Airflow, Postgres, Redis, Feast, dbt sidecars.
+  - Start/stop with `infra-platform/start-all-services.sh` / `stop-all-services.sh`.
 
 - **Kubernetes / kind**:
   - Kubeflow Pipelines and KServe only.
-  - Managed via `kubectl` and `.ops/.kubernetes/start-kubernetes.sh`.
+  - Managed via `kubectl` and `infra-platform/kubernetes/start-kubernetes.sh`.
 
 

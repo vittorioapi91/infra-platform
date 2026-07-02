@@ -33,6 +33,18 @@ Start with the rest of the stack:
 docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast-dev
 ```
 
+## dbt docs (lineage + catalog)
+
+Each `dbt-{env}` sidecar serves generated docs on port **8880** (host-mapped **8880/8881/8882**).
+
+| Env | nginx | Direct |
+|-----|-------|--------|
+| dev | http://dbt.local.dev.info | http://localhost:8880 |
+| test | http://dbt.local.test.info | http://localhost:8881 |
+| prod | http://dbt.local.prod.info | http://localhost:8882 |
+
+Docs regenerate on container start and when `dbt docs serve` restarts. Add hostnames via `gateway/nginx/redirects.md`.
+
 ## Project layout
 
 ```
@@ -65,7 +77,7 @@ dbt run --project-dir /workspace/dbt/feast_features --select features
 dbt test --project-dir /workspace/dbt/feast_features --select features
 ```
 
-From Airflow: `dbt_feast_features_{env}` DAG (TradingPythonAgent `_airflow_dags_`).
+From Kubeflow `macro_ml_pipeline` (or manual steps in `dbt-{env}`):
 
 ## Lineage columns (registered in dbt / Postgres)
 

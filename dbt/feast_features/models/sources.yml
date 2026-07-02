@@ -30,5 +30,13 @@ sources:
     tables:
       - name: macro_hp_decomposition
         description: Hodrick-Prescott cycle/trend per series and date.
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 7, period: day}
+        loaded_at_field: materialized_at
       - name: feature_transform_lineage
         description: Run-level lineage for engineered features (version, git, timestamps).
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 7, period: day}
+        loaded_at_field: materialized_at

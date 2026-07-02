@@ -1,60 +1,77 @@
 # Kubeflow Pipelines
 
-This folder contains Kubeflow pipeline definitions for the complete ML workflow.
+Macro ML workflow orchestration: **dbt → HP features → Feast → train → optional KServe**.
 
-## Files
+Pipeline definition lives in the **trading_agent wheel** (`trading_agent._kubeflow_`). IFP supplies the pipeline-runner image, compile/submit scripts, and Kubeflow install docs.
 
-- **`kubeflow_pipeline.py`**: Complete ML pipeline definition
-  - Data extraction from FRED
-  - Feature engineering
-  - Model training
-  - Model evaluation
-  - Feature store updates
-  - Model deployment
+## Layout
 
-## Usage
+| Path | Role |
+|------|------|
+| `kubeflow/install-trading-agent.sh` | Install wheel (same pattern as `dbt/install-trading-agent.sh`) |
+| `kubeflow/compile-pipeline.sh` | Compile `macro_ml_pipeline.yaml` from the wheel |
+| `kubernetes/Dockerfile.pipeline-runner` | Image for all pipeline steps |
+| `kubernetes/build-pipeline-image.sh` | Build image + stage wheels |
+| `kubernetes/deploy-pipeline-image-to-kind.sh` | `kind load` for `tpa-pipeline-runner:latest` |
 
-### Compile Pipeline
+## Prerequisites
 
-```python
-from src.model.kubeflow import macro_cycle_hmm_pipeline
-from kfp import compiler
+1. Docker Compose stack running (Postgres, MLflow, Feast repos on host ports).
+2. kind cluster with Kubeflow Pipelines (`kubernetes/QUICK_START.md`).
+3. Built pipeline image loaded into kind.
 
-compiler.Compiler().compile(
-    macro_cycle_hmm_pipeline,
-    'macro_cycle_hmm_pipeline.yaml'
-)
+```bash
+# From infra-platform/
+bash kubernetes/build-pipeline-image.sh dev
+bash kubernetes/deploy-pipeline-image-to-kind.sh
+kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8088:80
 ```
 
-### Submit to Kubeflow
+## Compile pipeline
+
+```bash
+bash kubeflow/compile-pipeline.sh
+# → kubeflow/macro_ml_pipeline.yaml
+```
+
+## Submit a run
 
 ```python
 from kfp import Client
 
-client = Client(host='http://kubeflow-pipelines:8080')
+client = Client(host="http://localhost:8088")
 client.create_run_from_pipeline_package(
-    'macro_cycle_hmm_pipeline.yaml',
+    "kubeflow/macro_ml_pipeline.yaml",
     arguments={
-        'n_regimes': 4,
-        'series_ids': ['GDP', 'UNRATE', 'CPIAUCSL']
-    }
+        "env": "dev",
+        "series_ids": ["GDP", "CPIAUCSL", "FEDFUNDS"],
+        "skip_kserve": True,
+    },
 )
 ```
 
-## Pipeline Steps
+Or via UI at http://kubeflow.local.info (nginx → port-forward 8088).
 
-1. **extract_fred_data**: Load data from PostgreSQL
-2. **engineer_features**: Transform time series to features
-3. **train_hmm_model**: Train HMM model with Pyro
-4. **evaluate_model**: Evaluate model performance
-5. **update_feature_store**: Materialize features to Feast
-6. **deploy_model_kserve**: Deploy model to KServe
+## Pipeline steps
 
-## Requirements
+1. `dbt_run_staging` — staging/intermediate SQL
+2. `materialize_hp` — Hodrick-Prescott → `feast.macro_hp_decomposition`
+3. `export_feast_parquet` — wide parquet for Feast offline store
+4. `feast_apply` — apply feature definitions
+5. `dbt_run_features` / `dbt_test` — feature views + tests
+6. `train` — HMM training → MLflow (`hp_cycle` features)
+7. `deploy_kserve` (optional) — MLflow PyFunc → KServe
 
-- Kubernetes cluster with Kubeflow installed
-- Access to FRED PostgreSQL database
-- MLflow server
-- Feast feature store
-- KServe for model serving
+## Recurring runs
 
+Use Kubeflow **Recurring runs** with a cron schedule (e.g. `0 4 * * *`) to replace the former Airflow feature DAG.
+
+## Environment
+
+| Param `env` | Postgres (host) | MLflow (host) |
+|-------------|-----------------|---------------|
+| `dev` | `:54324` | `:55000` |
+| `test` | `:54325` | `:55001` |
+| `prod` | `:54326` | `:55002` |
+
+kind pods reach Compose via `host.docker.internal` (override with `K8S_HOST_GATEWAY`).

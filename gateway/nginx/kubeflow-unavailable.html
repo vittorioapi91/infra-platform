@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Kubeflow Not Available</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; max-width: 42rem; }
+    h1 { font-size: 1.25rem; }
+    pre { background: #f4f4f4; padding: 0.75rem; overflow-x: auto; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Kubeflow Pipelines UI Not Available</h1>
+  <p>The <code>kubeflow-port-forward</code> sidecar is not reachable on port 8088.</p>
+  <pre>docker compose -f docker/docker-compose.infra-platform.yml up -d kubeflow-port-forward nginx-proxy</pre>
+  <p>If Kubeflow is not installed yet:</p>
+  <pre>bash kubernetes/install-kubeflow-pipelines.sh</pre>
+  <p class="hint">Direct URL: <code>http://localhost:8088</code>. Port 8081 is Jenkins.</p>
+</body>
+</html>

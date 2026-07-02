@@ -112,16 +112,16 @@ See `airflow/QUICK_START.md` for Airflow environment variables, admin user, and 
 ### Kubernetes Dashboard
 - **Part of infra-platform infrastructure** (managed via kind cluster)
 - **URL**: 
-  - Direct: Via `kubectl proxy` (typically http://localhost:8001)
-  - Via alias: http://kubernetes-dashboard.local.info (requires `/etc/hosts` entry, nginx proxy, and `kubectl proxy --port=8001` running)
+  - Direct: `https://localhost:8001` (kubectl port-forward to dashboard HTTPS)
+  - Via alias: http://kubernetes-dashboard.local.info (nginx proxies to HTTPS on host :8001)
 - **Setup**: Run `kubernetes/start-kubernetes.sh` to create kind cluster and install dashboard
 - **Documentation**: See `kubernetes/DASHBOARD_ACCESS.md` for access details
 
 ### Kubeflow Pipelines UI
 - **Part of infra-platform infrastructure** (managed via kind cluster)
 - **URL**: 
-  - Direct: Via `kubectl port-forward` (typically http://localhost:8081)
-  - Via alias: http://kubeflow.local.info (requires `/etc/hosts` entry, nginx proxy, and `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
+  - Direct: Via `kubectl port-forward` (http://localhost:8088 — not 8081, that is Jenkins)
+  - Via alias: http://kubeflow.local.info (requires `/etc/hosts` entry, nginx proxy, and `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8088:80` running)
 - **Setup**: Install Kubeflow Pipelines in Kubernetes cluster (see `kubernetes/QUICK_START.md`)
 - **Note**: Requires port-forward to be running for nginx proxy to work
 
@@ -202,7 +202,7 @@ docker compose -f docker-compose.infra-platform.yml up -d nginx-proxy
 - `http://mlflow.local.test.info` → MLflow Test
 - `http://mlflow.local.prod.info` → MLflow Prod
 - `http://kubernetes-dashboard.local.info` → Kubernetes Dashboard (requires `kubectl proxy --port=8001` running)
-- `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8081:80` running)
+- `http://kubeflow.local.info` → Kubeflow Pipelines UI (requires `kubectl port-forward -n kubeflow svc/ml-pipeline-ui 8088:80` running)
 - `http://portainer.local.info` → Portainer Docker Management UI
 - `http://alertmanager.local.info` → Alert Manager API
 

@@ -89,6 +89,10 @@ kubectl patch deployment kubernetes-dashboard -n kubernetes-dashboard --type='js
   echo "Run: kubectl patch deployment kubernetes-dashboard -n kubernetes-dashboard --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0/args/-\",\"value\":\"--enable-skip-login\"},{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0/args/-\",\"value\":\"--enable-insecure-login\"}]'"
 }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "=== Granting dashboard service account cluster-admin (skip-login uses this SA) ==="
+kubectl apply -f "${SCRIPT_DIR}/kubernetes-dashboard-rbac.yaml"
+
 echo "=== Creating admin user and cluster-admin binding (if not present) ==="
 cat << 'EOF' | kubectl apply -f -
 apiVersion: v1
@@ -124,21 +128,17 @@ fi
 echo
 echo "=== Kubernetes cluster and Dashboard are set up ==="
 echo
-echo "Starting 'kubectl proxy' on port 8001 in the background..."
-if pgrep -f "kubectl proxy" >/dev/null 2>&1; then
-  echo "kubectl proxy already running; leaving existing process in place."
-else
-  nohup kubectl proxy --port=8001 >/dev/null 2>&1 &
-  echo "kubectl proxy started."
-fi
+echo "Starting Kubernetes Dashboard port-forward on port 8001 (HTTPS)..."
+bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/port-forward-kubernetes-dashboard.sh"
 
 echo
 echo "Next steps:"
 echo "1) (Optional) Get a dashboard login token (if you haven't enabled skip-login):"
 echo "   kubectl -n kubernetes-dashboard create token admin-user"
 echo
-echo "2) Open this URL in your browser:"
-echo "   http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/"
+echo "2) Open the dashboard:"
+echo "   https://localhost:8001"
+echo "   http://kubernetes-dashboard.local.info  (via nginx proxy)"
 echo
 echo "You can re-run this script any time to ensure the cluster, dashboard, and proxy are running."
 

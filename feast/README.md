@@ -30,9 +30,21 @@ Start with dbt sidecars:
 docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast-dev
 ```
 
+## Feast UI
+
+Each `feast-{env}` container runs `feast ui` on port **8888** (host-mapped **8890/8891/8892**).
+
+| Env | nginx | Direct |
+|-----|-------|--------|
+| dev | http://feast.local.dev.info | http://localhost:8890 |
+| test | http://feast.local.test.info | http://localhost:8891 |
+| prod | http://feast.local.prod.info | http://localhost:8892 |
+
+Add hostnames via `gateway/nginx/redirects.md`.
+
 ## Pipeline (per env)
 
-From `dbt-{env}` (or Airflow `dbt_feast_features_{env}`):
+From `dbt-{env}` (or Kubeflow `macro_ml_pipeline`):
 
 1. HP materialize → `feast.macro_hp_decomposition` on that env's Postgres
 2. `python -m trading_agent.features.macro.hp_feast_export` → `repos/{env}/data/macro_hp_cycle.parquet`

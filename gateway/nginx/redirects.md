@@ -20,6 +20,8 @@ sudo sh -c 'cat >> /etc/hosts << EOF
 127.0.0.1 nats.local.info
 127.0.0.1 openproject.local.info
 127.0.0.1 mlflow.local.dev.info mlflow.local.test.info mlflow.local.prod.info
+127.0.0.1 feast.local.dev.info feast.local.test.info feast.local.prod.info
+127.0.0.1 dbt.local.dev.info dbt.local.test.info dbt.local.prod.info
 127.0.0.1 prisma.postgres.dev prisma.postgres.test prisma.postgres.prod
 127.0.0.1 kubernetes-dashboard.local.info
 127.0.0.1 kubeflow.local.info
@@ -40,6 +42,20 @@ After changing hostnames, clear macOS DNS cache if needed:
 ```bash
 sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 ```
+
+## Architecture
+
+Nginx routes all vhosts on the **`monitoring`** Docker network. Three backend patterns:
+
+| Pattern | When | Nginx target | Examples |
+|---|---|---|---|
+| **Compose service** | App runs in this stack | `http://<service>:<port>` | jenkins, mlflow-dev, airflow-dev, grafana |
+| **K8s port-forward sidecar** | App runs in kind | `*-port-forward:<port>` | kubernetes-dashboard, kubeflow |
+| **Host bridge sidecar** | App runs on the Mac host | `*-proxy:<port>` | pma-dashboard-proxy |
+
+**Sidecars are only needed when the app is outside the compose network** (Kubernetes or host). Jenkins, MLflow, Airflow, etc. are already compose services — nginx talks to them directly; adding proxy sidecars would be extra hops with no reliability gain.
+
+All vhosts use Docker DNS (`resolver 127.0.0.11`) + dynamic `proxy_pass` so nginx can start before backends.
 
 ## HTTP redirects (nginx vhosts)
 
@@ -62,10 +78,16 @@ Each hostname corresponds to one `nginx-*.conf` file:
 | `mlflow.local.dev.info` | `nginx-mlflow-dev.conf` | `mlflow-dev:5000` |
 | `mlflow.local.test.info` | `nginx-mlflow-test.conf` | `mlflow-test:5000` |
 | `mlflow.local.prod.info` | `nginx-mlflow-prod.conf` | `mlflow-prod:5000` |
-| `kubernetes-dashboard.local.info` | `nginx-kubernetes-dashboard.conf` | host kubectl proxy on `:8001` |
-| `kubeflow.local.info` | `nginx-kubeflow.conf` | kubeflow UI (via port-forward in k8s) |
+| `feast.local.dev.info` | `nginx-feast.conf` | `feast-dev:8888` |
+| `feast.local.test.info` | `nginx-feast.conf` | `feast-test:8888` |
+| `feast.local.prod.info` | `nginx-feast.conf` | `feast-prod:8888` |
+| `dbt.local.dev.info` | `nginx-dbt.conf` | `dbt-dev:8880` |
+| `dbt.local.test.info` | `nginx-dbt.conf` | `dbt-test:8880` |
+| `dbt.local.prod.info` | `nginx-dbt.conf` | `dbt-prod:8880` |
+| `kubernetes-dashboard.local.info` | `nginx-kubernetes-dashboard.conf` | `kubernetes-dashboard-port-forward:8001` (HTTPS) |
+| `kubeflow.local.info` | `nginx-kubeflow.conf` | `kubeflow-port-forward:8088` |
 | `portainer.local.info` | `nginx-portainer.conf` | portainer |
-| `predictionmarketsagent.local.info` | `nginx-pma-dashboard.conf` | `host.docker.internal:7567` |
+| `predictionmarketsagent.local.info` | `nginx-pma-dashboard.conf` | `pma-dashboard-proxy:7567` → host app |
 | `alertmanager.local.info` | `nginx-alertmanager.conf` | alertmanager |
 
 ## TCP proxies (Postgres + Doltgres)
@@ -94,5 +116,19 @@ Example (Airflow dev):
 
 ```bash
 curl -I http://airflow.local.dev.info
+```
+
+Example (Feast dev):
+
+```bash
+curl -I http://feast.local.dev.info
+# direct: http://localhost:8890
+```
+
+Example (dbt docs dev):
+
+```bash
+curl -I http://dbt.local.dev.info
+# direct: http://localhost:8880
 ```
 

@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: hmm-model-calibration
-  namespace: trading-monitoring
+  namespace: default
   labels:
     app: hmm-model
     component: training
@@ -24,7 +24,7 @@ spec:
         args:
           - -c
           - |
-            python -m trading_agent.macro.main \
+            python -m trading_agent.macro.training_script \
               --series-ids ${SERIES_IDS} \
               --start-date ${START_DATE} \
               --end-date ${END_DATE} \
@@ -51,26 +51,23 @@ spec:
           - name: NUM_STEPS
             value: "1000"
           - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: postgres-secret
-                key: user
-                optional: true
+            value: "dev.user"
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: postgres-secret
                 key: password
+                optional: true
           - name: POSTGRES_HOST
-            value: "postgres.dev.local.info"
+            value: "host.docker.internal"
           - name: POSTGRES_PORT
             value: "54324"
           - name: ENV
             value: "dev"
-          - name: ENV
+          - name: DBT_TARGET
             value: "dev"
           - name: MLFLOW_TRACKING_URI
-            value: "http://mlflow-dev.trading-monitoring.svc.cluster.local:5000"
+            value: "http://host.docker.internal:55000"
           - name: EXPERIMENT_NAME
             value: "macro-cycle-hmm"
         resources:
@@ -80,20 +77,3 @@ spec:
           limits:
             cpu: "2000m"
             memory: "4Gi"
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: hmm-training-config
-  namespace: trading-monitoring
-  labels:
-    app: hmm-model
-    component: training
-data:
-  default_series_ids: "GDP CPIAUCSL FEDFUNDS"
-  default_start_date: "2000-01-01"
-  default_feature_method: "hp_cycle"
-  default_n_regimes: "4"
-  default_random_state: "42"
-  default_num_steps: "1000"

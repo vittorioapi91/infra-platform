@@ -1,57 +1,43 @@
 # KServe Deployment
 
-This folder contains KServe deployment configuration for model serving.
+Serves **macro-cycle-hmm** from the MLflow Model Registry (PyFunc wrapper in `trading_agent._mlflow_`).
 
 ## Files
 
-- **`kserve_deployment.py`**: KServe deployment manager
-  - `KServeDeployment` class for managing inference services
-  - Model deployment and updates
-  - Service status monitoring
+| File | Role |
+|------|------|
+| `kserve-inference-service.yaml` | Dev-oriented manifest (`MLFLOW_TRACKING_URI` → host `:55000`) |
+| `kserve_deployment.py` | Shim → `trading_agent._kserve_.deployment` |
 
-## Usage
+## Apply manifest
+
+```bash
+kubectl apply -f kserve/kserve-inference-service.yaml
+```
+
+Promote the model to **Production** in MLflow before pointing `storageUri` at `models:/macro-cycle-hmm/Production`.
+
+## Python API
 
 ```python
-from src.model.kserve import KServeDeployment
+from trading_agent._kserve_.deployment import KServeDeployment
 
-# Initialize deployment manager
-deployment = KServeDeployment(namespace='default')
-
-# Deploy model
-deployment.create_inference_service(
-    service_name='macro-cycle-hmm',
-    model_uri='models:/macro-cycle-hmm/Production',
-    model_format='sklearn',
-    min_replicas=1,
-    max_replicas=3
-)
-
-# Update model
-deployment.update_inference_service(
-    service_name='macro-cycle-hmm',
-    model_uri='models:/macro-cycle-hmm/Staging'
-)
-
-# Check status
-status = deployment.get_service_status('macro-cycle-hmm')
-
-# Delete service
-deployment.delete_inference_service('macro-cycle-hmm')
+deployment = KServeDeployment(namespace="default")
+deployment.apply_inference_service(env="dev", model_stage="Staging")
 ```
+
+Or from a Kubeflow pipeline step (`skip_kserve=False`).
+
+## Per-environment MLflow URIs (kind → Compose)
+
+| env | `MLFLOW_TRACKING_URI` on predictor |
+|-----|-------------------------------------|
+| dev | `http://host.docker.internal:55000` |
+| test | `http://host.docker.internal:55001` |
+| prod | `http://host.docker.internal:55002` |
 
 ## Requirements
 
-- Kubernetes cluster
-- KServe installed
-- Model stored in MLflow or accessible storage
-- Kubernetes Python client configured
-
-## Model Formats
-
-Currently supports:
-- `sklearn`: Scikit-learn models (via MLflow)
-
-## Note
-
-KServe requires Python <3.12. For Python 3.13, KServe deployment features are unavailable.
-
+- KServe installed in kind (`kubernetes/QUICK_START.md`)
+- Model registered in MLflow (`macro-cycle-hmm`)
+- Compose MLflow servers running with artifact store accessible from kind pods

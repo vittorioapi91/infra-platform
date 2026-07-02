@@ -1,30 +1,27 @@
 #!/usr/bin/env bash
 # Load Docker image into kind cluster
-# Usage: bash .ops/.kubernetes/load-model-image-to-kind.sh
-#
-# Prerequisites:
-# - Docker image must be built first using: bash .ops/.kubernetes/build-model-image.sh
+# Usage: bash kubernetes/deploy-model-image-to-kind.sh [hmm-model-training|tpa-pipeline-runner]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-IMAGE_NAME="hmm-model-training"
+IMAGE_NAME="${1:-hmm-model-training}"
 IMAGE_TAG="latest"
 KIND_CLUSTER="trading-cluster"
 
 # Check if image exists locally
 if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${IMAGE_NAME}:${IMAGE_TAG}$"; then
   echo "Error: Docker image ${IMAGE_NAME}:${IMAGE_TAG} not found locally."
-  echo "Please build the image first using:"
-  echo "  bash .ops/.kubernetes/build-model-image.sh"
+  echo "Build first:" >&2
+  echo "  bash kubernetes/build-model-image.sh dev" >&2
+  echo "  bash kubernetes/build-pipeline-image.sh dev" >&2
   exit 1
 fi
 
 # Check if kind cluster exists
 if ! kind get clusters 2>/dev/null | grep -q "^${KIND_CLUSTER}$"; then
   echo "Error: kind cluster '${KIND_CLUSTER}' does not exist."
-  echo "Please create the cluster first using:"
-  echo "  bash .ops/.kubernetes/start-kubernetes.sh"
+  echo "Create cluster: bash kubernetes/start-kubernetes.sh" >&2
   exit 1
 fi
 

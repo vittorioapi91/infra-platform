@@ -114,13 +114,16 @@ services:
     image: python:3.11-slim
     container_name: feast-dev
     working_dir: /workspace
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/dev
       - ENV=dev
-    command: >
-      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
+      - FEAST_UI_PORT=8888
+    ports:
+      - "8890:8888"
     networks:
       - monitoring
     restart: unless-stopped
@@ -129,13 +132,16 @@ services:
     image: python:3.11-slim
     container_name: feast-test
     working_dir: /workspace
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/test
       - ENV=test
-    command: >
-      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
+      - FEAST_UI_PORT=8888
+    ports:
+      - "8891:8888"
     networks:
       - monitoring
     restart: unless-stopped
@@ -144,13 +150,16 @@ services:
     image: python:3.11-slim
     container_name: feast-prod
     working_dir: /workspace
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
       - ../feast:/workspace/feast
+      - ./feast-ui-entrypoint.sh:/entrypoint.sh:ro
     environment:
       - FEAST_REPO_PATH=/workspace/feast/repos/prod
       - ENV=prod
-    command: >
-      bash -c "pip install -q 'feast[local]>=0.36.0' && tail -f /dev/null"
+      - FEAST_UI_PORT=8888
+    ports:
+      - "8892:8888"
     networks:
       - monitoring
     restart: unless-stopped
@@ -160,6 +169,7 @@ services:
     image: python:3.11-slim
     container_name: dbt-dev
     working_dir: /workspace/dbt/feast_features
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=dev
@@ -170,18 +180,16 @@ services:
       - POSTGRES_USER=dev.user
       - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DBT_DOCS_PORT=8880
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
-    command: >
-      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
-      && pip install -r /workspace/dbt/requirements.txt
-      && bash /workspace/dbt/install-trading-agent.sh
-      && dbt debug --project-dir /workspace/dbt/feast_features
-      && tail -f /dev/null"
+      - ./dbt-docs-entrypoint.sh:/entrypoint.sh:ro
+    ports:
+      - "8880:8880"
     networks:
       - monitoring
     depends_on:
@@ -192,6 +200,7 @@ services:
     image: python:3.11-slim
     container_name: dbt-test
     working_dir: /workspace/dbt/feast_features
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=test
@@ -202,18 +211,16 @@ services:
       - POSTGRES_USER=test.user
       - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DBT_DOCS_PORT=8880
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
-    command: >
-      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
-      && pip install -r /workspace/dbt/requirements.txt
-      && bash /workspace/dbt/install-trading-agent.sh
-      && dbt debug --project-dir /workspace/dbt/feast_features
-      && tail -f /dev/null"
+      - ./dbt-docs-entrypoint.sh:/entrypoint.sh:ro
+    ports:
+      - "8881:8880"
     networks:
       - monitoring
     depends_on:
@@ -224,6 +231,7 @@ services:
     image: python:3.11-slim
     container_name: dbt-prod
     working_dir: /workspace/dbt/feast_features
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=prod
@@ -234,18 +242,16 @@ services:
       - POSTGRES_USER=prod.user
       - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
+      - DBT_DOCS_PORT=8880
     volumes:
       - ../dbt:/workspace/dbt
       - ../feast:/workspace/feast
       - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
       - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
       - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
-    command: >
-      bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
-      && pip install -r /workspace/dbt/requirements.txt
-      && bash /workspace/dbt/install-trading-agent.sh
-      && dbt debug --project-dir /workspace/dbt/feast_features
-      && tail -f /dev/null"
+      - ./dbt-docs-entrypoint.sh:/entrypoint.sh:ro
+    ports:
+      - "8882:8880"
     networks:
       - monitoring
     depends_on:
@@ -1027,6 +1033,51 @@ services:
       - monitoring
     restart: unless-stopped
 
+  # Kubernetes Dashboard port-forward sidecar (K8s → compose network)
+  kubernetes-dashboard-port-forward:
+    image: bitnami/kubectl:latest
+    container_name: kubernetes-dashboard-port-forward
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    volumes:
+      - ${HOME}/.kube:/kube:ro
+      - ./k8s-kubeconfig-init.sh:/kubeconfig-init.sh:ro
+      - ./kubernetes-dashboard-port-forward-entrypoint.sh:/entrypoint.sh:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8001:8001"
+    networks:
+      - monitoring
+
+  # Kubeflow Pipelines UI port-forward sidecar (K8s → compose network)
+  kubeflow-port-forward:
+    image: bitnami/kubectl:latest
+    container_name: kubeflow-port-forward
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    volumes:
+      - ${HOME}/.kube:/kube:ro
+      - ./k8s-kubeconfig-init.sh:/kubeconfig-init.sh:ro
+      - ./kubeflow-port-forward-entrypoint.sh:/entrypoint.sh:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8088:8088"
+    networks:
+      - monitoring
+
+  # PMA dashboard runs on the host; socat bridge to compose network
+  pma-dashboard-proxy:
+    image: alpine/socat
+    container_name: pma-dashboard-proxy
+    restart: unless-stopped
+    command: ["TCP-LISTEN:7567,fork,reuseaddr", "TCP:host.docker.internal:7567"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
+
   # Nginx reverse proxy for all services
   # NOTE: No depends_on - nginx can start before backends and handle 502 errors gracefully
   nginx-proxy:
@@ -1058,8 +1109,12 @@ services:
       - ../gateway/nginx/nginx-mlflow-dev.conf:/etc/nginx/conf.d/mlflow-dev.conf:ro
       - ../gateway/nginx/nginx-mlflow-test.conf:/etc/nginx/conf.d/mlflow-test.conf:ro
       - ../gateway/nginx/nginx-mlflow-prod.conf:/etc/nginx/conf.d/mlflow-prod.conf:ro
+      - ../gateway/nginx/nginx-feast.conf:/etc/nginx/conf.d/feast.conf:ro
+      - ../gateway/nginx/nginx-dbt.conf:/etc/nginx/conf.d/dbt.conf:ro
       - ../gateway/nginx/nginx-kubernetes-dashboard.conf:/etc/nginx/conf.d/kubernetes-dashboard.conf:ro
+      - ../gateway/nginx/kubernetes-dashboard-unavailable.html:/etc/nginx/kubernetes-dashboard-static/kubernetes-dashboard-unavailable.html:ro
       - ../gateway/nginx/nginx-kubeflow.conf:/etc/nginx/conf.d/kubeflow.conf:ro
+      - ../gateway/nginx/kubeflow-unavailable.html:/etc/nginx/kubeflow-static/kubeflow-unavailable.html:ro
       - ../gateway/nginx/nginx-portainer.conf:/etc/nginx/conf.d/portainer.conf:ro
       - ../gateway/nginx/nginx-pma-dashboard.conf:/etc/nginx/conf.d/pma-dashboard.conf:ro
       - ../gateway/nginx/nginx-alertmanager.conf:/etc/nginx/conf.d/alertmanager.conf:ro

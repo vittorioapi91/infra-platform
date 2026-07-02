@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Kubernetes Dashboard Not Available</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; max-width: 42rem; }
+    h1 { font-size: 1.25rem; }
+    pre { background: #f4f4f4; padding: 0.75rem; overflow-x: auto; }
+    .hint { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Kubernetes Dashboard Not Available</h1>
+  <p>The <code>kubernetes-dashboard-port-forward</code> sidecar is not reachable on port 8001.</p>
+  <p>Restart it:</p>
+  <pre>docker compose -f docker/docker-compose.infra-platform.yml up -d kubernetes-dashboard-port-forward nginx-proxy</pre>
+  <p>Or bootstrap the cluster and dashboard:</p>
+  <pre>bash kubernetes/start-kubernetes.sh</pre>
+  <p>Direct HTTPS URL (bypasses nginx): <code>https://localhost:8001</code></p>
+</body>
+</html>

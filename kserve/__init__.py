@@ -1,8 +1,5 @@
-"""
-KServe deployment configuration for model serving
-"""
+"""KServe deployment shim."""
 
-from .kserve_deployment import KServeDeployment
+from trading_agent._kserve_.deployment import KServeDeployment, apply_inference_service
 
-__all__ = ['KServeDeployment']
-
+__all__ = ["KServeDeployment", "apply_inference_service"]

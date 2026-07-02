@@ -7,8 +7,13 @@ metadata:
     serving.kserve.io/deploymentMode: Serverless
 spec:
   predictor:
-    sklearn:
-      storageUri: "models:/macro-cycle-hmm/Production"
+    minReplicas: 1
+    maxReplicas: 3
+    mlflow:
+      storageUri: "models:/macro-cycle-hmm/Staging"
+      env:
+        - name: MLFLOW_TRACKING_URI
+          value: "http://host.docker.internal:55000"
       resources:
         requests:
           cpu: "100m"
@@ -16,6 +21,3 @@ spec:
         limits:
           cpu: "1000m"
           memory: "1Gi"
-    minReplicas: 1
-    maxReplicas: 3
-

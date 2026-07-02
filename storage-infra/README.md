@@ -10,7 +10,7 @@ Lives **on the host** at `<repo>/storage-infra`. In this repo, `storage-infra` i
 | `redisinsight/data/` | RedisInsight | `/data` |
 | `nats/data/` | NATS | `/data` |
 | `openproject/data/` | OpenProject | `/var/openproject/assets` |
-| `openproject-postgres/data/` | OpenProject Postgres | `/var/lib/postgresql/data` |
+| `openproject-postgres/data/` | OpenProject Postgres | `/var/lib/postgresql` (PG18+: cluster under `18/docker/`) |
 | `registry/data/` | Docker Registry | `/var/lib/registry` |
 | `portainer/data/` | Portainer | `/data` |
 | `jenkins/data/` | Jenkins | `/var/jenkins_home` |

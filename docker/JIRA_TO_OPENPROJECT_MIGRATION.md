@@ -7,7 +7,7 @@ This guide helps you migrate from Jira Cloud to self-hosted OpenProject.
 OpenProject has been added to your infrastructure:
 
 - **Container**: `openproject` (running)
-- **Database**: `openproject-postgres` (PostgreSQL 15)
+- **Database**: `openproject-postgres` (PostgreSQL 18)
 - **Port**: `8086` (direct access)
 - **Nginx**: `http://openproject.local.info` (after adding to `/etc/hosts`)
 - **Default credentials**: `admin` / `admin` (change on first login)

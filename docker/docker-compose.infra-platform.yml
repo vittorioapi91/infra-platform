@@ -932,15 +932,15 @@ services:
 
   # PostgreSQL database for OpenProject (projects, work packages, users live here—not in file folders)
   openproject-postgres:
-    image: postgres:15
+    image: postgres:18
     container_name: openproject-postgres
     environment:
       - POSTGRES_USER=openproject
       - POSTGRES_PASSWORD=${OPENPROJECT_DB_PASSWORD:-openproject}
       - POSTGRES_DB=openproject
     volumes:
-      # Keep this directory backed up; if empty/recreated, Postgres initializes a fresh DB and you lose projects
-      - ../storage-infra/openproject-postgres/data:/var/lib/postgresql/data
+      # Keep this directory backed up; PG18+ stores cluster under 18/docker/ inside the mount
+      - ../storage-infra/openproject-postgres/data:/var/lib/postgresql
     networks:
       - monitoring
     restart: unless-stopped

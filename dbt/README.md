@@ -1,6 +1,21 @@
 # dbt (feature engineering for Feast)
 
-[dbt](https://www.getdbt.com) runs in Docker alongside Feast. Models materialize **engineered feature tables** into the `feast` schema on each Postgres `datalake` database (dev/test/prod). Feast can consume those tables (e.g. via `PostgreSQLSource` or parquet export).
+[dbt](https://www.getdbt.com) materializes **engineered feature tables** into the `feast` schema on each Postgres `datalake` database (dev/test/prod). Feast consumes the exported parquet for local archiving; MLflow logs lineage on HMM training runs.
+
+**Python feature pipelines** (`trading_agent._dbt_`, `trading_agent._feast_`) live in **TradingPythonAgent** and are installed into dbt sidecars at startup via `install-trading-agent.sh` (same wheel/source pattern as Airflow `_airflow_dags_`).
+
+## Pipeline overview
+
+```
+fred.time_series + fred.series (idp macro downloader)
+    → dbt staging/intermediate (SQL views)
+    → python -m trading_agent._feast_.features.hodrick_prescott
+    → feast.macro_hp_decomposition + feast.feature_transform_lineage
+    → python -m trading_agent._feast_.features.hp_feast_export
+    → feast apply
+    → dbt feature views + tests
+    → HMM training (--feature-method hp_cycle) logs lineage to MLflow
+```
 
 ## Containers
 
@@ -15,48 +30,82 @@ Start with the rest of the stack:
 ```bash
 ./start-all-services.sh
 # or
-docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev dbt-test dbt-prod
+docker compose -f docker/docker-compose.infra-platform.yml up -d dbt-dev feast
 ```
 
 ## Project layout
 
 ```
 dbt/
-├── profiles.yml              # DBT_PROFILES_DIR (dev/test/prod outputs)
+├── install-trading-agent.sh         # pip install trading_agent (wheel or mounted source)
+├── profiles.yml
 ├── requirements.txt
-└── feast_features/           # dbt project (working_dir in container)
-    ├── dbt_project.yml
-    └── models/features/      # feature models → schema feast
+├── scripts/
+│   ├── materialize_hp_features.py   # thin CLI → trading_agent._feast_.features.hodrick_prescott
+│   ├── export_feast_parquet.py
+│   └── provision-feast-schema.sql
+└── feast_features/
+    └── models/ ...
+
+TradingPythonAgent/src/
+├── _dbt_/                           # config, connection, FRED catalog
+└── _feast_/                         # materialize_feature, lineage, feature transforms
 ```
 
 ## Usage (dev example)
 
 ```bash
 docker exec -it dbt-dev bash
-cd /workspace/dbt/feast_features   # already working_dir
-dbt debug
-dbt run
-dbt test
+export DBT_TARGET=dev FEATURE_CODE_VERSION=1.1.0
+
+dbt run --project-dir /workspace/dbt/feast_features --select staging intermediate
+python -m trading_agent._feast_.features.hodrick_prescott
+python -m trading_agent._feast_.features.hp_feast_export
+dbt run --project-dir /workspace/dbt/feast_features --select features
+dbt test --project-dir /workspace/dbt/feast_features --select features
 ```
 
-From the host (same container):
+From Airflow: `dbt_feast_features_{env}` DAG (TradingPythonAgent `_airflow_dags_`).
 
-```bash
-docker exec -it dbt-dev dbt run --project-dir /workspace/dbt/feast_features
-```
+## Lineage columns (registered in dbt / Postgres)
 
-Models land in **`feast.*`** on `datalake`. Source data stays in schemas like `fred`, `edgar`, `postgres`, etc.
+**`feast.macro_hp_decomposition`** (per series, per date):
 
-## Feast integration
+| Column | Description |
+|--------|-------------|
+| `observation_date` | FRED observation date |
+| `series_id` | FRED series code |
+| `value` | Raw level |
+| `cycle` / `trend` | HP components |
+| `hp_lambda` | Smoothing parameter (from `fred.series.frequency`) |
+| `feature_code_version` | dbt project var (currently `1.1.0`) |
+| `git_sha` | Git commit at materialization |
+| `materialized_at` | UTC timestamp |
+| `transform_name` | `hodrick_prescott` |
+| `statsmodels_version` | Library version |
 
-1. Add dbt models under `feast_features/models/features/` (e.g. `macro_indicators.sql`).
-2. Run `dbt run` in the matching env container.
-3. Point Feast offline/ batch sources at the `feast` tables, or export to parquet under `feast/feast_repo/data/` for the current `FileSource` setup.
+**`feast.feature_transform_lineage`** (per pipeline run):
 
-See `feast/README.md` for the Feast repo path and materialization commands.
+| Column | Description |
+|--------|-------------|
+| `run_id` | UUID |
+| `series_count` / `row_count` | Coverage stats |
+| `feast_feature_view` | `macro_hp_cycle` |
+| `mlflow_experiment` | `macro-cycle-hmm` |
+
+## Feast + MLflow
+
+- Parquet: `feast/feast_repo/data/macro_hp_cycle.parquet` (wide `{series_id}_cycle` columns)
+- Feature view: `macro_hp_cycle` in `feast/feast_repo/definitions.py`
+- Training: `python -m trading_agent.macro.main --feature-method hp_cycle --series-ids GDP CPIAUCSL FEDFUNDS`
+- MLflow tags: `feast_feature_view`, `feature_code_version`, `feature_git_sha`, etc.
+
+See `feast/README.md` and `mlflow/README.md`.
 
 ## Environment
 
-- `POSTGRES_PASSWORD` — same as other utilities (compose default `2014`).
-- `DBT_TARGET` — set per container (`dev` / `test` / `prod`).
-- `DBT_PROFILES_DIR` — `/workspace/dbt` in containers.
+- `POSTGRES_*` / `ENV` — canonical `postgres_connection` (mounted from idp; mirrored in TPA wheel)
+- `DBT_TARGET` — used by `get_datalake_env()` when `ENV` is unset (dbt sidecars)
+- `DBT_PROFILES_DIR` — `/workspace/dbt` in containers (dbt CLI only)
+- `FEATURE_CODE_VERSION` — defaults to dbt var `1.1.0`
+- `GIT_SHA` — optional override for lineage

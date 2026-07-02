@@ -98,3 +98,6 @@ dbt/.user.yml
 
 # postgres -> doltgres migration staging (large dumps)
 docker/.migration-staging/
+
+# postgres PG15 -> PG18 upgrade staging
+docker/.upgrade-pg18-staging/

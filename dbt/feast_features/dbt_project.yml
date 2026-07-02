@@ -1,5 +1,5 @@
 name: feast_features
-version: 1.0.0
+version: 1.1.0
 config-version: 2
 profile: feast_features
 
@@ -9,9 +9,27 @@ test-paths: ["tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 
+vars:
+  feature_code_version: "1.1.0"
+  hp_transform_name: "hodrick_prescott"
+  # Ravn-Uhlig (2002) lambdas; overridden per-series from fred.series.frequency in Python step
+  hp_lambda_annual: 6.25
+  hp_lambda_quarterly: 1600
+  hp_lambda_monthly: 129600
+  hp_lambda_weekly: 14400
+  hp_lambda_daily: 12960000
+
 models:
   feast_features:
+    staging:
+      +schema: feast
+      +materialized: view
+      +tags: ["staging"]
+    intermediate:
+      +schema: feast
+      +materialized: view
+      +tags: ["intermediate"]
     features:
       +schema: feast
-      +materialized: table
+      +materialized: view
       +tags: ["feast"]

@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: int_fred_downloadable_series
+    description: FRED series with at least one observation (macro downloader universe).
+    columns:
+      - name: series_id
+        tests: [not_null, unique]
+      - name: observation_count
+        tests: [not_null]
+
+  - name: macro_hp_decomposition
+    description: HP filter output registered for Feast / MLflow lineage.
+    columns:
+      - name: series_id
+        tests: [not_null]
+      - name: observation_date
+        tests: [not_null]
+      - name: cycle
+        tests: [not_null]
+      - name: trend
+        tests: [not_null]
+      - name: feature_code_version
+        tests: [not_null]
+      - name: materialized_at
+        tests: [not_null]
+
+  - name: feature_transform_lineage
+    description: Transform run metadata (version, git, counts).
+    columns:
+      - name: run_id
+        tests: [not_null, unique]
+      - name: transform_name
+        tests: [not_null]
+      - name: feature_code_version
+        tests: [not_null]
+      - name: materialized_at
+        tests: [not_null]
+
+sources:
+  - name: feast_engineered
+    tables:
+      - name: macro_hp_decomposition
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 7, period: day}
+        loaded_at_field: materialized_at
+      - name: feature_transform_lineage
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 7, period: day}
+        loaded_at_field: materialized_at

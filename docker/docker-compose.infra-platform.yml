@@ -87,12 +87,21 @@ services:
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=dev
+      - ENV=dev
+      - POSTGRES_HOST=postgres-dev
+      - POSTGRES_USER=dev.user
+      - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
       - ../dbt:/workspace/dbt
+      - ../feast:/workspace/feast
+      - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
+      - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
+      - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
     command: >
       bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
       && pip install -r /workspace/dbt/requirements.txt
+      && bash /workspace/dbt/install-trading-agent.sh
       && dbt debug --project-dir /workspace/dbt/feast_features
       && tail -f /dev/null"
     networks:
@@ -108,12 +117,21 @@ services:
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=test
+      - ENV=test
+      - POSTGRES_HOST=postgres-test
+      - POSTGRES_USER=test.user
+      - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
       - ../dbt:/workspace/dbt
+      - ../feast:/workspace/feast
+      - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
+      - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
+      - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
     command: >
       bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
       && pip install -r /workspace/dbt/requirements.txt
+      && bash /workspace/dbt/install-trading-agent.sh
       && dbt debug --project-dir /workspace/dbt/feast_features
       && tail -f /dev/null"
     networks:
@@ -129,12 +147,21 @@ services:
     environment:
       - DBT_PROFILES_DIR=/workspace/dbt
       - DBT_TARGET=prod
+      - ENV=prod
+      - POSTGRES_HOST=postgres-prod
+      - POSTGRES_USER=prod.user
+      - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-2014}
     volumes:
       - ../dbt:/workspace/dbt
+      - ../feast:/workspace/feast
+      - ../kubernetes/wheels:/workspace/infra-platform/kubernetes/wheels:ro
+      - ../../TradingPythonAgent:/workspace/TradingPythonAgent:ro
+      - ../../infra-data-pipelines/src/postgres_connection.py:/workspace/dbt/postgres_connection.py:ro
     command: >
       bash -c "apt-get update -qq && apt-get install -y -qq git >/dev/null
       && pip install -r /workspace/dbt/requirements.txt
+      && bash /workspace/dbt/install-trading-agent.sh
       && dbt debug --project-dir /workspace/dbt/feast_features
       && tail -f /dev/null"
     networks:
@@ -666,8 +693,9 @@ services:
   # Accessible via nginx TCP proxy: postgres.{env}.{agent}.local.info:5432x (see gateway/nginx/nginx-postgres.stream.conf)
 
   # Postgres data: bind-mounted from <repo>/storage-postgresql/{dev|test|prod} (each may be a symlink to SSD). TA and PMA share these 3 instances.
+  # PG18+ uses /var/lib/postgresql (data under 18/docker inside the mount). See docker/upgrade-postgres-to-18.sh.
   postgres-dev:
-    image: postgres:15
+    image: pgvector/pgvector:pg18
     container_name: postgres-dev
     environment:
       - POSTGRES_USER=postgres
@@ -675,14 +703,14 @@ services:
     ports:
       - "54321:5432"
     volumes:
-      - ../storage-postgresql/dev:/var/lib/postgresql/data
+      - ../storage-postgresql/dev:/var/lib/postgresql
       - ./init-pg-datalake-dev.sql:/docker-entrypoint-initdb.d/01-datalake-dev.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
 
   postgres-test:
-    image: postgres:15
+    image: pgvector/pgvector:pg18
     container_name: postgres-test
     environment:
       - POSTGRES_USER=postgres
@@ -690,14 +718,14 @@ services:
     ports:
       - "54322:5432"
     volumes:
-      - ../storage-postgresql/test:/var/lib/postgresql/data
+      - ../storage-postgresql/test:/var/lib/postgresql
       - ./init-pg-datalake-test.sql:/docker-entrypoint-initdb.d/01-datalake-test.sql:ro
     networks:
       - monitoring
     restart: unless-stopped
 
   postgres-prod:
-    image: postgres:15
+    image: pgvector/pgvector:pg18
     container_name: postgres-prod
     environment:
       - POSTGRES_USER=postgres
@@ -705,7 +733,7 @@ services:
     ports:
       - "54323:5432"
     volumes:
-      - ../storage-postgresql/prod:/var/lib/postgresql/data
+      - ../storage-postgresql/prod:/var/lib/postgresql
       - ./init-pg-datalake-prod.sql:/docker-entrypoint-initdb.d/01-datalake-prod.sql:ro
     networks:
       - monitoring

@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: fred
+    description: FRED macro time series ingested by infra-data-pipelines (idp).
+    database: datalake
+    schema: fred
+    tables:
+      - name: time_series
+        description: Long-format observations (series_id, date, value).
+        columns:
+          - name: series_id
+            tests: [not_null]
+          - name: date
+            tests: [not_null]
+          - name: value
+
+      - name: series
+        description: FRED series catalog (metadata from macro downloader).
+        columns:
+          - name: series_id
+            tests: [not_null, unique]
+          - name: frequency
+          - name: title
+
+  - name: feast_engineered
+    description: Feature tables materialized by dbt + HP filter pipeline (Python step).
+    database: datalake
+    schema: feast
+    tables:
+      - name: macro_hp_decomposition
+        description: Hodrick-Prescott cycle/trend per series and date.
+      - name: feature_transform_lineage
+        description: Run-level lineage for engineered features (version, git, timestamps).

@@ -10,7 +10,8 @@
 | test | `doltgres-test` | 54332 | 54335 | `doltgres.test.local.info` |
 | prod | `doltgres-prod` | 54333 | 54336 | `doltgres.prod.local.info` |
 
-- **Image:** `dolthub/doltgresql:latest`
+- **Image:** `dolthub/doltgresql:latest` (Doltgres release track, e.g. 0.56.x — **not** a PostgreSQL major version)
+- **SQL compatibility:** documented against the [PostgreSQL 15 manual](https://docs.doltgres.com/reference/sql-support); there is no separate “Doltgres PG18” image today. Native extensions (e.g. pgvector) are not supported yet in this runtime.
 - **Database:** `datalake` (same schema layout as Postgres: `postgres`, `polymarket`, `edgar`, …)
 - **Users:** `dev.user` / `test.user` / `prod.user` (password: `POSTGRES_PASSWORD`, default `2014`)
 - **Data:** `storage-doltgres/{dev|test|prod}/` on the host

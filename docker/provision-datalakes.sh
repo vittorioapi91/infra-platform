@@ -56,6 +56,7 @@ EOSQL
   done
 
   docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$container" psql -U postgres -d datalake -v ON_ERROR_STOP=1 <<EOSQL
+CREATE EXTENSION IF NOT EXISTS vector;
 $create_schemas
 GRANT ALL ON DATABASE datalake TO postgres;
 GRANT ALL ON DATABASE datalake TO "$app_user";

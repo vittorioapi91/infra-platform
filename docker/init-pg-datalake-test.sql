@@ -8,6 +8,8 @@ CREATE DATABASE datalake OWNER "test.user";
 
 \c datalake
 
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- Schemas: TA/PMA + data sources + public (Prisma/ad-hoc)
 CREATE SCHEMA IF NOT EXISTS postgres;
 CREATE SCHEMA IF NOT EXISTS polymarket;
